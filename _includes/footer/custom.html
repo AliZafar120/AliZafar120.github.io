@@ -1,3 +1,66 @@
 <!-- start custom footer snippets -->
-<a href="/sitemap/">Sitemap</a>
+<!--<a href="/sitemap/">Sitemap</a>-->
+<!-- link https://webdevtrick.com/javascript-real-time-clock/ -->
+<div id="DigitalCLOCK" class="clock" onload="showTime()"></div>
+
+
+<style >
+  .clock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    color: blue;
+    font-size: 20px;
+    font-family: 'Righteous', cursive;
+    letter-spacing: 7px;
+}
+</style>
+<script>
+  function showTime(){
+      var date = new Date();
+      var h = date.getHours();
+      var m = date.getMinutes();
+      var s = date.getSeconds();
+      var session = "AM";
+
+      if(h == 0){
+          h = 12;
+      }
+
+      if(h > 12){
+          h = h - 12;
+          session = "PM";
+      }
+
+      h = (h < 10) ? "0" + h : h;
+      m = (m < 10) ? "0" + m : m;
+      s = (s < 10) ? "0" + s : s;
+
+      var time = h + ":" + m + ":" + s + " " + session;
+      document.getElementById("DigitalCLOCK").innerText = time;
+      document.getElementById("DigitalCLOCK").textContent = time;
+
+      setTimeout(showTime, 1000);
+
+  }
+
+  showTime();
+</script>
+
+
+
+
+<script type="text/javascript">
+function display_c(){
+var refresh=1000; // Refresh rate in milli seconds
+mytime=setTimeout('display_ct()',refresh)
+}
+
+function display_ct() {
+var x = new Date()
+document.getElementById('ct').innerHTML = x;
+display_c();
+ }
+</script>
 <!-- end custom footer snippets -->
