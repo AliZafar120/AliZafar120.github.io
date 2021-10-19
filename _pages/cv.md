@@ -45,6 +45,20 @@ GRANTS
 * Research FellowshipInformation and Communication Technology Division, Bangladesh
 * Virtual Machine FacilitiesBangladesh Research and Education Network
 
+Coursera Online Certifications
+======
+* Game Theory
+* Reinforcement Learning Specialization
+* Deep Learning Specialization
+* Data Science in Python
+
+Academic Projects
+======
+* [Querying Events in Distributed System (2017)](https://github.com/AliZafar120/NetworkStimulatorSPl3) -  An  academic  research  project  was  done  toanalyze events of different protocols in distributed system through provenance.
+* [Agricultural Advisor (2016)](https://drive.google.com/drive/folders/0B9Fo5-bf8lK8M3FnMjM5bGJZSkU?resourcekey=0-L9--cs2sK8uXZ0tAcGlu5Q&usp=sharing)- A web application using natural language processing to extract agricultural information from different websites.  It was intended to help farmers to understand agricultural problems with specialists and discuss solutions using online forum.
+* [Easy Shopping (2015)](https://drive.google.com/drive/folders/0B9Fo5-bf8lK8dXlVXzdoWTFiWTQ?resourcekey=0-Y-ESBY8DVGDvoIczDRGBZw&usp=sharing)- An android based application using google map to to get the nearest shops along with list of items in the shops.  There were also features for customers to place request for anyitem and shopkeepers to keep track of these requests.
+
+
 COMMUNITY SERVICES
 ======
 * Northern University Socio-Welfare ActivitiesHelping poor people suffering from cold winter.
