@@ -31,7 +31,7 @@ Technical Skills
 * Frameworks: ASP .NET, MVC, Bootstrap, Spring
 * OS: Linux (14.04 and 18.04) and Windows (7 and 10)
 
-ACHIEVEMENTS
+Achievements
 ======
 * Honors Talentpool Scholarship- Awarded by Government of Bangladesh.
 * IIT Academic Excellence Gold Medal Award- For achieving highest CGPA in Honors.
@@ -40,7 +40,7 @@ ACHIEVEMENTS
 * National Physics Olympiad- Reaching Final Round
 * Udvash Junior Bangladesh- 6th prize in quiz competition based on secondary school level knowledge.
 
-GRANTS
+Grants
 ======
 * Research FellowshipInformation and Communication Technology Division, Bangladesh
 * Virtual Machine FacilitiesBangladesh Research and Education Network
@@ -54,12 +54,12 @@ Coursera Online Certifications
 
 Academic Projects
 ======
-* [Querying Events in Distributed System (2017)](https://github.com/AliZafar120/NetworkStimulatorSPl3) -  An  academic  research  project  was  done  toanalyze events of different protocols in distributed system through provenance.
+* [Querying Events in Distributed System (2017)](https://github.com/AliZafar120/NetworkStimulatorSPl3) -  An  academic  research  project  was  done  to analyze events of different protocols in distributed system through provenance.
 * [Agricultural Advisor (2016)](https://drive.google.com/drive/folders/0B9Fo5-bf8lK8M3FnMjM5bGJZSkU?resourcekey=0-L9--cs2sK8uXZ0tAcGlu5Q&usp=sharing)- A web application using natural language processing to extract agricultural information from different websites.  It was intended to help farmers to understand agricultural problems with specialists and discuss solutions using online forum.
 * [Easy Shopping (2015)](https://drive.google.com/drive/folders/0B9Fo5-bf8lK8dXlVXzdoWTFiWTQ?resourcekey=0-Y-ESBY8DVGDvoIczDRGBZw&usp=sharing)- An android based application using google map to to get the nearest shops along with list of items in the shops.  There were also features for customers to place request for anyitem and shopkeepers to keep track of these requests.
 
 
-COMMUNITY SERVICES
+Community Services
 ======
 * Northern University Socio-Welfare ActivitiesHelping poor people suffering from cold winter.
 * DevOps WorkshopOrganizing member and main anchor.
