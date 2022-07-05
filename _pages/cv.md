@@ -18,7 +18,11 @@ Education
 
 Work experience
 ======
-* Northern University Bangladesh 2018: Lecturer
+* University of Asia Pacific 2022: Lecturer
+
+* Islamic University of Technology (2021-2022): Adjunct Lecturer
+
+* Northern University Bangladesh (2019-2021): Lecturer
   * Duties included: Teaching and Supervising Students
 
 * M&H Informatics Ltd (IQVIA): Intern
