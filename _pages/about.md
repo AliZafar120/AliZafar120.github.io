@@ -13,8 +13,13 @@ A self-inspired and motivated learner. My CV is available [here]({{ base_path }}
 
 Blog posts
 ===
+<!-- {% assign sorted_post = site.posts | sort: 'date' | reverse %}
+{% for post in sorted_post %}
 
-{% assign count = 0 %}
+  {% assign count = count | plus: 1 %}
+  [{{post.title}}]({{ base_path }}{{post.permalink}})
+{% endfor %} -->
+<!-- {% assign count = 0 %}
 {% assign sorted_post = site.posts | sort: 'date' | reverse %}
 {% for post in sorted_post %}
   {% if count == 1 %}
@@ -22,7 +27,7 @@ Blog posts
   {% endif %}
   {% assign count = count | plus: 1 %}
   [{{post.title}}]({{ base_path }}{{post.permalink}})
-{% endfor %}
+{% endfor %} -->
 
 Recent Updates
 ======
