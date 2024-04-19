@@ -9,4 +9,18 @@ tags:
   - Traffic
 ---
 
-The modified paper is [here]({{ base_path }}/papers/Teal_Learning_Accelerated_Optimization.pdf)
+
+#What inspired it?
+===
+Need to Find answer
+
+Implementations:
+===
+RL--> Actor Critics--> COMA
+
+FLOWGNN
+MULTI-Agent RL
+ADMM
+
+
+The modified paper is [here]({{ base_path }}/files/papers/Teal_Learning_Accelerated_Optimization.pdf)
