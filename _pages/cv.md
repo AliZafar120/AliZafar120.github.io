@@ -13,8 +13,8 @@ redirect_from:
 
 Education
 ======
-* MSc. Software Engineering, University of Dhaka, 2019 (CGPA = 3.98)
-* BSc Software Engineering, University of Dhaka,  2017 (CGPA = 3.94)
+* MSc. Software Engineering, University of Dhaka, 2019 (CGPA = 4.00)
+* BSc Software Engineering, University of Dhaka,  2017 (CGPA = 3.97)
 
 Work experience
 ======
