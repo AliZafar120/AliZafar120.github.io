@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Isekai Engine</title>
+<meta name="description" content="Interactive story engine that runs a language model inside the browser.">
+<meta name="robots" content="noindex,nofollow">
+<style>
+:root{--bg:#f6f4ef;--panel:#fffdf8;--fg:#1f2328;--muted:#6b7280;--border:#e2ddd3;--accent:#8b2e2e;--accent-fg:#fff;--user:#ece7dc;--choice:#faf6ee;--code:#f0ebe0;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111317;--panel:#181b21;--fg:#e7e9ee;--muted:#9aa3b2;--border:#2a2f3a;--accent:#d97a6c;--accent-fg:#1a0d0b;--user:#232834;--choice:#1d2129;--code:#1f242d;}}
+:root[data-theme="dark"]{--bg:#111317;--panel:#181b21;--fg:#e7e9ee;--muted:#9aa3b2;--border:#2a2f3a;--accent:#d97a6c;--accent-fg:#1a0d0b;--user:#232834;--choice:#1d2129;--code:#1f242d;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,"Iowan Old Style",serif}
+.wrap{max-width:860px;margin:0 auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+header h1{font-size:20px;margin:0 auto 0 0;font-weight:600}
+select,input,button,textarea{font:14px/1.4 system-ui,sans-serif;color:var(--fg);background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+button{cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);font-weight:600}
+button:disabled{opacity:.5;cursor:default}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.status{font:13px system-ui,sans-serif;color:var(--muted);min-height:18px;white-space:pre-wrap}
+.bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:6px}.bar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+#log{display:flex;flex-direction:column;gap:12px;min-height:200px}
+.msg{padding:12px 14px;border-radius:12px;white-space:pre-wrap;max-width:100%}
+.msg.ai{background:var(--panel);border:1px solid var(--border)}
+.msg.user{background:var(--user);align-self:flex-end;font-family:system-ui,sans-serif;font-size:15px}
+.msg.user::before{content:"You";display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.choices{display:flex;flex-direction:column;gap:6px;margin:4px 0 8px}
+.choices button{text-align:left;background:var(--choice)}
+.compose{display:flex;gap:8px;margin-top:10px}
+.compose textarea{flex:1;resize:vertical;min-height:44px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row label{font:13px system-ui,sans-serif;color:var(--muted)}
+details summary{cursor:pointer;font:14px system-ui,sans-serif;color:var(--muted)}
+.hint{font:13px system-ui,sans-serif;color:var(--muted)}
+.world{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.world .genre{font:12px system-ui,sans-serif;color:var(--accent);text-transform:uppercase;letter-spacing:.06em}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--code);padding:1px 5px;border-radius:5px;font-size:13px}
+@media (max-width:600px){header h1{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Isekai Engine</h1>
+  <select id="world" title="World"></select>
+  <button id="newgame" title="Forget this world's saved story">New game</button>
+</header>
+
+<div class="card" id="worldcard">
+  <div class="world"><strong id="wtitle">Loading worlds…</strong><span class="genre" id="wgenre"></span></div>
+  <p id="wsummary" class="hint"></p>
+</div>
+
+<div class="card">
+  <div class="row">
+    <label>Engine</label>
+    <select id="engine">
+      <option value="local">In-browser (WebGPU, free, private)</option>
+      <option value="api">Remote API with my own key</option>
+    </select>
+    <span id="localopts" class="row">
+      <select id="model"></select>
+      <button id="load" class="primary">Load model</button>
+    </span>
+    <span id="apiopts" class="row" style="display:none">
+      <input id="apibase" placeholder="https://openrouter.ai/api/v1" size="28">
+      <input id="apimodel" placeholder="model id" size="22">
+      <input id="apikey" type="password" placeholder="API key (stays in this browser)" size="26">
+    </span>
+  </div>
+  <div class="status" id="status"></div>
+  <div class="bar"><i id="prog"></i></div>
+  <details><summary>How this works</summary>
+    <p class="hint">The story is a prompt built from the world card (plot, characters, style) plus the recent turns. With the in-browser engine, the model weights download once from the MLC CDN and are cached by your browser, then run on your GPU through WebGPU. Nothing you type leaves your machine. First load is 1 to 3 GB depending on the model. Chrome, Edge, and recent Safari and Firefox on a desktop GPU work best. Your story is saved in this browser only.</p>
+  </details>
+</div>
+
+<div id="log"></div>
+<div class="choices" id="choices"></div>
+<div class="compose">
+  <textarea id="input" placeholder="What do you do?" disabled></textarea>
+  <button id="send" class="primary" disabled>Send</button>
+</div>
+<p class="hint" id="footer"></p>
+</div>
+
+<script type="module">
+import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+
+const $ = id => document.getElementById(id);
+const S = {world:null, worlds:[], engine:null, engineId:null, busy:false, history:[]};
+const LS = {get:(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}}, set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}, del:k=>{try{localStorage.removeItem(k)}catch{}}};
+const settings = LS.get("isekai:settings", {engine:"local", model:"", apibase:"https://openrouter.ai/api/v1", apimodel:"", apikey:""});
+
+const status = (t, frac) => { $("status").textContent = t || ""; if (frac != null) $("prog").style.width = Math.round(frac*100) + "%"; };
+
+/* ---------- worlds ---------- */
+async function loadWorldIndex(){
+  const r = await fetch("worlds/index.json"); S.worlds = await r.json();
+  $("world").innerHTML = S.worlds.map(w => `<option value="${w.id}">${w.title}</option>`).join("");
+  const want = LS.get("isekai:lastWorld", S.worlds[0].id);
+  $("world").value = S.worlds.some(w => w.id === want) ? want : S.worlds[0].id;
+  await selectWorld($("world").value);
+}
+async function selectWorld(id){
+  const r = await fetch(`worlds/${id}.json`); S.world = await r.json();
+  LS.set("isekai:lastWorld", id);
+  $("wtitle").textContent = S.world.title; $("wgenre").textContent = S.world.genre; $("wsummary").textContent = S.world.player_summary;
+  S.history = LS.get(`isekai:story:${id}`, null) || [{role:"assistant", content:S.world.opening}];
+  renderLog();
+}
+function systemPrompt(){
+  const w = S.world, name = "the player";
+  const chars = (w.characters||[]).map(c => `- ${c.name} (${c.role}): ${c.personality}`).join("\n");
+  return [
+    `You are the narrator and every non-player character of an interactive story titled "${w.title}" (${w.genre}).`,
+    `STORY PLAN (private, never reveal directly):\n${w.ai_plot}`,
+    `CHARACTERS:\n${chars}`,
+    `STYLE: ${w.style}`,
+    `RULES: ${w.reminder}`
+  ].join("\n\n").replaceAll("{{user}}", name);
+}
+const MAX_TURNS = 14;  // messages kept verbatim after the opening
+function buildMessages(){
+  const opening = S.history[0];
+  const rest = S.history.slice(1);
+  const recent = rest.slice(-MAX_TURNS);
+  const msgs = [{role:"system", content:systemPrompt()}, opening, ...recent];
+  // Pin the reminder after the latest user message, like Isekai Zero's "AI Reminder".
+  const last = msgs[msgs.length-1];
+  if (last.role === "user") msgs[msgs.length-1] = {role:"user", content: last.content + "\n\n[Narrator note: " + S.world.reminder.replaceAll("{{user}}","the player") + "]"};
+  return msgs;
+}
+
+/* ---------- rendering ---------- */
+function renderLog(){
+  const log = $("log"); log.innerHTML = "";
+  for (const m of S.history){ const d = document.createElement("div"); d.className = "msg " + (m.role === "user" ? "user" : "ai"); d.textContent = stripChoices(m.content); log.appendChild(d); }
+  renderChoices(S.history[S.history.length-1]);
+  window.scrollTo(0, document.body.scrollHeight);
+}
+const CHOICE_RE = /^\s*([1-3])[.)]\s+(.+?)\s*$/gm;
+function parseChoices(t){ const out=[]; for (const m of (t||"").matchAll(CHOICE_RE)) out.push(m[2]); return out.length >= 2 ? out : []; }
+function stripChoices(t){ return parseChoices(t).length ? t.replace(CHOICE_RE, "").replace(/\n{3,}/g,"\n\n").trim() : t; }
+function renderChoices(m){
+  const box = $("choices"); box.innerHTML = "";
+  if (!m || m.role !== "assistant" || S.busy) return;
+  for (const c of parseChoices(m.content)){ const b = document.createElement("button"); b.textContent = c; b.onclick = () => send(c); box.appendChild(b); }
+}
+
+/* ---------- engines ---------- */
+function populateModels(){
+  const list = webllm.prebuiltAppConfig.model_list
+    .filter(m => /instruct|-it-|chat|Qwen3/i.test(m.model_id) && !/vision|embed|coder|math|snowflake/i.test(m.model_id))
+    .sort((a,b) => (a.vram_required_MB||0) - (b.vram_required_MB||0));
+  $("model").innerHTML = list.map(m => `<option value="${m.model_id}">${m.model_id.replace(/-MLC$/,"")} · ${Math.round((m.vram_required_MB||0)/1024*10)/10} GB</option>`).join("");
+  const def = settings.model || (list.find(m => /Qwen3-4B|Llama-3.2-3B/i.test(m.model_id))||list[0]).model_id;
+  if (list.some(m => m.model_id === def)) $("model").value = def;
+}
+async function loadLocal(){
+  if (!navigator.gpu){ status("This browser has no WebGPU. Use Chrome or Edge on a desktop, or switch to the remote API engine."); return; }
+  const id = $("model").value; settings.model = id; saveSettings();
+  $("load").disabled = true; S.busy = true;
+  try{
+    if (S.engine && S.engineId !== id){ try{ await S.engine.unload(); }catch{} S.engine = null; }
+    if (!S.engine){
+      S.engine = await webllm.CreateMLCEngine(id, { initProgressCallback: p => status(p.text, p.progress) });
+      S.engineId = id;
+    }
+    status(`Ready: ${id}. Cached for next time.`, 1); enableChat(true);
+  }catch(e){ status("Load failed: " + (e?.message || e)); console.error(e); }
+  finally{ $("load").disabled = false; S.busy = false; renderChoices(S.history[S.history.length-1]); }
+}
+async function* streamLocal(messages){
+  const chunks = await S.engine.chat.completions.create({messages, stream:true, temperature:0.85, top_p:0.95, max_tokens:450});
+  for await (const c of chunks){ const d = c.choices?.[0]?.delta?.content; if (d) yield d; }
+}
+async function* streamApi(messages){
+  const base = $("apibase").value.replace(/\/+$/,""), key = $("apikey").value, model = $("apimodel").value;
+  const r = await fetch(base + "/chat/completions", {method:"POST", headers:{"Content-Type":"application/json","Authorization":"Bearer "+key}, body:JSON.stringify({model, messages, stream:true, temperature:0.85, max_tokens:450})});
+  if (!r.ok) throw new Error(`API ${r.status}: ${(await r.text()).slice(0,200)}`);
+  const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
+  while (true){ const {done, value} = await rd.read(); if (done) break; buf += dec.decode(value, {stream:true});
+    let i; while ((i = buf.indexOf("\n")) >= 0){ const line = buf.slice(0,i).trim(); buf = buf.slice(i+1);
+      if (!line.startsWith("data:")) continue; const data = line.slice(5).trim(); if (data === "[DONE]") return;
+      try{ const d = JSON.parse(data).choices?.[0]?.delta?.content; if (d) yield d; }catch{} } }
+}
+
+/* ---------- turn loop ---------- */
+async function send(text){
+  text = (text||"").trim(); if (!text || S.busy) return;
+  const useApi = $("engine").value === "api";
+  if (!useApi && !S.engine){ status("Load a model first."); return; }
+  if (useApi && !$("apikey").value){ status("Enter an API key, or switch to the in-browser engine."); return; }
+  S.busy = true; enableChat(false); $("input").value = "";
+  S.history.push({role:"user", content:text}); renderLog();
+  const d = document.createElement("div"); d.className = "msg ai"; d.textContent = "…"; $("log").appendChild(d);
+  let out = "";
+  try{
+    const gen = useApi ? streamApi(buildMessages()) : streamLocal(buildMessages());
+    for await (const piece of gen){ out += piece; d.textContent = out; window.scrollTo(0, document.body.scrollHeight); }
+    S.history.push({role:"assistant", content:out});
+    LS.set(`isekai:story:${S.world.id}`, S.history);
+  }catch(e){ d.textContent = "The story engine failed: " + (e?.message || e); S.history.pop(); console.error(e); }
+  finally{ S.busy = false; enableChat(true); renderLog(); }
+}
+function enableChat(on){ $("input").disabled = !on; $("send").disabled = !on; if (on) $("input").focus(); }
+function saveSettings(){ settings.engine = $("engine").value; settings.apibase = $("apibase").value; settings.apimodel = $("apimodel").value; settings.apikey = $("apikey").value; LS.set("isekai:settings", settings); }
+function syncEngineUI(){ const api = $("engine").value === "api"; $("localopts").style.display = api ? "none" : ""; $("apiopts").style.display = api ? "" : "none"; if (api) enableChat(true); else enableChat(!!S.engine); }
+
+/* ---------- wire up ---------- */
+$("world").onchange = e => selectWorld(e.target.value);
+$("newgame").onclick = () => { if (confirm("Forget the saved story for this world?")) { LS.del(`isekai:story:${S.world.id}`); selectWorld(S.world.id); } };
+$("load").onclick = loadLocal;
+$("send").onclick = () => send($("input").value);
+$("input").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send($("input").value); } });
+$("engine").onchange = () => { saveSettings(); syncEngineUI(); };
+for (const id of ["apibase","apimodel","apikey"]) $(id).onchange = saveSettings;
+$("engine").value = settings.engine; $("apibase").value = settings.apibase; $("apimodel").value = settings.apimodel; $("apikey").value = settings.apikey;
+
+populateModels(); syncEngineUI();
+$("footer").textContent = navigator.gpu ? "WebGPU available. Model runs on this device." : "No WebGPU in this browser. The in-browser engine needs Chrome, Edge, or recent Safari/Firefox on a desktop GPU.";
+loadWorldIndex().catch(e => status("Could not load worlds: " + e.message));
+</script>
+</body>
+</html>
