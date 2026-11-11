@@ -1,2 +1,5 @@
 _site/
 
+
+# plain (unencrypted) session logs, local only
+leetgpu/sessions/
