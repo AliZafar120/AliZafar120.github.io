@@ -1,0 +1,150 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matrix Copy · LeetGPU</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{--easy:#2e8b57;--medium:#c7820a;--hard:#d64545;--todo:#9aa0a6;--solving:#c7820a;--solved:#2e8b57;
+ --bg:#fff;--fg:#1f2328;--muted:#5c636b;--border:#e3e6ea;--panel:#f7f8fa;--code:#0b0f14;--accent:#2e8b57;--sel:#fde68a;--seldark:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--fg:#e6edf3;--muted:#9aa7b4;--border:#2a313c;--panel:#161b22;--accent:#58d6a0;--sel:#273449}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:22px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:#fff;vertical-align:middle}
+.badge.Easy{background:var(--easy)}.badge.Medium{background:var(--medium)}.badge.Hard{background:var(--hard)}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* index */
+.hdr h1{margin:0 0 2px;font-size:28px}.hdr p{color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.controls input{flex:1 1 220px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--fg)}
+.fbtn{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.fbtn.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:4px 0 2px}.bar>span{display:block;height:100%;background:var(--solved);width:0}
+.tier h2{margin:26px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.row .dot{width:9px;height:9px;border-radius:50%;background:var(--todo);flex:0 0 auto}
+.row .dot.solving{background:var(--solving)}.row .dot.solved{background:var(--solved)}
+.row .num{color:var(--muted);font-size:13px;min-width:34px}
+.row a.t{font-weight:600;flex:1}
+.row .tag{font-size:10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 7px}
+/* problem page */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:8px}
+.top .ttl{font-size:22px;font-weight:700;flex:1}.top .num{color:var(--muted);font-weight:400;font-size:16px}
+.langs{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.langs button{border:0;background:var(--bg);color:var(--fg);padding:8px 14px;cursor:pointer;font-size:14px;font-weight:600}
+.langs button+button{border-left:1px solid var(--border)}
+.langs button.on{background:var(--accent);color:#06240f}
+.statement{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:4px 18px;margin:14px 0}
+.statement h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.statement pre{background:var(--code);color:#d7e3ef;padding:12px;border-radius:8px;overflow:auto}
+.intro{margin:14px 0}
+.note{background:rgba(199,130,10,.12);border:1px solid var(--medium);border-radius:10px;padding:10px 14px;margin:14px 0;color:var(--fg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.codecol{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--code)}
+.blk{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#d7e3ef;
+  padding:3px 14px;cursor:pointer;white-space:pre;font-size:13.5px;line-height:1.5}
+.blk:hover{background:#17202b}
+.blk.on{background:#1b2b24;border-left-color:var(--accent)}
+.blk.static{cursor:default}.blk.static:hover{background:transparent}
+.panel{position:sticky;top:14px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:var(--panel);min-height:160px}
+.panel .step{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.panel .exp :first-child{margin-top:0}
+.panel pre.ascii{background:var(--code);color:#cfe3d6;padding:12px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45;margin-top:12px}
+.panel .hint{color:var(--muted);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:13px}
+</style></head><body><div class="wrap">
+<div class="top">
+  <a href="../" class="back">← All problems</a>
+  <div class="ttl"><span class="num">#31</span> Matrix Copy <span class="badge Easy">Easy</span></div>
+  <div class="langs" id="langs">
+    <button data-lang="cpp" class="on">C++ (CUDA)</button><button data-lang="triton">Python (Triton)</button>
+  </div>
+</div>
+<div class="statement"><p>
+  Implement a program that copies an \(N \times N\) matrix of 32-bit floating point numbers from input array \(A\) to output array \(B\) on the GPU. The program should perform a direct element-wise copy so that \(B_{i,j} = A_{i,j}\) for all valid indices.
+</p>
+
+<h2>Implementation Requirements</h2>
+<ul>
+  <li>External libraries are not permitted</li>
+  <li>The <code>solve</code> function signature must remain unchanged</li>
+  <li>The final result must be stored in matrix <code>B</code></li>
+</ul>
+
+<h2>Example 1:</h2>
+<pre>
+Input:  A = [[1.0, 2.0],
+             [3.0, 4.0]]
+Output: B = [[1.0, 2.0],
+             [3.0, 4.0]]
+</pre>
+
+<h2>Example 2:</h2>
+<pre>
+Input:  A = [[5.5, 6.6, 7.7],
+             [8.8, 9.9, 10.1],
+             [11.2, 12.3, 13.4]]
+Output: B = [[5.5, 6.6, 7.7],
+             [8.8, 9.9, 10.1],
+             [11.2, 12.3, 13.4]]
+</pre>
+
+<h2>Constraints</h2>
+<ul>
+  <li>1 &le; <code>N</code> &le; 4096</li>
+  <li>All elements are 32-bit floating point numbers</li>
+
+  <li>Performance is measured with <code>N</code> = 4,096</li>
+</ul>
+</div>
+
+<div class="intro md" id="intro"></div>
+<div class="grid">
+  <div class="codecol" id="codecol"></div>
+  <aside class="panel" id="panel"><div class="hint">Select a line of code to see what it does.</div></aside>
+</div>
+<div class="foot">Problem text & starters from the official <a href="https://github.com/AlphaGPU/leetgpu-challenges">AlphaGPU/leetgpu-challenges</a>. Solve it on <a href="https://leetgpu.com">leetgpu.com</a>.</div>
+</div>
+<script>
+var DATA = {"authored":true,"order":["cpp","triton"],"langs":{"cpp":{"label":"C++ (CUDA)","intro":"<p>Copy <code>N×N</code> floats from <code>A</code> to <code>B</code>. Treated as a flat <code>total = N*N</code> element copy — the simplest possible kernel.</p>\n","blocks":[{"code":"__global__ void copy_matrix_kernel(const float* A, float* B, int total) {\n    int i = blockIdx.x * blockDim.x + threadIdx.x;\n    if (i &lt; total) {\n        B[i] = A[i];\n    }\n}","explain":"<p>One thread copies one element. <code>total = N*N</code> is precomputed on the host and passed in.</p>\n","diagram":"  A: [ a0 a1 a2 ... a(total-1) ]\n         │  │  │        │\n         ▼  ▼  ▼        ▼\n  B: [ a0 a1 a2 ... a(total-1) ]   thread i: B[i] = A[i]"},{"code":"extern \"C\" void solve(const float* A, float* B, int N) {\n    int total = N * N;\n    int threadsPerBlock = 256;\n    int blocksPerGrid = (total + threadsPerBlock - 1) / threadsPerBlock;\n    copy_matrix_kernel&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(A, B, total);\n    cudaDeviceSynchronize();\n}","explain":"<p>Compute <code>total = N²</code>, launch enough threads to cover it.</p>\n","diagram":null}]},"triton":{"label":"Python (Triton)","intro":"<p>The starter leaves the kernel to you. A block copy: load from <code>a</code>, store to <code>b</code>.</p>\n","blocks":[{"code":"@triton.jit\ndef copy_kernel(a, b, total, BLOCK_SIZE: tl.constexpr):\n    pid = tl.program_id(axis=0)\n    offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)\n    mask = offsets &lt; total","explain":"<p>Block addressing over the flat <code>total = N*N</code> elements.</p>\n","diagram":null},{"code":"    tl.store(b + offsets, tl.load(a + offsets, mask=mask), mask=mask)","explain":"<p>Load a block from <code>a</code> and immediately store it to <code>b</code> — no computation.</p>\n","diagram":null},{"code":"def solve(a, b, N):\n    total = N * N\n    BLOCK_SIZE = 1024\n    grid = (triton.cdiv(total, BLOCK_SIZE),)\n    copy_kernel[grid](a, b, total, BLOCK_SIZE)","explain":"<p>We supply the kernel the starter omitted, then launch over <code>total</code>.</p>\n","diagram":null}]}}};
+var lang = DATA.order[0], idx = 0;
+var codecol=document.getElementById("codecol"), panel=document.getElementById("panel"), introEl=document.getElementById("intro");
+function renderCode(){
+  var L=DATA.langs[lang]; introEl.innerHTML = L.intro || "";
+  var html="";
+  L.blocks.forEach(function(b,i){
+    var clickable = b.explain!==null;
+    html += '<button class="blk'+(clickable?'':' static')+(clickable&&i===idx?' on':'')+'" data-i="'+i+'"'+(clickable?'':' tabindex="-1"')+'>'+b.code+'</button>';
+  });
+  codecol.innerHTML=html;
+  codecol.querySelectorAll(".blk").forEach(function(el){
+    if(el.classList.contains("static")) return;
+    el.onclick=function(){ idx=+el.dataset.i; renderCode(); renderPanel(); };
+  });
+}
+function renderPanel(){
+  var L=DATA.langs[lang], b=L.blocks[idx];
+  if(!b || b.explain===null){ panel.innerHTML='<div class="hint">Select a line of code to see what it does.</div>'; return; }
+  var n=L.blocks.filter(function(x){return x.explain!==null;}).length;
+  var pos=0,c=0; for(var i=0;i<=idx;i++){ if(L.blocks[i].explain!==null) c++; } pos=c;
+  var html='<div class="step">Step '+pos+' of '+n+'</div><div class="exp">'+b.explain+'</div>';
+  if(b.diagram) html+='<pre class="ascii">'+b.diagram.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</pre>';
+  panel.innerHTML=html;
+}
+function firstClickable(){ var L=DATA.langs[lang]; for(var i=0;i<L.blocks.length;i++) if(L.blocks[i].explain!==null) return i; return 0; }
+document.getElementById("langs").querySelectorAll("button").forEach(function(btn){
+  btn.onclick=function(){
+    document.querySelectorAll("#langs button").forEach(function(b){b.classList.remove("on");});
+    btn.classList.add("on"); lang=btn.dataset.lang; idx=firstClickable(); renderCode(); renderPanel();
+  };
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="ArrowDown"&&e.key!=="ArrowUp") return;
+  var L=DATA.langs[lang], n=L.blocks.length, d=e.key==="ArrowDown"?1:-1, j=idx;
+  for(var k=0;k<n;k++){ j=(j+d+n)%n; if(L.blocks[j].explain!==null){ idx=j; break; } }
+  renderCode(); renderPanel(); e.preventDefault();
+});
+idx=firstClickable(); renderCode();
+if(DATA.authored) renderPanel();
+</script></body></html>

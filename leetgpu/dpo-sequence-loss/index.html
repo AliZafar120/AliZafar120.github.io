@@ -1,0 +1,267 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DPO Sequence Loss · LeetGPU</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{--easy:#2e8b57;--medium:#c7820a;--hard:#d64545;--todo:#9aa0a6;--solving:#c7820a;--solved:#2e8b57;
+ --bg:#fff;--fg:#1f2328;--muted:#5c636b;--border:#e3e6ea;--panel:#f7f8fa;--code:#0b0f14;--accent:#2e8b57;--sel:#fde68a;--seldark:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--fg:#e6edf3;--muted:#9aa7b4;--border:#2a313c;--panel:#161b22;--accent:#58d6a0;--sel:#273449}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:22px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:#fff;vertical-align:middle}
+.badge.Easy{background:var(--easy)}.badge.Medium{background:var(--medium)}.badge.Hard{background:var(--hard)}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* index */
+.hdr h1{margin:0 0 2px;font-size:28px}.hdr p{color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.controls input{flex:1 1 220px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--fg)}
+.fbtn{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.fbtn.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:4px 0 2px}.bar>span{display:block;height:100%;background:var(--solved);width:0}
+.tier h2{margin:26px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.row .dot{width:9px;height:9px;border-radius:50%;background:var(--todo);flex:0 0 auto}
+.row .dot.solving{background:var(--solving)}.row .dot.solved{background:var(--solved)}
+.row .num{color:var(--muted);font-size:13px;min-width:34px}
+.row a.t{font-weight:600;flex:1}
+.row .tag{font-size:10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 7px}
+/* problem page */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:8px}
+.top .ttl{font-size:22px;font-weight:700;flex:1}.top .num{color:var(--muted);font-weight:400;font-size:16px}
+.langs{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.langs button{border:0;background:var(--bg);color:var(--fg);padding:8px 14px;cursor:pointer;font-size:14px;font-weight:600}
+.langs button+button{border-left:1px solid var(--border)}
+.langs button.on{background:var(--accent);color:#06240f}
+.statement{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:4px 18px;margin:14px 0}
+.statement h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.statement pre{background:var(--code);color:#d7e3ef;padding:12px;border-radius:8px;overflow:auto}
+.intro{margin:14px 0}
+.note{background:rgba(199,130,10,.12);border:1px solid var(--medium);border-radius:10px;padding:10px 14px;margin:14px 0;color:var(--fg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.codecol{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--code)}
+.blk{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#d7e3ef;
+  padding:3px 14px;cursor:pointer;white-space:pre;font-size:13.5px;line-height:1.5}
+.blk:hover{background:#17202b}
+.blk.on{background:#1b2b24;border-left-color:var(--accent)}
+.blk.static{cursor:default}.blk.static:hover{background:transparent}
+.panel{position:sticky;top:14px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:var(--panel);min-height:160px}
+.panel .step{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.panel .exp :first-child{margin-top:0}
+.panel pre.ascii{background:var(--code);color:#cfe3d6;padding:12px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45;margin-top:12px}
+.panel .hint{color:var(--muted);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:13px}
+</style></head><body><div class="wrap">
+<div class="top">
+  <a href="../" class="back">← All problems</a>
+  <div class="ttl"><span class="num">#108</span> DPO Sequence Loss <span class="badge Medium">Medium</span></div>
+  <div class="langs" id="langs">
+    <button data-lang="cpp" class="on">C++ (CUDA)</button><button data-lang="triton">Python (Triton)</button>
+  </div>
+</div>
+<div class="statement"><p>
+  Given precomputed sequence log probabilities for chosen and rejected responses under a current
+  policy and a reference policy, compute the Direct Preference Optimization (DPO) loss. Each input
+  is a one-dimensional tensor of shape <code>[B]</code>. The output is one value: the DPO loss
+  averaged across all <code>B</code> response pairs.
+</p>
+<p>
+  Each batch entry represents one prompt and its chosen/rejected response pair. Token-level log
+  probabilities have already been summed, and the same tokenization and masking convention was used
+  for the current and reference policies.
+</p>
+
+<p>
+  Before training, a reviewer labels one response as preferred and one as rejected. Each DPO update
+  then consumes that fixed example: prompt <code>x</code>, chosen response <code>y+</code>, and
+  rejected response <code>y-</code>. The current and reference policies each score both responses,
+  producing four sequence log probabilities.
+</p>
+
+<svg width="720" height="480" viewBox="0 0 720 480" xmlns="http://www.w3.org/2000/svg" style="display:block; margin:20px auto;">
+  <defs>
+    <marker id="dpo-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#7ec8a0"/>
+    </marker>
+  </defs>
+  <rect width="720" height="480" rx="8" fill="#222"/>
+  <text x="360" y="27" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="14">DPO</text>
+
+  <rect x="28" y="48" width="664" height="46" rx="6" fill="#292929" stroke="#555" stroke-width="1"/>
+  <text x="360" y="75" text-anchor="middle" fill="#ccc" font-family="monospace" font-size="12">Offline, before training: human feedback labels the preferred y+ and rejected y- response</text>
+
+  <rect x="230" y="118" width="260" height="62" rx="5" fill="#1a3a5c" stroke="#4a9eff" stroke-width="1.5"/>
+  <text x="360" y="143" text-anchor="middle" fill="#b7dcff" font-family="monospace" font-size="12">fixed preference example</text>
+  <text x="360" y="162" text-anchor="middle" fill="#b7dcff" font-family="monospace" font-size="12">prompt x, chosen y+, rejected y-</text>
+
+  <g stroke="#7ec8a0" stroke-width="1.5" marker-end="url(#dpo-arrow)">
+    <line x1="295" y1="180" x2="195" y2="215"/>
+    <line x1="425" y1="180" x2="525" y2="215"/>
+  </g>
+  <rect x="105" y="215" width="180" height="60" rx="5" fill="#4b2e22" stroke="#e76f51" stroke-width="1.5"/>
+  <text x="195" y="240" text-anchor="middle" fill="#f4a261" font-family="monospace" font-size="12">current policy</text>
+  <text x="195" y="258" text-anchor="middle" fill="#f4a261" font-family="monospace" font-size="12">trainable weights θ</text>
+  <rect x="435" y="215" width="180" height="60" rx="5" fill="#35265b" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="525" y="240" text-anchor="middle" fill="#c4b5fd" font-family="monospace" font-size="12">reference policy</text>
+  <text x="525" y="258" text-anchor="middle" fill="#c4b5fd" font-family="monospace" font-size="12">frozen weights θ_ref</text>
+
+  <g fill="#4b2e22" stroke="#e76f51" stroke-width="1.5">
+    <rect x="55" y="308" width="280" height="28" rx="5"/>
+    <rect x="55" y="342" width="280" height="28" rx="5"/>
+  </g>
+  <g fill="#f4a261" font-family="monospace" font-size="12" text-anchor="middle">
+    <text x="195" y="327">l+ = log piθ(y+ | x)</text>
+    <text x="195" y="361">l- = log piθ(y- | x)</text>
+  </g>
+  <g fill="#35265b" stroke="#a78bfa" stroke-width="1.5">
+    <rect x="385" y="308" width="280" height="28" rx="5"/>
+    <rect x="385" y="342" width="280" height="28" rx="5"/>
+  </g>
+  <g fill="#ddd6fe" font-family="monospace" font-size="12" text-anchor="middle">
+    <text x="525" y="327">l+ref = log pi_ref(y+ | x)</text>
+    <text x="525" y="361">l-ref = log pi_ref(y- | x)</text>
+  </g>
+  <g stroke="#7ec8a0" stroke-width="1.5" marker-end="url(#dpo-arrow)">
+    <line x1="195" y1="275" x2="195" y2="308"/>
+    <line x1="525" y1="275" x2="525" y2="308"/>
+    <line x1="195" y1="370" x2="195" y2="415"/>
+    <line x1="525" y1="370" x2="525" y2="415"/>
+  </g>
+  <rect x="82" y="415" width="556" height="38" rx="5" fill="#1e3d2d" stroke="#5cb85c" stroke-width="1.5"/>
+  <text x="360" y="432" text-anchor="middle" fill="#aaeebb" font-family="monospace" font-size="12">z = beta[(l+ - l-) - (l+ref - l-ref)]</text>
+  <text x="360" y="447" text-anchor="middle" fill="#aaeebb" font-family="monospace" font-size="12">output[0] = mean(softplus(-z)) across B preference examples</text>
+  <text x="360" y="472" text-anchor="middle" fill="#aaa" font-family="monospace" font-size="12">only the current-policy weights are updated; the reference policy stays frozen</text>
+</svg>
+
+<h2>Implementation Requirements</h2>
+<ul>
+  <li>Implement <code>solve(chosen_logps, rejected_logps, chosen_ref_logps, rejected_ref_logps, output, beta, B)</code> with the signature unchanged</li>
+  <li>Write the mean DPO loss across the batch into <code>output[0]</code></li>
+  <li>Use only native features of the selected framework; external libraries are not permitted</li>
+  <li>All four log-probability inputs have shape <code>[B]</code></li>
+  <li>Compute the loss stably as <code>softplus(-logits)</code> or an equivalent formulation</li>
+  <li>The reference-policy log probabilities are fixed precomputed inputs</li>
+</ul>
+
+<h2>Loss Calculation</h2>
+<p>
+  At batch index <code>i</code>, let <code>l+</code> and <code>l-</code> be the chosen and rejected
+  log probabilities under the current policy. Let <code>l+_ref</code> and <code>l-_ref</code> be the
+  corresponding values under the reference policy.
+</p>
+
+\[
+\Delta_i^{\pi} = \ell_i^{+} - \ell_i^{-}
+\]
+\[
+\Delta_i^{\mathrm{ref}} = \ell_i^{+,\mathrm{ref}} - \ell_i^{-,\mathrm{ref}}
+\]
+<p>Subtract the reference margin from the current-policy margin, then scale by <code>beta</code>:</p>
+\[
+z_i = \beta\left(\Delta_i^{\pi} - \Delta_i^{\mathrm{ref}}\right)
+\]
+
+<p>
+  DPO maximizes the log-sigmoid of this preference logit. This challenge returns the equivalent
+  loss for minimization, averaged across the batch:
+</p>
+
+\[
+\text{output}[0]
+= -\frac{1}{B}\sum_{i=0}^{B-1} \log\!\left(\sigma(z_i)\right)
+= \frac{1}{B}\sum_{i=0}^{B-1} \operatorname{softplus}(-z_i)
+\]
+
+<p>The <code>softplus</code> form is mathematically equivalent and remains finite for very large logits.</p>
+
+<h2>Examples</h2>
+<p>For <code>B</code> = 4 and <code>beta</code> = 0.1:</p>
+
+\[
+\begin{aligned}
+\text{chosen_logps}
+&= \begin{bmatrix} 0.0 & 1.0 & -1.0 & 2.0 \end{bmatrix} \\[6pt]
+\text{rejected_logps}
+&= \begin{bmatrix} 0.0 & 0.0 & 0.0 & 0.0 \end{bmatrix} \\[6pt]
+\text{chosen_ref_logps}
+&= \begin{bmatrix} 0.0 & 0.0 & 0.0 & 0.0 \end{bmatrix} \\[6pt]
+\text{rejected_ref_logps}
+&= \begin{bmatrix} 0.0 & 0.0 & 0.0 & 0.0 \end{bmatrix}
+\end{aligned}
+\]
+
+<p>The reference margin is zero, so the preference logits and final loss are:</p>
+\[
+z = \begin{bmatrix} 0.0 & 0.1 & -0.1 & 0.2 \end{bmatrix}
+\]
+\[
+\text{output}[0] = \operatorname{mean}\!\left(\operatorname{softplus}(-z)\right) = 0.67002
+\]
+
+<h2>Constraints</h2>
+<ul>
+  <li>1 &le; <code>B</code> &le; 65,536</li>
+  <li>All tensors contain 32-bit floating point values</li>
+  <li><code>0 &lt; beta &le; 1</code></li>
+  <li>All input log probabilities are finite</li>
+  <li>Sequence reductions and token masks are outside the scope of this challenge</li>
+  <li>Performance is measured with <code>B</code> = 65,536</li>
+</ul>
+
+<h2>Reference</h2>
+<p>
+  <a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization: Your Language Model is Secretly a Reward Model, Rafailov et al. (2023)</a>
+</p>
+</div>
+<div class="note"><b>Guided walkthrough coming soon.</b> Below is the official starter signature in each language; the clickable line-by-line explanation hasn't been authored yet.</div>
+<div class="intro md" id="intro"></div>
+<div class="grid">
+  <div class="codecol" id="codecol"></div>
+  <aside class="panel" id="panel"><div class="hint">Select a line of code to see what it does.</div></aside>
+</div>
+<div class="foot">Problem text & starters from the official <a href="https://github.com/AlphaGPU/leetgpu-challenges">AlphaGPU/leetgpu-challenges</a>. Solve it on <a href="https://leetgpu.com">leetgpu.com</a>.</div>
+</div>
+<script>
+var DATA = {"authored":false,"order":["cpp","triton"],"langs":{"cpp":{"label":"C++ (CUDA)","intro":null,"blocks":[{"code":"#include &lt;cuda_runtime.h&gt;\n\n// chosen_logps, rejected_logps, chosen_ref_logps, rejected_ref_logps, output are device pointers\nextern \"C\" void solve(const float* chosen_logps, const float* rejected_logps,\n                      const float* chosen_ref_logps, const float* rejected_ref_logps, float* output,\n                      float beta, int B) {}","explain":null,"diagram":null}]},"triton":{"label":"Python (Triton)","intro":null,"blocks":[{"code":"import torch\nimport triton\nimport triton.language as tl\n\n\n# chosen_logps, rejected_logps, chosen_ref_logps, rejected_ref_logps, output are tensors on the GPU\ndef solve(\n    chosen_logps: torch.Tensor,\n    rejected_logps: torch.Tensor,\n    chosen_ref_logps: torch.Tensor,\n    rejected_ref_logps: torch.Tensor,\n    output: torch.Tensor,\n    beta: float,\n    B: int,\n):\n    pass","explain":null,"diagram":null}]}}};
+var lang = DATA.order[0], idx = 0;
+var codecol=document.getElementById("codecol"), panel=document.getElementById("panel"), introEl=document.getElementById("intro");
+function renderCode(){
+  var L=DATA.langs[lang]; introEl.innerHTML = L.intro || "";
+  var html="";
+  L.blocks.forEach(function(b,i){
+    var clickable = b.explain!==null;
+    html += '<button class="blk'+(clickable?'':' static')+(clickable&&i===idx?' on':'')+'" data-i="'+i+'"'+(clickable?'':' tabindex="-1"')+'>'+b.code+'</button>';
+  });
+  codecol.innerHTML=html;
+  codecol.querySelectorAll(".blk").forEach(function(el){
+    if(el.classList.contains("static")) return;
+    el.onclick=function(){ idx=+el.dataset.i; renderCode(); renderPanel(); };
+  });
+}
+function renderPanel(){
+  var L=DATA.langs[lang], b=L.blocks[idx];
+  if(!b || b.explain===null){ panel.innerHTML='<div class="hint">Select a line of code to see what it does.</div>'; return; }
+  var n=L.blocks.filter(function(x){return x.explain!==null;}).length;
+  var pos=0,c=0; for(var i=0;i<=idx;i++){ if(L.blocks[i].explain!==null) c++; } pos=c;
+  var html='<div class="step">Step '+pos+' of '+n+'</div><div class="exp">'+b.explain+'</div>';
+  if(b.diagram) html+='<pre class="ascii">'+b.diagram.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</pre>';
+  panel.innerHTML=html;
+}
+function firstClickable(){ var L=DATA.langs[lang]; for(var i=0;i<L.blocks.length;i++) if(L.blocks[i].explain!==null) return i; return 0; }
+document.getElementById("langs").querySelectorAll("button").forEach(function(btn){
+  btn.onclick=function(){
+    document.querySelectorAll("#langs button").forEach(function(b){b.classList.remove("on");});
+    btn.classList.add("on"); lang=btn.dataset.lang; idx=firstClickable(); renderCode(); renderPanel();
+  };
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="ArrowDown"&&e.key!=="ArrowUp") return;
+  var L=DATA.langs[lang], n=L.blocks.length, d=e.key==="ArrowDown"?1:-1, j=idx;
+  for(var k=0;k<n;k++){ j=(j+d+n)%n; if(L.blocks[j].explain!==null){ idx=j; break; } }
+  renderCode(); renderPanel(); e.preventDefault();
+});
+idx=firstClickable(); renderCode();
+if(DATA.authored) renderPanel();
+</script></body></html>

@@ -1,0 +1,148 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vector Add · LeetGPU</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{--easy:#2e8b57;--medium:#c7820a;--hard:#d64545;--todo:#9aa0a6;--solving:#c7820a;--solved:#2e8b57;
+ --bg:#fff;--fg:#1f2328;--muted:#5c636b;--border:#e3e6ea;--panel:#f7f8fa;--code:#0b0f14;--accent:#2e8b57;--sel:#fde68a;--seldark:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--fg:#e6edf3;--muted:#9aa7b4;--border:#2a313c;--panel:#161b22;--accent:#58d6a0;--sel:#273449}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:22px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:#fff;vertical-align:middle}
+.badge.Easy{background:var(--easy)}.badge.Medium{background:var(--medium)}.badge.Hard{background:var(--hard)}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* index */
+.hdr h1{margin:0 0 2px;font-size:28px}.hdr p{color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.controls input{flex:1 1 220px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--fg)}
+.fbtn{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.fbtn.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:4px 0 2px}.bar>span{display:block;height:100%;background:var(--solved);width:0}
+.tier h2{margin:26px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.row .dot{width:9px;height:9px;border-radius:50%;background:var(--todo);flex:0 0 auto}
+.row .dot.solving{background:var(--solving)}.row .dot.solved{background:var(--solved)}
+.row .num{color:var(--muted);font-size:13px;min-width:34px}
+.row a.t{font-weight:600;flex:1}
+.row .tag{font-size:10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 7px}
+/* problem page */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:8px}
+.top .ttl{font-size:22px;font-weight:700;flex:1}.top .num{color:var(--muted);font-weight:400;font-size:16px}
+.langs{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.langs button{border:0;background:var(--bg);color:var(--fg);padding:8px 14px;cursor:pointer;font-size:14px;font-weight:600}
+.langs button+button{border-left:1px solid var(--border)}
+.langs button.on{background:var(--accent);color:#06240f}
+.statement{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:4px 18px;margin:14px 0}
+.statement h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.statement pre{background:var(--code);color:#d7e3ef;padding:12px;border-radius:8px;overflow:auto}
+.intro{margin:14px 0}
+.note{background:rgba(199,130,10,.12);border:1px solid var(--medium);border-radius:10px;padding:10px 14px;margin:14px 0;color:var(--fg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.codecol{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--code)}
+.blk{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#d7e3ef;
+  padding:3px 14px;cursor:pointer;white-space:pre;font-size:13.5px;line-height:1.5}
+.blk:hover{background:#17202b}
+.blk.on{background:#1b2b24;border-left-color:var(--accent)}
+.blk.static{cursor:default}.blk.static:hover{background:transparent}
+.panel{position:sticky;top:14px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:var(--panel);min-height:160px}
+.panel .step{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.panel .exp :first-child{margin-top:0}
+.panel pre.ascii{background:var(--code);color:#cfe3d6;padding:12px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45;margin-top:12px}
+.panel .hint{color:var(--muted);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:13px}
+</style></head><body><div class="wrap">
+<div class="top">
+  <a href="../" class="back">← All problems</a>
+  <div class="ttl"><span class="num">#1</span> Vector Add <span class="badge Easy">Easy</span></div>
+  <div class="langs" id="langs">
+    <button data-lang="cpp" class="on">C++ (CUDA)</button><button data-lang="triton">Python (Triton)</button>
+  </div>
+</div>
+<div class="statement"><p>
+  Write a GPU program that performs element-wise addition of two vectors containing 32-bit floating point numbers.
+  The program should take two input vectors of equal length and produce a single output vector containing their sum.
+</p>
+
+<h2>Implementation Requirements</h2>
+<ul>
+  <li>External libraries are not permitted</li>
+    <li>The <code>solve</code> function signature must remain unchanged</li>
+    <li>The final result must be stored in vector <code>C</code></li>
+</ul>
+
+<h2>Example 1:</h2>
+<pre>
+Input:  A = [1.0, 2.0, 3.0, 4.0]
+        B = [5.0, 6.0, 7.0, 8.0]
+Output: C = [6.0, 8.0, 10.0, 12.0]
+</pre>
+
+<h2>Example 2:</h2>
+<pre>
+Input:  A = [1.5, 1.5, 1.5]
+        B = [2.3, 2.3, 2.3]
+Output: C = [3.8, 3.8, 3.8]
+</pre>
+
+<h2>Constraints</h2>
+
+<ul>
+  <li>Input vectors <code>A</code> and <code>B</code> have identical lengths</li>
+  <li>1 &le; <code>N</code> &le; 100,000,000</li>
+
+  <li>Performance is measured with <code>N</code> = 25,000,000</li>
+</ul>
+</div>
+
+<div class="intro md" id="intro"></div>
+<div class="grid">
+  <div class="codecol" id="codecol"></div>
+  <aside class="panel" id="panel"><div class="hint">Select a line of code to see what it does.</div></aside>
+</div>
+<div class="foot">Problem text & starters from the official <a href="https://github.com/AlphaGPU/leetgpu-challenges">AlphaGPU/leetgpu-challenges</a>. Solve it on <a href="https://leetgpu.com">leetgpu.com</a>.</div>
+</div>
+<script>
+var DATA = {"authored":true,"order":["cpp","triton"],"langs":{"cpp":{"label":"C++ (CUDA)","intro":"<p>One GPU <strong>thread per output element</strong>. We compute a unique global index for each thread, guard against overrun, then do one add.</p>\n","blocks":[{"code":"__global__ void vector_add(const float* A, const float* B, float* C, int N) {","explain":"<p><code>__global__</code> marks a <strong>kernel</strong> — code that runs on the GPU and is launched from the CPU. It runs once <em>per thread</em>; thousands of copies execute in parallel. <code>A</code>, <code>B</code>, <code>C</code> are pointers to memory <strong>on the device</strong>.</p>\n","diagram":"        CPU (host)                 GPU (device)\n        solve() ──launch──▶  [ thousands of threads ]\n                              each runs vector_add() once"},{"code":"    int i = blockIdx.x * blockDim.x + threadIdx.x;","explain":"<p>The GPU groups threads into <strong>blocks</strong>. A thread&#39;s position is <code>threadIdx.x</code> <em>within</em> its block; <code>blockIdx.x</code> is which block it&#39;s in; <code>blockDim.x</code> is the block size. This formula flattens (block, thread) into <strong>one global index</strong> <code>i</code> — the array element this thread owns.</p>\n","diagram":"blockDim.x = 4\n  block 0          block 1          block 2\n┌──┬──┬──┬──┐    ┌──┬──┬──┬──┐    ┌──┬──┬──┬──┐\n│t0│t1│t2│t3│    │t0│t1│t2│t3│    │t0│t1│t2│t3│  threadIdx.x\n└──┴──┴──┴──┘    └──┴──┴──┴──┘    └──┴──┴──┴──┘\n  0  1  2  3       4  5  6  7       8  9 10 11   i = blockIdx·blockDim + threadIdx"},{"code":"    if (i &lt; N) {","explain":"<p>We launch threads in whole blocks, so the grid usually has <strong>more threads than elements</strong>. Threads whose index runs past <code>N</code> must do nothing — otherwise they&#39;d read/write out of bounds.</p>\n","diagram":"N = 10, blockDim = 4  →  3 blocks = 12 threads\n  i:      0 1 2 3 | 4 5 6 7 | 8 9 10 11\n  valid:  ✓ ✓ ✓ ✓ | ✓ ✓ ✓ ✓ | ✓ ✓  ✗  ✗\n                                     └──┴─ skipped by if (i < N)"},{"code":"        C[i] = A[i] + B[i];","explain":"<p>The actual work: thread <code>i</code> reads one element from <code>A</code> and <code>B</code>, adds them, writes one element of <code>C</code>. Every thread does this <strong>independently</strong> — no coordination needed, which is why this maps perfectly to a GPU.</p>\n","diagram":"  A: [ a0 a1 a2 a3 ... ]\n        +  +  +  +\n  B: [ b0 b1 b2 b3 ... ]\n        =  =  =  =\n  C: [ c0 c1 c2 c3 ... ]   thread i: C[i] = A[i] + B[i]"},{"code":"    }\n}","explain":"<p>Close the guard and the kernel. There is no loop over <code>N</code> here — the <em>parallelism</em> replaces the loop. The loop lives in the launch grid instead.</p>\n","diagram":null},{"code":"extern \"C\" void solve(const float* A, const float* B, float* C, int N) {","explain":"<p><code>solve</code> runs on the <strong>CPU</strong> (host). It&#39;s the entry point LeetGPU calls. <code>extern &quot;C&quot;</code> keeps the symbol name unmangled so the grader can find it.</p>\n","diagram":null},{"code":"    int threadsPerBlock = 256;","explain":"<p>Block size: how many threads per block. 256 is a safe, common default (a multiple of the 32-thread <strong>warp</strong>). Too small wastes the hardware; too large can limit occupancy.</p>\n","diagram":"  one block = 256 threads = 8 warps of 32\n  warps are the unit the GPU actually schedules"},{"code":"    int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;","explain":"<p><strong>Ceiling division</strong>: how many blocks to cover all <code>N</code> elements. The <code>+ threadsPerBlock - 1</code> rounds up so the last partial block is still launched (and the <code>if (i &lt; N)</code> guard handles its extra threads).</p>\n","diagram":"  N = 1000, tpb = 256\n  plain /  = 3   (covers 768) ✗ misses 232 elements\n  ceil     = ⌈1000/256⌉ = 4  (covers 1024) ✓"},{"code":"    vector_add&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(A, B, C, N);","explain":"<p>The <strong>launch</strong>. The <code>&lt;&lt;&lt;grid, block&gt;&gt;&gt;</code> syntax tells the GPU to spawn <code>blocksPerGrid × threadsPerBlock</code> threads, each running <code>vector_add</code>. This call is <em>asynchronous</em> — it returns immediately while the GPU works.</p>\n","diagram":"  <<< 4 blocks , 256 threads >>>  =  1024 threads total\n   grid ─┬─ block0 (256 thr)\n         ├─ block1 (256 thr)\n         ├─ block2 (256 thr)\n         └─ block3 (256 thr)"},{"code":"    cudaDeviceSynchronize();\n}","explain":"<p>Because the launch is async, we <strong>wait</strong> for every thread to finish before <code>solve</code> returns — otherwise the grader might read <code>C</code> before it&#39;s done.</p>\n","diagram":null}]},"triton":{"label":"Python (Triton)","intro":"<p>Triton flips the model: instead of one thread per element, one <strong>program</strong> handles a whole <strong>block of elements</strong> at once (SIMD-style vectors). You write the per-block logic; Triton maps it to threads for you.</p>\n","blocks":[{"code":"import torch\nimport triton\nimport triton.language as tl","explain":"<p>Triton kernels are Python functions compiled to GPU code. <code>triton.language as tl</code> gives the GPU primitives (<code>program_id</code>, <code>arange</code>, <code>load</code>, <code>store</code>).</p>\n","diagram":null},{"code":"@triton.jit\ndef vector_add_kernel(a, b, c, n_elements, BLOCK_SIZE: tl.constexpr):","explain":"<p><code>@triton.jit</code> JIT-compiles this to a GPU kernel. <code>a,b,c</code> are pointers to GPU tensors. <code>BLOCK_SIZE: tl.constexpr</code> is a <strong>compile-time constant</strong> — Triton specializes the code for that block size.</p>\n","diagram":null},{"code":"    pid = tl.program_id(axis=0)","explain":"<p>The <strong>program id</strong> — Triton&#39;s equivalent of <code>blockIdx</code> in CUDA. Each program instance gets a unique <code>pid</code>. Crucially, one program processes <code>BLOCK_SIZE</code> elements, <em>not</em> one.</p>\n","diagram":"  CUDA : 1 thread  ─▶ 1 element\n  Triton: 1 program ─▶ BLOCK_SIZE elements (a vector)\n\n  program 0      program 1      program 2\n  [0 .. B-1]     [B .. 2B-1]    [2B .. 3B-1]"},{"code":"    block_start = pid * BLOCK_SIZE","explain":"<p>Where this program&#39;s chunk begins in the flat array. Program <code>pid</code> owns elements <code>[block_start, block_start + BLOCK_SIZE)</code>.</p>\n","diagram":"  BLOCK_SIZE = 4\n  pid=0 → start 0    pid=1 → start 4    pid=2 → start 8"},{"code":"    offsets = block_start + tl.arange(0, BLOCK_SIZE)","explain":"<p><code>tl.arange(0, BLOCK_SIZE)</code> is a <strong>vector</strong> <code>[0,1,...,B-1]</code>. Adding <code>block_start</code> yields the actual element indices this program touches — all at once, as a vector. This is the SIMD heart of Triton.</p>\n","diagram":"  block_start = 4, BLOCK_SIZE = 4\n  arange  : [ 0  1  2  3 ]\n  offsets : [ 4  5  6  7 ]   ← the 4 indices handled together"},{"code":"    mask = offsets &lt; n_elements","explain":"<p>The vectorized bounds guard (Triton&#39;s <code>if (i &lt; N)</code>). It&#39;s a <strong>boolean vector</strong> marking which lanes are in range, so the last program doesn&#39;t touch memory past the end.</p>\n","diagram":"  n_elements = 6, offsets = [4 5 6 7]\n  mask       = [T T F F]\n                    └─┴─ these lanes are masked off"},{"code":"    x = tl.load(a + offsets, mask=mask)\n    y = tl.load(b + offsets, mask=mask)","explain":"<p><strong>Gather loads</strong>: read a whole vector from <code>a</code> and <code>b</code> at <code>offsets</code>. <code>mask</code> suppresses out-of-range lanes (they load a safe default instead of faulting).</p>\n","diagram":"  a + offsets → [a4 a5  ·  · ]   (· = masked, not read)\n  b + offsets → [b4 b5  ·  · ]"},{"code":"    tl.store(c + offsets, x + y, mask=mask)","explain":"<p>Add the two vectors and <strong>scatter-store</strong> the result to <code>c</code>, again honoring <code>mask</code>. One line does the add for the entire block.</p>\n","diagram":"  x + y  = [a4+b4  a5+b5  ·  · ]\n  store ▶  c[4]=…, c[5]=…   (lanes 6,7 skipped by mask)"},{"code":"def solve(a: torch.Tensor, b: torch.Tensor, c: torch.Tensor, N: int):\n    BLOCK_SIZE = 1024","explain":"<p>Host entry point. <code>BLOCK_SIZE = 1024</code> elements per program — Triton will turn that into an efficient number of hardware threads under the hood.</p>\n","diagram":null},{"code":"    grid = (triton.cdiv(N, BLOCK_SIZE),)","explain":"<p>How many <strong>programs</strong> to launch: <code>cdiv</code> is ceiling division, so <code>⌈N / BLOCK_SIZE⌉</code> programs cover all elements. The <code>mask</code> handles the leftover in the final program.</p>\n","diagram":"  N = 3000, BLOCK_SIZE = 1024\n  cdiv = ⌈3000/1024⌉ = 3 programs  (covers 3072, mask drops 72)"},{"code":"    vector_add_kernel[grid](a, b, c, N, BLOCK_SIZE)","explain":"<p>Launch: <code>kernel[grid](args)</code> runs the kernel over the grid of programs. No explicit <code>synchronize</code> needed — the next PyTorch op will order correctly on the stream.</p>\n","diagram":"  vector_add_kernel[ (3,) ]  → programs pid=0,1,2 run in parallel"}]}}};
+var lang = DATA.order[0], idx = 0;
+var codecol=document.getElementById("codecol"), panel=document.getElementById("panel"), introEl=document.getElementById("intro");
+function renderCode(){
+  var L=DATA.langs[lang]; introEl.innerHTML = L.intro || "";
+  var html="";
+  L.blocks.forEach(function(b,i){
+    var clickable = b.explain!==null;
+    html += '<button class="blk'+(clickable?'':' static')+(clickable&&i===idx?' on':'')+'" data-i="'+i+'"'+(clickable?'':' tabindex="-1"')+'>'+b.code+'</button>';
+  });
+  codecol.innerHTML=html;
+  codecol.querySelectorAll(".blk").forEach(function(el){
+    if(el.classList.contains("static")) return;
+    el.onclick=function(){ idx=+el.dataset.i; renderCode(); renderPanel(); };
+  });
+}
+function renderPanel(){
+  var L=DATA.langs[lang], b=L.blocks[idx];
+  if(!b || b.explain===null){ panel.innerHTML='<div class="hint">Select a line of code to see what it does.</div>'; return; }
+  var n=L.blocks.filter(function(x){return x.explain!==null;}).length;
+  var pos=0,c=0; for(var i=0;i<=idx;i++){ if(L.blocks[i].explain!==null) c++; } pos=c;
+  var html='<div class="step">Step '+pos+' of '+n+'</div><div class="exp">'+b.explain+'</div>';
+  if(b.diagram) html+='<pre class="ascii">'+b.diagram.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</pre>';
+  panel.innerHTML=html;
+}
+function firstClickable(){ var L=DATA.langs[lang]; for(var i=0;i<L.blocks.length;i++) if(L.blocks[i].explain!==null) return i; return 0; }
+document.getElementById("langs").querySelectorAll("button").forEach(function(btn){
+  btn.onclick=function(){
+    document.querySelectorAll("#langs button").forEach(function(b){b.classList.remove("on");});
+    btn.classList.add("on"); lang=btn.dataset.lang; idx=firstClickable(); renderCode(); renderPanel();
+  };
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="ArrowDown"&&e.key!=="ArrowUp") return;
+  var L=DATA.langs[lang], n=L.blocks.length, d=e.key==="ArrowDown"?1:-1, j=idx;
+  for(var k=0;k<n;k++){ j=(j+d+n)%n; if(L.blocks[j].explain!==null){ idx=j; break; } }
+  renderCode(); renderPanel(); e.preventDefault();
+});
+idx=firstClickable(); renderCode();
+if(DATA.authored) renderPanel();
+</script></body></html>

@@ -1,0 +1,258 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Causal Depthwise Conv1d · LeetGPU</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{--easy:#2e8b57;--medium:#c7820a;--hard:#d64545;--todo:#9aa0a6;--solving:#c7820a;--solved:#2e8b57;
+ --bg:#fff;--fg:#1f2328;--muted:#5c636b;--border:#e3e6ea;--panel:#f7f8fa;--code:#0b0f14;--accent:#2e8b57;--sel:#fde68a;--seldark:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--fg:#e6edf3;--muted:#9aa7b4;--border:#2a313c;--panel:#161b22;--accent:#58d6a0;--sel:#273449}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:22px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:#fff;vertical-align:middle}
+.badge.Easy{background:var(--easy)}.badge.Medium{background:var(--medium)}.badge.Hard{background:var(--hard)}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* index */
+.hdr h1{margin:0 0 2px;font-size:28px}.hdr p{color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.controls input{flex:1 1 220px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--fg)}
+.fbtn{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.fbtn.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:4px 0 2px}.bar>span{display:block;height:100%;background:var(--solved);width:0}
+.tier h2{margin:26px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.row .dot{width:9px;height:9px;border-radius:50%;background:var(--todo);flex:0 0 auto}
+.row .dot.solving{background:var(--solving)}.row .dot.solved{background:var(--solved)}
+.row .num{color:var(--muted);font-size:13px;min-width:34px}
+.row a.t{font-weight:600;flex:1}
+.row .tag{font-size:10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 7px}
+/* problem page */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:8px}
+.top .ttl{font-size:22px;font-weight:700;flex:1}.top .num{color:var(--muted);font-weight:400;font-size:16px}
+.langs{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.langs button{border:0;background:var(--bg);color:var(--fg);padding:8px 14px;cursor:pointer;font-size:14px;font-weight:600}
+.langs button+button{border-left:1px solid var(--border)}
+.langs button.on{background:var(--accent);color:#06240f}
+.statement{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:4px 18px;margin:14px 0}
+.statement h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.statement pre{background:var(--code);color:#d7e3ef;padding:12px;border-radius:8px;overflow:auto}
+.intro{margin:14px 0}
+.note{background:rgba(199,130,10,.12);border:1px solid var(--medium);border-radius:10px;padding:10px 14px;margin:14px 0;color:var(--fg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.codecol{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--code)}
+.blk{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#d7e3ef;
+  padding:3px 14px;cursor:pointer;white-space:pre;font-size:13.5px;line-height:1.5}
+.blk:hover{background:#17202b}
+.blk.on{background:#1b2b24;border-left-color:var(--accent)}
+.blk.static{cursor:default}.blk.static:hover{background:transparent}
+.panel{position:sticky;top:14px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:var(--panel);min-height:160px}
+.panel .step{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.panel .exp :first-child{margin-top:0}
+.panel pre.ascii{background:var(--code);color:#cfe3d6;padding:12px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45;margin-top:12px}
+.panel .hint{color:var(--muted);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:13px}
+</style></head><body><div class="wrap">
+<div class="top">
+  <a href="../" class="back">← All problems</a>
+  <div class="ttl"><span class="num">#90</span> Causal Depthwise Conv1d <span class="badge Medium">Medium</span></div>
+  <div class="langs" id="langs">
+    <button data-lang="cpp" class="on">C++ (CUDA)</button><button data-lang="triton">Python (Triton)</button>
+  </div>
+</div>
+<div class="statement"><p>
+  Implement a <strong>causal depthwise 1D convolution</strong> over a batched sequence tensor
+  <code>x</code> of shape <code>(B, L, D)</code>, producing an output of the same shape.
+  In a depthwise convolution, each channel <code>d</code> is convolved independently using its
+  own kernel <code>weight[d, :]</code> — there is no mixing across channels.
+  The convolution is <strong>causal</strong>: output position <code>l</code> may only depend on
+  input positions <code>0, 1, &hellip;, l</code> (past and present), never future positions.
+  This operation is a key component of state-space models such as Mamba, where it is applied
+  before the selective scan to mix local context within each feature channel.
+</p>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 260" width="480" height="260" style="display:block; margin:20px auto;">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#999"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="480" height="260" fill="#222" rx="8"/>
+
+  <!-- Title -->
+  <text x="240" y="22" text-anchor="middle" fill="#ccc" font-size="13" font-family="sans-serif" font-weight="bold">Causal Depthwise Conv1d (K=3, one channel shown)</text>
+
+  <!-- Input row label -->
+  <text x="14" y="68" fill="#aaa" font-size="11" font-family="monospace">x[d]</text>
+
+  <!-- Input cells: positions 0..5 -->
+  <rect x="52" y="52" width="40" height="28" fill="#2a3a55" stroke="#4477bb" stroke-width="1.2" rx="3"/>
+  <text x="72" y="71" text-anchor="middle" fill="#aaccee" font-size="12" font-family="monospace">x₀</text>
+
+  <rect x="96" y="52" width="40" height="28" fill="#2a3a55" stroke="#4477bb" stroke-width="1.2" rx="3"/>
+  <text x="116" y="71" text-anchor="middle" fill="#aaccee" font-size="12" font-family="monospace">x₁</text>
+
+  <rect x="140" y="52" width="40" height="28" fill="#2a3a55" stroke="#4477bb" stroke-width="1.2" rx="3"/>
+  <text x="160" y="71" text-anchor="middle" fill="#aaccee" font-size="12" font-family="monospace">x₂</text>
+
+  <rect x="184" y="52" width="40" height="28" fill="#2a3a55" stroke="#4477bb" stroke-width="1.2" rx="3"/>
+  <text x="204" y="71" text-anchor="middle" fill="#aaccee" font-size="12" font-family="monospace">x₃</text>
+
+  <rect x="228" y="52" width="40" height="28" fill="#2a3a55" stroke="#4477bb" stroke-width="1.2" rx="3"/>
+  <text x="248" y="71" text-anchor="middle" fill="#aaccee" font-size="12" font-family="monospace">x₄</text>
+
+  <rect x="272" y="52" width="40" height="28" fill="#2a3a55" stroke="#4477bb" stroke-width="1.2" rx="3"/>
+  <text x="292" y="71" text-anchor="middle" fill="#aaccee" font-size="12" font-family="monospace">x₅</text>
+
+  <!-- Kernel box -->
+  <text x="14" y="138" fill="#aaa" font-size="11" font-family="monospace">w[d]</text>
+  <rect x="140" y="118" width="40" height="28" fill="#1e3d2d" stroke="#44aa66" stroke-width="1.5" rx="3"/>
+  <text x="160" y="137" text-anchor="middle" fill="#aaeebb" font-size="12" font-family="monospace">w₀</text>
+  <rect x="184" y="118" width="40" height="28" fill="#1e3d2d" stroke="#44aa66" stroke-width="1.5" rx="3"/>
+  <text x="204" y="137" text-anchor="middle" fill="#aaeebb" font-size="12" font-family="monospace">w₁</text>
+  <rect x="228" y="118" width="40" height="28" fill="#1e3d2d" stroke="#44aa66" stroke-width="1.5" rx="3"/>
+  <text x="248" y="137" text-anchor="middle" fill="#aaeebb" font-size="12" font-family="monospace">w₂</text>
+
+  <!-- Annotation: kernel aligned at l=4 -->
+  <text x="190" y="155" text-anchor="middle" fill="#888" font-size="10" font-family="sans-serif">kernel at l=4: reads x₂,x₃,x₄</text>
+
+  <!-- Arrow from kernel region to output -->
+  <line x1="204" y1="146" x2="204" y2="180" stroke="#999" stroke-width="1.2" marker-end="url(#ah)"/>
+
+  <!-- Output row label -->
+  <text x="14" y="208" fill="#aaa" font-size="11" font-family="monospace">y[d]</text>
+
+  <!-- Output cells -->
+  <rect x="52" y="192" width="40" height="28" fill="#3a2a2a" stroke="#884444" stroke-width="1.2" rx="3"/>
+  <text x="72" y="211" text-anchor="middle" fill="#eeccaa" font-size="11" font-family="monospace">y₀</text>
+
+  <rect x="96" y="192" width="40" height="28" fill="#3a2a2a" stroke="#884444" stroke-width="1.2" rx="3"/>
+  <text x="116" y="211" text-anchor="middle" fill="#eeccaa" font-size="11" font-family="monospace">y₁</text>
+
+  <rect x="140" y="192" width="40" height="28" fill="#3a2a2a" stroke="#884444" stroke-width="1.2" rx="3"/>
+  <text x="160" y="211" text-anchor="middle" fill="#eeccaa" font-size="11" font-family="monospace">y₂</text>
+
+  <rect x="184" y="192" width="40" height="28" fill="#3a2a2a" stroke="#cc6644" stroke-width="2" rx="3"/>
+  <text x="204" y="211" text-anchor="middle" fill="#ffddaa" font-size="11" font-family="monospace" font-weight="bold">y₃</text>
+
+  <rect x="228" y="192" width="40" height="28" fill="#3a2a2a" stroke="#cc6644" stroke-width="2" rx="3"/>
+  <text x="248" y="211" text-anchor="middle" fill="#ffddaa" font-size="11" font-family="monospace" font-weight="bold">y₄</text>
+
+  <rect x="272" y="192" width="40" height="28" fill="#3a2a2a" stroke="#884444" stroke-width="1.2" rx="3"/>
+  <text x="292" y="211" text-anchor="middle" fill="#eeccaa" font-size="11" font-family="monospace">y₅</text>
+
+  <!-- Equation at bottom -->
+  <text x="240" y="246" text-anchor="middle" fill="#888" font-size="11" font-family="sans-serif">
+    y[d,l] = bias[d] + Σ w[d,k] · x[d, l−k]   (x[d,l−k] = 0 if l−k &lt; 0)
+  </text>
+</svg>
+
+<p>
+  Formally, for each batch element <code>b</code>, sequence position <code>l</code>, and channel <code>d</code>:
+</p>
+
+\[
+\text{output}[b,\, l,\, d]
+= \text{bias}[d]
++ \sum_{k=0}^{K-1} \text{weight}[d,\, k] \cdot x[b,\, l - k,\, d]
+\]
+
+<p>
+  where positions <code>l &minus; k &lt; 0</code> are treated as zero (zero-pad the left boundary).
+  The tensor layout is <strong>channels-last</strong>: <code>x[b, l, d]</code> is stored at offset
+  <code>b &times; L &times; D + l &times; D + d</code>.
+</p>
+
+<h2>Implementation Requirements</h2>
+<ul>
+  <li>The <code>solve</code> function signature must remain unchanged</li>
+  <li>The result must be written into the <code>output</code> tensor</li>
+  <li>Use only native features (external libraries are not permitted)</li>
+  <li>Input positions before the start of the sequence (i.e. indices <code>l &minus; k &lt; 0</code>) must be treated as zero</li>
+</ul>
+
+<h2>Example</h2>
+
+<p>With <code>B</code> = 1, <code>L</code> = 4, <code>D</code> = 2, <code>K</code> = 3:</p>
+
+<pre>
+x      = [[[1.0, 2.0],    # l=0
+           [3.0, 4.0],    # l=1
+           [5.0, 6.0],    # l=2
+           [7.0, 8.0]]]   # l=3   shape (1, 4, 2)
+
+weight = [[ 1.0,  0.0, -1.0],   # channel d=0
+          [ 1.0,  1.0,  1.0]]   # channel d=1   shape (2, 3)
+
+bias   = [0.0, 0.0]
+
+output = [[[1.0,  2.0],   # l=0: d0: 1*1=1          d1: 1*2=2
+           [3.0,  6.0],   # l=1: d0: 3*1+1*0=3      d1: 4*1+2*1=6
+           [4.0, 12.0],   # l=2: d0: 5*1+3*0+1*(-1)=4  d1: 6+4+2=12
+           [4.0, 18.0]]]  # l=3: d0: 7*1+5*0+3*(-1)=4  d1: 8+6+4=18
+</pre>
+
+<h2>Constraints</h2>
+<ul>
+  <li>1 &le; <code>B</code> &le; 16 (batch size)</li>
+  <li>1 &le; <code>L</code> &le; 8,192 (sequence length)</li>
+  <li>1 &le; <code>D</code> &le; 8,192 (number of channels)</li>
+  <li>1 &le; <code>K</code> &le; 8 (kernel size; typically 3 or 4 in practice)</li>
+  <li>All tensors use 32-bit floating point</li>
+  <li>Tensor <code>x</code> and <code>output</code> use channels-last layout: shape <code>(B, L, D)</code></li>
+  <li>Performance is measured with <code>B</code> = 8, <code>L</code> = 2,048, <code>D</code> = 4,096, <code>K</code> = 4</li>
+</ul>
+</div>
+<div class="note"><b>Guided walkthrough coming soon.</b> Below is the official starter signature in each language; the clickable line-by-line explanation hasn't been authored yet.</div>
+<div class="intro md" id="intro"></div>
+<div class="grid">
+  <div class="codecol" id="codecol"></div>
+  <aside class="panel" id="panel"><div class="hint">Select a line of code to see what it does.</div></aside>
+</div>
+<div class="foot">Problem text & starters from the official <a href="https://github.com/AlphaGPU/leetgpu-challenges">AlphaGPU/leetgpu-challenges</a>. Solve it on <a href="https://leetgpu.com">leetgpu.com</a>.</div>
+</div>
+<script>
+var DATA = {"authored":false,"order":["cpp","triton"],"langs":{"cpp":{"label":"C++ (CUDA)","intro":null,"blocks":[{"code":"#include &lt;cuda_runtime.h&gt;\n\n// x, weight, bias, output are device pointers\nextern \"C\" void solve(const float* x, const float* weight, const float* bias, float* output, int B,\n                      int L, int D, int K) {}","explain":null,"diagram":null}]},"triton":{"label":"Python (Triton)","intro":null,"blocks":[{"code":"import torch\nimport triton\nimport triton.language as tl\n\n\n# x, weight, bias, output are tensors on the GPU\ndef solve(\n    x: torch.Tensor,\n    weight: torch.Tensor,\n    bias: torch.Tensor,\n    output: torch.Tensor,\n    B: int,\n    L: int,\n    D: int,\n    K: int,\n):\n    pass","explain":null,"diagram":null}]}}};
+var lang = DATA.order[0], idx = 0;
+var codecol=document.getElementById("codecol"), panel=document.getElementById("panel"), introEl=document.getElementById("intro");
+function renderCode(){
+  var L=DATA.langs[lang]; introEl.innerHTML = L.intro || "";
+  var html="";
+  L.blocks.forEach(function(b,i){
+    var clickable = b.explain!==null;
+    html += '<button class="blk'+(clickable?'':' static')+(clickable&&i===idx?' on':'')+'" data-i="'+i+'"'+(clickable?'':' tabindex="-1"')+'>'+b.code+'</button>';
+  });
+  codecol.innerHTML=html;
+  codecol.querySelectorAll(".blk").forEach(function(el){
+    if(el.classList.contains("static")) return;
+    el.onclick=function(){ idx=+el.dataset.i; renderCode(); renderPanel(); };
+  });
+}
+function renderPanel(){
+  var L=DATA.langs[lang], b=L.blocks[idx];
+  if(!b || b.explain===null){ panel.innerHTML='<div class="hint">Select a line of code to see what it does.</div>'; return; }
+  var n=L.blocks.filter(function(x){return x.explain!==null;}).length;
+  var pos=0,c=0; for(var i=0;i<=idx;i++){ if(L.blocks[i].explain!==null) c++; } pos=c;
+  var html='<div class="step">Step '+pos+' of '+n+'</div><div class="exp">'+b.explain+'</div>';
+  if(b.diagram) html+='<pre class="ascii">'+b.diagram.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</pre>';
+  panel.innerHTML=html;
+}
+function firstClickable(){ var L=DATA.langs[lang]; for(var i=0;i<L.blocks.length;i++) if(L.blocks[i].explain!==null) return i; return 0; }
+document.getElementById("langs").querySelectorAll("button").forEach(function(btn){
+  btn.onclick=function(){
+    document.querySelectorAll("#langs button").forEach(function(b){b.classList.remove("on");});
+    btn.classList.add("on"); lang=btn.dataset.lang; idx=firstClickable(); renderCode(); renderPanel();
+  };
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="ArrowDown"&&e.key!=="ArrowUp") return;
+  var L=DATA.langs[lang], n=L.blocks.length, d=e.key==="ArrowDown"?1:-1, j=idx;
+  for(var k=0;k<n;k++){ j=(j+d+n)%n; if(L.blocks[j].explain!==null){ idx=j; break; } }
+  renderCode(); renderPanel(); e.preventDefault();
+});
+idx=firstClickable(); renderCode();
+if(DATA.authored) renderPanel();
+</script></body></html>

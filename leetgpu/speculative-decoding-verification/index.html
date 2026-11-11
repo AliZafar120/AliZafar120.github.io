@@ -1,0 +1,301 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Speculative Decoding Verification · LeetGPU</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{--easy:#2e8b57;--medium:#c7820a;--hard:#d64545;--todo:#9aa0a6;--solving:#c7820a;--solved:#2e8b57;
+ --bg:#fff;--fg:#1f2328;--muted:#5c636b;--border:#e3e6ea;--panel:#f7f8fa;--code:#0b0f14;--accent:#2e8b57;--sel:#fde68a;--seldark:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--fg:#e6edf3;--muted:#9aa7b4;--border:#2a313c;--panel:#161b22;--accent:#58d6a0;--sel:#273449}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:22px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:#fff;vertical-align:middle}
+.badge.Easy{background:var(--easy)}.badge.Medium{background:var(--medium)}.badge.Hard{background:var(--hard)}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* index */
+.hdr h1{margin:0 0 2px;font-size:28px}.hdr p{color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.controls input{flex:1 1 220px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--fg)}
+.fbtn{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.fbtn.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:4px 0 2px}.bar>span{display:block;height:100%;background:var(--solved);width:0}
+.tier h2{margin:26px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.row .dot{width:9px;height:9px;border-radius:50%;background:var(--todo);flex:0 0 auto}
+.row .dot.solving{background:var(--solving)}.row .dot.solved{background:var(--solved)}
+.row .num{color:var(--muted);font-size:13px;min-width:34px}
+.row a.t{font-weight:600;flex:1}
+.row .tag{font-size:10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 7px}
+/* problem page */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:8px}
+.top .ttl{font-size:22px;font-weight:700;flex:1}.top .num{color:var(--muted);font-weight:400;font-size:16px}
+.langs{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.langs button{border:0;background:var(--bg);color:var(--fg);padding:8px 14px;cursor:pointer;font-size:14px;font-weight:600}
+.langs button+button{border-left:1px solid var(--border)}
+.langs button.on{background:var(--accent);color:#06240f}
+.statement{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:4px 18px;margin:14px 0}
+.statement h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.statement pre{background:var(--code);color:#d7e3ef;padding:12px;border-radius:8px;overflow:auto}
+.intro{margin:14px 0}
+.note{background:rgba(199,130,10,.12);border:1px solid var(--medium);border-radius:10px;padding:10px 14px;margin:14px 0;color:var(--fg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.codecol{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--code)}
+.blk{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#d7e3ef;
+  padding:3px 14px;cursor:pointer;white-space:pre;font-size:13.5px;line-height:1.5}
+.blk:hover{background:#17202b}
+.blk.on{background:#1b2b24;border-left-color:var(--accent)}
+.blk.static{cursor:default}.blk.static:hover{background:transparent}
+.panel{position:sticky;top:14px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:var(--panel);min-height:160px}
+.panel .step{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.panel .exp :first-child{margin-top:0}
+.panel pre.ascii{background:var(--code);color:#cfe3d6;padding:12px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45;margin-top:12px}
+.panel .hint{color:var(--muted);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:13px}
+</style></head><body><div class="wrap">
+<div class="top">
+  <a href="../" class="back">← All problems</a>
+  <div class="ttl"><span class="num">#87</span> Speculative Decoding Verification <span class="badge Medium">Medium</span></div>
+  <div class="langs" id="langs">
+    <button data-lang="cpp" class="on">C++ (CUDA)</button><button data-lang="triton">Python (Triton)</button>
+  </div>
+</div>
+<div class="statement"><p>
+  Implement the token verification step of speculative decoding. A draft model proposes \(T\) tokens;
+  the target model evaluates them in one forward pass and accepts or rejects each. Given \(B\)
+  sequences, produce the verified output tokens. Probability tensors are <code>float32</code>;
+  token tensors are <code>int32</code>.
+</p>
+
+<p>
+  Notation for each sequence \(b\), at each draft position \(i = 0, \ldots, T{-}1\):
+</p>
+<ul>
+  <li>\(t_i = \texttt{draft_tokens}[b, i]\) &mdash; the token proposed by the draft model</li>
+  <li>\(p_i(v) = \texttt{draft_probs}[b, i, v]\) &mdash; draft model's probability for token \(v\)</li>
+  <li>\(q_i(v) = \texttt{target_probs}[b, i, v]\) &mdash; target model's probability for token \(v\)</li>
+  <li>\(u_i = \texttt{uniform_samples}[b, i]\) &mdash; pre-generated \(U[0,1)\) sample for position \(i\)</li>
+</ul>
+
+<svg width="660" height="310" viewBox="0 0 660 310" xmlns="http://www.w3.org/2000/svg"
+     style="display:block; margin:20px auto; font-family:monospace;">
+  <rect width="660" height="310" fill="#222" rx="8"/>
+
+  <!-- Column headers -->
+  <text x="108" y="18" fill="#666" font-size="9" text-anchor="middle">pos 0</text>
+  <text x="248" y="18" fill="#666" font-size="9" text-anchor="middle">pos 1</text>
+  <text x="388" y="18" fill="#666" font-size="9" text-anchor="middle">pos 2</text>
+  <text x="528" y="18" fill="#666" font-size="9" text-anchor="middle">pos 3</text>
+
+  <!-- Row 1: Draft tokens -->
+  <text x="16" y="42" fill="#888" font-size="10">draft</text>
+  <rect x="56" y="28" width="104" height="24" rx="4" fill="#1e3a5f" stroke="#4477bb" stroke-width="1.5"/>
+  <text x="108" y="45" text-anchor="middle" fill="#8ec4f0" font-size="11">t&#x2080;</text>
+  <rect x="196" y="28" width="104" height="24" rx="4" fill="#1e3a5f" stroke="#4477bb" stroke-width="1.5"/>
+  <text x="248" y="45" text-anchor="middle" fill="#8ec4f0" font-size="11">t&#x2081;</text>
+  <rect x="336" y="28" width="104" height="24" rx="4" fill="#1e3a5f" stroke="#4477bb" stroke-width="1.5"/>
+  <text x="388" y="45" text-anchor="middle" fill="#8ec4f0" font-size="11">t&#x2082;</text>
+  <rect x="476" y="28" width="104" height="24" rx="4" fill="#1e3a5f" stroke="#4477bb" stroke-width="1.5"/>
+  <text x="528" y="45" text-anchor="middle" fill="#8ec4f0" font-size="11">t&#x2083;</text>
+
+  <!-- Row 2: Probabilities -->
+  <text x="16" y="76" fill="#888" font-size="10">probs</text>
+  <rect x="56" y="62" width="104" height="34" rx="4" fill="#1a1a1a" stroke="#666" stroke-width="1"/>
+  <text x="108" y="76" text-anchor="middle" fill="#c060e0" font-size="9">p(t&#x2080;) = 0.60</text>
+  <text x="108" y="89" text-anchor="middle" fill="#e0a040" font-size="9">q(t&#x2080;) = 0.50</text>
+
+  <rect x="196" y="62" width="104" height="34" rx="4" fill="#1a1a1a" stroke="#666" stroke-width="1"/>
+  <text x="248" y="76" text-anchor="middle" fill="#c060e0" font-size="9">p(t&#x2081;) = 0.50</text>
+  <text x="248" y="89" text-anchor="middle" fill="#e0a040" font-size="9">q(t&#x2081;) = 0.20</text>
+
+  <rect x="336" y="62" width="104" height="34" rx="4" fill="#2a2a2a" stroke="#555" stroke-width="1"/>
+  <text x="388" y="80" text-anchor="middle" fill="#555" font-size="9">not reached</text>
+
+  <rect x="476" y="62" width="104" height="34" rx="4" fill="#2a2a2a" stroke="#555" stroke-width="1"/>
+  <text x="528" y="80" text-anchor="middle" fill="#555" font-size="9">not reached</text>
+
+  <!-- Row 3: Alpha + accept/reject -->
+  <text x="16" y="124" fill="#888" font-size="10">&#x3b1;, test</text>
+  <rect x="56" y="108" width="104" height="40" rx="4" fill="#1a3a1a" stroke="#44aa66" stroke-width="1.5"/>
+  <text x="108" y="124" text-anchor="middle" fill="#aaa" font-size="9">&#x3b1; = .50/.60 = .83</text>
+  <text x="108" y="140" text-anchor="middle" fill="#44aa66" font-size="9">u=0.1 &lt; .83 &#x2713;</text>
+
+  <rect x="196" y="108" width="104" height="40" rx="4" fill="#4a1a1a" stroke="#e06060" stroke-width="1.5"/>
+  <text x="248" y="124" text-anchor="middle" fill="#aaa" font-size="9">&#x3b1; = .20/.50 = .40</text>
+  <text x="248" y="140" text-anchor="middle" fill="#e06060" font-size="9">u=0.7 &#x2265; .40 &#x2717;</text>
+
+  <rect x="336" y="108" width="104" height="40" rx="4" fill="#2a2a2a" stroke="#555" stroke-width="1"/>
+  <text x="388" y="132" text-anchor="middle" fill="#555" font-size="9">skipped</text>
+
+  <rect x="476" y="108" width="104" height="40" rx="4" fill="#2a2a2a" stroke="#555" stroke-width="1"/>
+  <text x="528" y="132" text-anchor="middle" fill="#555" font-size="9">skipped</text>
+
+  <!-- Row 4: Resample box -->
+  <rect x="56" y="164" width="524" height="38" rx="5" fill="#1a1a1a" stroke="#e06060" stroke-width="1"/>
+  <text x="318" y="180" text-anchor="middle" fill="#e06060" font-size="10">reject at pos 1 &#x2192; stop, resample from adj(v) = max(0, q(v) &#x2212; p(v))</text>
+  <text x="318" y="194" text-anchor="middle" fill="#aaa" font-size="9">normalize adj, inverse-CDF sample using u[b, T] &#x2192; replacement token t&#x2081;&#x2032;</text>
+
+  <!-- Row 5: Output tokens -->
+  <text x="16" y="224" fill="#888" font-size="10">output</text>
+  <rect x="56" y="212" width="104" height="24" rx="4" fill="#1e3a5f" stroke="#4477bb" stroke-width="1.5"/>
+  <text x="108" y="229" text-anchor="middle" fill="#8ec4f0" font-size="11">t&#x2080;</text>
+  <rect x="196" y="212" width="104" height="24" rx="4" fill="#3a2010" stroke="#e0a040" stroke-width="1.5"/>
+  <text x="248" y="229" text-anchor="middle" fill="#f0b060" font-size="11">t&#x2081;&#x2032;</text>
+  <rect x="336" y="212" width="104" height="24" rx="4" fill="#2a2a2a" stroke="#555" stroke-width="1"/>
+  <text x="388" y="229" text-anchor="middle" fill="#555" font-size="11">0</text>
+  <rect x="476" y="212" width="104" height="24" rx="4" fill="#2a2a2a" stroke="#555" stroke-width="1"/>
+  <text x="528" y="229" text-anchor="middle" fill="#555" font-size="11">0</text>
+
+  <!-- Legend -->
+  <text x="16" y="260" fill="#c060e0" font-size="9">p = draft prob</text>
+  <text x="130" y="260" fill="#e0a040" font-size="9">q = target prob</text>
+  <text x="260" y="260" fill="#aaa" font-size="9">&#x3b1; = min(1, q/p)</text>
+  <text x="400" y="260" fill="#44aa66" font-size="9">&#x25a0; accepted</text>
+  <text x="490" y="260" fill="#e0a040" font-size="9">&#x25a0; resampled</text>
+  <text x="590" y="260" fill="#555" font-size="9">&#x25a0; pad</text>
+
+  <!-- All-accept note -->
+  <text x="330" y="290" text-anchor="middle" fill="#888" font-size="9">If all T tokens accepted: sample bonus token from q at last position using u[b, T]</text>
+</svg>
+
+<p>
+  For each sequence \(b\), process positions \(i = 0, 1, \ldots, T{-}1\) left-to-right:
+</p>
+<ol>
+  <li>Compute acceptance probability: \(\displaystyle \alpha_i = \min\!\left(1,\; \frac{q_i(t_i)}{p_i(t_i)}\right)\)</li>
+  <li>If \(u_i < \alpha_i\): <strong>accept</strong> \(t_i\), continue to position \(i{+}1\).</li>
+  <li>If \(u_i \ge \alpha_i\): <strong>reject</strong>, stop. Sample replacement from:
+    \[\text{adj}(v) = \frac{\max(0,\; q_i(v) - p_i(v))}{\sum_{v'} \max(0,\; q_i(v') - p_i(v'))}\]
+    using inverse CDF with \(r = \texttt{uniform_samples}[b, T]\). If \(\text{adj}\) is all zeros, use uniform \(1/V\).
+  </li>
+  <li>If all \(T\) tokens accepted: sample a <strong>bonus token</strong> from \(q_{T-1}\) using \(\texttt{uniform_samples}[b, T]\).</li>
+</ol>
+<p>
+  Write results into <code>output_tokens[b, :]</code> (shape \([B, T{+}1]\)): accepted/resampled tokens
+  fill positions \(0\) through the accepted count (inclusive), remaining positions are zero.
+</p>
+
+<h2>Implementation Requirements</h2>
+<ul>
+  <li>Implement <code>solve(draft_tokens, draft_probs, target_probs, uniform_samples, output_tokens, B, T, V)</code>.</li>
+  <li>Do not change the function signature or use external libraries beyond the standard GPU frameworks.</li>
+  <li>Write results into the provided <code>output_tokens</code> buffer (shape <code>[B, T+1]</code>, <code>int32</code>).</li>
+  <li>Memory layout is row-major: <code>draft_probs[b, i, v]</code> is at offset <code>b*T*V + i*V + v</code>.</li>
+  <li>
+    Inverse CDF sampling: given distribution \(\text{adj}\) (already normalized), find the
+    smallest index \(k\) where \(\sum_{v=0}^{k} \text{adj}(v) \ge r\), where
+    \(r = \texttt{uniform_samples}[b, T]\). Clamp the result to \([0, V-1]\).
+  </li>
+  <li>
+    If the adjusted distribution is all zeros (i.e., \(q_i \le p_i\) everywhere), fall back to
+    the uniform distribution over \(V\) tokens.
+  </li>
+</ul>
+
+<h2>Example</h2>
+<p>
+  Input: \(B = 1,\; T = 3,\; V = 4\)
+</p>
+<p>
+  \(\text{draft_tokens} = [1, 2, 0]\)
+</p>
+<p>
+  Draft probabilities \(p_i\) and target probabilities \(q_i\) per position:
+  \[
+  p_0 = \begin{bmatrix} 0.10 & 0.60 & 0.20 & 0.10 \end{bmatrix}, \quad
+  q_0 = \begin{bmatrix} 0.10 & 0.50 & 0.20 & 0.20 \end{bmatrix}
+  \]
+  \[
+  p_1 = \begin{bmatrix} 0.10 & 0.20 & 0.50 & 0.20 \end{bmatrix}, \quad
+  q_1 = \begin{bmatrix} 0.30 & 0.20 & 0.20 & 0.30 \end{bmatrix}
+  \]
+  \[
+  \text{uniform_samples} = \begin{bmatrix} 0.50 & 0.70 & 0.30 & 0.90 \end{bmatrix}
+  \]
+</p>
+<p>
+  <strong>Position 0</strong> (draft token = 1):
+  \(\alpha_0 = \min\!\left(1,\, \frac{q_0(1)}{p_0(1)}\right) = \min\!\left(1,\, \frac{0.50}{0.60}\right) \approx 0.833\).
+  Since \(u_0 = 0.50 < 0.833\), <strong>accept</strong> token 1.
+</p>
+<p>
+  <strong>Position 1</strong> (draft token = 2):
+  \(\alpha_1 = \min\!\left(1,\, \frac{q_1(2)}{p_1(2)}\right) = \min\!\left(1,\, \frac{0.20}{0.50}\right) = 0.40\).
+  Since \(u_1 = 0.70 \ge 0.40\), <strong>reject</strong>. Resample from adjusted distribution:
+  \[
+  \text{adj}(v) = \max(0,\, q_1(v) - p_1(v)) = [0.20,\, 0,\, 0,\, 0.10]
+  \]
+  \[
+  \text{normalized} = \left[\tfrac{2}{3},\, 0,\, 0,\, \tfrac{1}{3}\right], \quad
+  \text{CDF} = [0.667,\, 0.667,\, 0.667,\, 1.0]
+  \]
+  With \(r = \text{uniform_samples}[0, T] = 0.90\), inverse CDF gives token <strong>3</strong>.
+</p>
+<p>
+  Output:
+  \[\text{output_tokens} = \begin{bmatrix} 1 & 3 & 0 & 0 \end{bmatrix}\]
+</p>
+
+<h2>Constraints</h2>
+<ul>
+  <li>1 &le; <code>B</code> &le; 256</li>
+  <li>1 &le; <code>T</code> &le; 16</li>
+  <li>2 &le; <code>V</code> &le; 131,072</li>
+  <li><code>draft_probs[b, i, :]</code> and <code>target_probs[b, i, :]</code> are valid probability distributions (non-negative, sum to 1)</li>
+  <li><code>draft_probs[b, i, draft_tokens[b, i]]</code> &gt; 0 for all <code>b</code>, <code>i</code></li>
+  <li><code>uniform_samples</code> values are in \([0, 1)\)</li>
+  <li>All floating-point tensors use <code>float32</code>; token tensors use <code>int32</code></li>
+  <li>Performance is measured with <code>B</code> = 64, <code>T</code> = 8, <code>V</code> = 32,768</li>
+</ul>
+</div>
+<div class="note"><b>Guided walkthrough coming soon.</b> Below is the official starter signature in each language; the clickable line-by-line explanation hasn't been authored yet.</div>
+<div class="intro md" id="intro"></div>
+<div class="grid">
+  <div class="codecol" id="codecol"></div>
+  <aside class="panel" id="panel"><div class="hint">Select a line of code to see what it does.</div></aside>
+</div>
+<div class="foot">Problem text & starters from the official <a href="https://github.com/AlphaGPU/leetgpu-challenges">AlphaGPU/leetgpu-challenges</a>. Solve it on <a href="https://leetgpu.com">leetgpu.com</a>.</div>
+</div>
+<script>
+var DATA = {"authored":false,"order":["cpp","triton"],"langs":{"cpp":{"label":"C++ (CUDA)","intro":null,"blocks":[{"code":"#include &lt;cuda_runtime.h&gt;\n\n// draft_tokens, draft_probs, target_probs, uniform_samples, output_tokens are device pointers\nextern \"C\" void solve(const int* draft_tokens, const float* draft_probs, const float* target_probs,\n                      const float* uniform_samples, int* output_tokens, int B, int T, int V) {}","explain":null,"diagram":null}]},"triton":{"label":"Python (Triton)","intro":null,"blocks":[{"code":"import torch\nimport triton\nimport triton.language as tl\n\n\n# draft_tokens, draft_probs, target_probs, uniform_samples, output_tokens are tensors on the GPU\ndef solve(\n    draft_tokens: torch.Tensor,\n    draft_probs: torch.Tensor,\n    target_probs: torch.Tensor,\n    uniform_samples: torch.Tensor,\n    output_tokens: torch.Tensor,\n    B: int,\n    T: int,\n    V: int,\n):\n    pass","explain":null,"diagram":null}]}}};
+var lang = DATA.order[0], idx = 0;
+var codecol=document.getElementById("codecol"), panel=document.getElementById("panel"), introEl=document.getElementById("intro");
+function renderCode(){
+  var L=DATA.langs[lang]; introEl.innerHTML = L.intro || "";
+  var html="";
+  L.blocks.forEach(function(b,i){
+    var clickable = b.explain!==null;
+    html += '<button class="blk'+(clickable?'':' static')+(clickable&&i===idx?' on':'')+'" data-i="'+i+'"'+(clickable?'':' tabindex="-1"')+'>'+b.code+'</button>';
+  });
+  codecol.innerHTML=html;
+  codecol.querySelectorAll(".blk").forEach(function(el){
+    if(el.classList.contains("static")) return;
+    el.onclick=function(){ idx=+el.dataset.i; renderCode(); renderPanel(); };
+  });
+}
+function renderPanel(){
+  var L=DATA.langs[lang], b=L.blocks[idx];
+  if(!b || b.explain===null){ panel.innerHTML='<div class="hint">Select a line of code to see what it does.</div>'; return; }
+  var n=L.blocks.filter(function(x){return x.explain!==null;}).length;
+  var pos=0,c=0; for(var i=0;i<=idx;i++){ if(L.blocks[i].explain!==null) c++; } pos=c;
+  var html='<div class="step">Step '+pos+' of '+n+'</div><div class="exp">'+b.explain+'</div>';
+  if(b.diagram) html+='<pre class="ascii">'+b.diagram.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</pre>';
+  panel.innerHTML=html;
+}
+function firstClickable(){ var L=DATA.langs[lang]; for(var i=0;i<L.blocks.length;i++) if(L.blocks[i].explain!==null) return i; return 0; }
+document.getElementById("langs").querySelectorAll("button").forEach(function(btn){
+  btn.onclick=function(){
+    document.querySelectorAll("#langs button").forEach(function(b){b.classList.remove("on");});
+    btn.classList.add("on"); lang=btn.dataset.lang; idx=firstClickable(); renderCode(); renderPanel();
+  };
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="ArrowDown"&&e.key!=="ArrowUp") return;
+  var L=DATA.langs[lang], n=L.blocks.length, d=e.key==="ArrowDown"?1:-1, j=idx;
+  for(var k=0;k<n;k++){ j=(j+d+n)%n; if(L.blocks[j].explain!==null){ idx=j; break; } }
+  renderCode(); renderPanel(); e.preventDefault();
+});
+idx=firstClickable(); renderCode();
+if(DATA.authored) renderPanel();
+</script></body></html>

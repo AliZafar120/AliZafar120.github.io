@@ -1,0 +1,159 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RGB To Grayscale · LeetGPU</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{--easy:#2e8b57;--medium:#c7820a;--hard:#d64545;--todo:#9aa0a6;--solving:#c7820a;--solved:#2e8b57;
+ --bg:#fff;--fg:#1f2328;--muted:#5c636b;--border:#e3e6ea;--panel:#f7f8fa;--code:#0b0f14;--accent:#2e8b57;--sel:#fde68a;--seldark:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--fg:#e6edf3;--muted:#9aa7b4;--border:#2a313c;--panel:#161b22;--accent:#58d6a0;--sel:#273449}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:22px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:#fff;vertical-align:middle}
+.badge.Easy{background:var(--easy)}.badge.Medium{background:var(--medium)}.badge.Hard{background:var(--hard)}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* index */
+.hdr h1{margin:0 0 2px;font-size:28px}.hdr p{color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.controls input{flex:1 1 220px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--fg)}
+.fbtn{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.fbtn.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:4px 0 2px}.bar>span{display:block;height:100%;background:var(--solved);width:0}
+.tier h2{margin:26px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.row .dot{width:9px;height:9px;border-radius:50%;background:var(--todo);flex:0 0 auto}
+.row .dot.solving{background:var(--solving)}.row .dot.solved{background:var(--solved)}
+.row .num{color:var(--muted);font-size:13px;min-width:34px}
+.row a.t{font-weight:600;flex:1}
+.row .tag{font-size:10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 7px}
+/* problem page */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:8px}
+.top .ttl{font-size:22px;font-weight:700;flex:1}.top .num{color:var(--muted);font-weight:400;font-size:16px}
+.langs{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.langs button{border:0;background:var(--bg);color:var(--fg);padding:8px 14px;cursor:pointer;font-size:14px;font-weight:600}
+.langs button+button{border-left:1px solid var(--border)}
+.langs button.on{background:var(--accent);color:#06240f}
+.statement{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:4px 18px;margin:14px 0}
+.statement h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.statement pre{background:var(--code);color:#d7e3ef;padding:12px;border-radius:8px;overflow:auto}
+.intro{margin:14px 0}
+.note{background:rgba(199,130,10,.12);border:1px solid var(--medium);border-radius:10px;padding:10px 14px;margin:14px 0;color:var(--fg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.codecol{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--code)}
+.blk{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#d7e3ef;
+  padding:3px 14px;cursor:pointer;white-space:pre;font-size:13.5px;line-height:1.5}
+.blk:hover{background:#17202b}
+.blk.on{background:#1b2b24;border-left-color:var(--accent)}
+.blk.static{cursor:default}.blk.static:hover{background:transparent}
+.panel{position:sticky;top:14px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:var(--panel);min-height:160px}
+.panel .step{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.panel .exp :first-child{margin-top:0}
+.panel pre.ascii{background:var(--code);color:#cfe3d6;padding:12px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45;margin-top:12px}
+.panel .hint{color:var(--muted);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:13px}
+</style></head><body><div class="wrap">
+<div class="top">
+  <a href="../" class="back">← All problems</a>
+  <div class="ttl"><span class="num">#66</span> RGB To Grayscale <span class="badge Easy">Easy</span></div>
+  <div class="langs" id="langs">
+    <button data-lang="cpp" class="on">C++ (CUDA)</button><button data-lang="triton">Python (Triton)</button>
+  </div>
+</div>
+<div class="statement"><p>
+  Implement a GPU program that converts an RGB image to grayscale on the GPU.
+  Given an input RGB image represented as a 1D array of 32-bit floating point values,
+  compute the corresponding grayscale image using the standard RGB to grayscale conversion formula.
+</p>
+
+<p>
+  The conversion formula is: <code>gray = 0.299 × R + 0.587 × G + 0.114 × B</code>
+</p>
+
+<p>
+  The input array <code>input</code> contains <code>height × width × 3</code> elements,
+  where the RGB values for each pixel are stored consecutively (R, G, B, R, G, B, ...).
+  The output array <code>output</code> should contain <code>height × width</code> grayscale values.
+</p>
+
+<h2>Implementation Requirements</h2>
+<ul>
+  <li>External libraries are not permitted</li>
+  <li>The <code>solve</code> function signature must remain unchanged</li>
+  <li>The final result must be stored in the array <code>output</code></li>
+  <li>Use the exact coefficients: 0.299 for red, 0.587 for green, 0.114 for blue</li>
+</ul>
+
+<h2>Example 1:</h2>
+<pre>
+Input:  input = [255.0, 0.0, 0.0, 0.0, 255.0, 0.0, 0.0, 0.0, 255.0, 128.0, 128.0, 128.0], width=2, height=2
+Output: output = [76.245, 149.685, 29.07, 128.0]
+</pre>
+
+<h2>Example 2:</h2>
+<pre>
+Input:  input = [100.0, 150.0, 200.0], width=1, height=1
+Output: output = [140.75]
+</pre>
+
+<h2>Constraints</h2>
+<ul>
+  <li>1 ≤ <code>width</code> ≤ 4096</li>
+  <li>1 ≤ <code>height</code> ≤ 4096</li>
+  <li><code>width × height</code> ≤ 4,194,304</li>
+  <li>All RGB values are in the range [0.0, 255.0]</li>
+
+  <li>Performance is measured with <code>height</code> = 2,048, <code>width</code> = 2,048</li>
+</ul>
+</div>
+
+<div class="intro md" id="intro"></div>
+<div class="grid">
+  <div class="codecol" id="codecol"></div>
+  <aside class="panel" id="panel"><div class="hint">Select a line of code to see what it does.</div></aside>
+</div>
+<div class="foot">Problem text & starters from the official <a href="https://github.com/AlphaGPU/leetgpu-challenges">AlphaGPU/leetgpu-challenges</a>. Solve it on <a href="https://leetgpu.com">leetgpu.com</a>.</div>
+</div>
+<script>
+var DATA = {"authored":true,"order":["cpp","triton"],"langs":{"cpp":{"label":"C++ (CUDA)","intro":"<p>A <strong>reduction across channels</strong>, not across pixels. Input is interleaved RGB floats (<code>R,G,B,R,G,B,…</code>), 3 per pixel; output is one gray value per pixel.</p>\n","blocks":[{"code":"__global__ void rgb_to_grayscale_kernel(const float* input, float* output, int width, int height) {\n    int i = blockIdx.x * blockDim.x + threadIdx.x;\n    int total_pixels = width * height;\n    if (i &lt; total_pixels) {","explain":"<p>One thread per pixel; <code>total_pixels = width*height</code>.</p>\n","diagram":null},{"code":"        float r = input[3 * i];\n        float g = input[3 * i + 1];\n        float b = input[3 * i + 2];","explain":"<p>Pixel <code>i</code>&#39;s three channels are at <code>3i, 3i+1, 3i+2</code> — stride 3 because RGB is interleaved.</p>\n","diagram":" input (interleaved): [R G B | R G B | R G B | ...]\n                        pix0    pix1    pix2\n pixel i channels at 3i, 3i+1, 3i+2"},{"code":"        output[i] = 0.299f * r + 0.587f * g + 0.114f * b;","explain":"<p>The standard luma weights (ITU-R 601). Must be these exact coefficients to match the grader.</p>\n","diagram":" gray = 0.299·R + 0.587·G + 0.114·B\n        (green dominates human brightness perception)"},{"code":"    }\n}","explain":"<p>One output per pixel.</p>\n","diagram":null},{"code":"extern \"C\" void solve(const float* input, float* output, int width, int height) {\n    int total_pixels = width * height;\n    int threadsPerBlock = 256;\n    int blocksPerGrid = (total_pixels + threadsPerBlock - 1) / threadsPerBlock;\n    rgb_to_grayscale_kernel&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(input, output, width, height);\n    cudaDeviceSynchronize();\n}","explain":"<p>Launch one thread per pixel.</p>\n","diagram":null}]},"triton":{"label":"Python (Triton)","intro":"<p>Gather the three channels with stride-3 offsets, combine with the luma weights.</p>\n","blocks":[{"code":"@triton.jit\ndef rgb_to_grayscale_kernel(input, output, width, height, BLOCK_SIZE: tl.constexpr):\n    pid = tl.program_id(axis=0)\n    i = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)\n    mask = i &lt; width * height","explain":"<p><code>i</code> is a vector of pixel indices.</p>\n","diagram":null},{"code":"    r = tl.load(input + 3 * i,     mask=mask)\n    g = tl.load(input + 3 * i + 1, mask=mask)\n    b = tl.load(input + 3 * i + 2, mask=mask)","explain":"<p>Strided gathers pull each channel for the whole block of pixels.</p>\n","diagram":null},{"code":"    gray = 0.299 * r + 0.587 * g + 0.114 * b\n    tl.store(output + i, gray, mask=mask)","explain":"<p>Weighted sum, one gray value per pixel.</p>\n","diagram":null},{"code":"def solve(input, output, width, height):\n    total_pixels = width * height\n    BLOCK_SIZE = 1024\n    grid = (triton.cdiv(total_pixels, BLOCK_SIZE),)\n    rgb_to_grayscale_kernel[grid](input, output, width, height, BLOCK_SIZE)","explain":"<p>Launch over pixels.</p>\n","diagram":null}]}}};
+var lang = DATA.order[0], idx = 0;
+var codecol=document.getElementById("codecol"), panel=document.getElementById("panel"), introEl=document.getElementById("intro");
+function renderCode(){
+  var L=DATA.langs[lang]; introEl.innerHTML = L.intro || "";
+  var html="";
+  L.blocks.forEach(function(b,i){
+    var clickable = b.explain!==null;
+    html += '<button class="blk'+(clickable?'':' static')+(clickable&&i===idx?' on':'')+'" data-i="'+i+'"'+(clickable?'':' tabindex="-1"')+'>'+b.code+'</button>';
+  });
+  codecol.innerHTML=html;
+  codecol.querySelectorAll(".blk").forEach(function(el){
+    if(el.classList.contains("static")) return;
+    el.onclick=function(){ idx=+el.dataset.i; renderCode(); renderPanel(); };
+  });
+}
+function renderPanel(){
+  var L=DATA.langs[lang], b=L.blocks[idx];
+  if(!b || b.explain===null){ panel.innerHTML='<div class="hint">Select a line of code to see what it does.</div>'; return; }
+  var n=L.blocks.filter(function(x){return x.explain!==null;}).length;
+  var pos=0,c=0; for(var i=0;i<=idx;i++){ if(L.blocks[i].explain!==null) c++; } pos=c;
+  var html='<div class="step">Step '+pos+' of '+n+'</div><div class="exp">'+b.explain+'</div>';
+  if(b.diagram) html+='<pre class="ascii">'+b.diagram.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</pre>';
+  panel.innerHTML=html;
+}
+function firstClickable(){ var L=DATA.langs[lang]; for(var i=0;i<L.blocks.length;i++) if(L.blocks[i].explain!==null) return i; return 0; }
+document.getElementById("langs").querySelectorAll("button").forEach(function(btn){
+  btn.onclick=function(){
+    document.querySelectorAll("#langs button").forEach(function(b){b.classList.remove("on");});
+    btn.classList.add("on"); lang=btn.dataset.lang; idx=firstClickable(); renderCode(); renderPanel();
+  };
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="ArrowDown"&&e.key!=="ArrowUp") return;
+  var L=DATA.langs[lang], n=L.blocks.length, d=e.key==="ArrowDown"?1:-1, j=idx;
+  for(var k=0;k<n;k++){ j=(j+d+n)%n; if(L.blocks[j].explain!==null){ idx=j; break; } }
+  renderCode(); renderPanel(); e.preventDefault();
+});
+idx=firstClickable(); renderCode();
+if(DATA.authored) renderPanel();
+</script></body></html>

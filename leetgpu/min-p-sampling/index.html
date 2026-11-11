@@ -1,0 +1,172 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Min P Sampling · LeetGPU</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{--easy:#2e8b57;--medium:#c7820a;--hard:#d64545;--todo:#9aa0a6;--solving:#c7820a;--solved:#2e8b57;
+ --bg:#fff;--fg:#1f2328;--muted:#5c636b;--border:#e3e6ea;--panel:#f7f8fa;--code:#0b0f14;--accent:#2e8b57;--sel:#fde68a;--seldark:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--fg:#e6edf3;--muted:#9aa7b4;--border:#2a313c;--panel:#161b22;--accent:#58d6a0;--sel:#273449}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:22px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:#fff;vertical-align:middle}
+.badge.Easy{background:var(--easy)}.badge.Medium{background:var(--medium)}.badge.Hard{background:var(--hard)}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* index */
+.hdr h1{margin:0 0 2px;font-size:28px}.hdr p{color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.controls input{flex:1 1 220px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--fg)}
+.fbtn{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.fbtn.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:4px 0 2px}.bar>span{display:block;height:100%;background:var(--solved);width:0}
+.tier h2{margin:26px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.row .dot{width:9px;height:9px;border-radius:50%;background:var(--todo);flex:0 0 auto}
+.row .dot.solving{background:var(--solving)}.row .dot.solved{background:var(--solved)}
+.row .num{color:var(--muted);font-size:13px;min-width:34px}
+.row a.t{font-weight:600;flex:1}
+.row .tag{font-size:10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 7px}
+/* problem page */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:8px}
+.top .ttl{font-size:22px;font-weight:700;flex:1}.top .num{color:var(--muted);font-weight:400;font-size:16px}
+.langs{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.langs button{border:0;background:var(--bg);color:var(--fg);padding:8px 14px;cursor:pointer;font-size:14px;font-weight:600}
+.langs button+button{border-left:1px solid var(--border)}
+.langs button.on{background:var(--accent);color:#06240f}
+.statement{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:4px 18px;margin:14px 0}
+.statement h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.statement pre{background:var(--code);color:#d7e3ef;padding:12px;border-radius:8px;overflow:auto}
+.intro{margin:14px 0}
+.note{background:rgba(199,130,10,.12);border:1px solid var(--medium);border-radius:10px;padding:10px 14px;margin:14px 0;color:var(--fg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.codecol{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--code)}
+.blk{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#d7e3ef;
+  padding:3px 14px;cursor:pointer;white-space:pre;font-size:13.5px;line-height:1.5}
+.blk:hover{background:#17202b}
+.blk.on{background:#1b2b24;border-left-color:var(--accent)}
+.blk.static{cursor:default}.blk.static:hover{background:transparent}
+.panel{position:sticky;top:14px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:var(--panel);min-height:160px}
+.panel .step{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.panel .exp :first-child{margin-top:0}
+.panel pre.ascii{background:var(--code);color:#cfe3d6;padding:12px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45;margin-top:12px}
+.panel .hint{color:var(--muted);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:13px}
+</style></head><body><div class="wrap">
+<div class="top">
+  <a href="../" class="back">← All problems</a>
+  <div class="ttl"><span class="num">#104</span> Min P Sampling <span class="badge Medium">Medium</span></div>
+  <div class="langs" id="langs">
+    <button data-lang="cpp" class="on">C++ (CUDA)</button><button data-lang="triton">Python (Triton)</button>
+  </div>
+</div>
+<div class="statement"><p>
+Implement batched <em>min-p sampling</em>, a logit-filtering primitive used in modern LLM serving
+stacks such as vLLM, Hugging Face TGI, and llama.cpp. Given a batch of logits
+<code>logits</code> of shape \(B \times V\) and a scalar <code>min_p</code> in \([0, 1]\), produce
+a batch of filtered probabilities <code>probs</code> of the same shape. For each row \(b\):
+</p>
+<ol>
+  <li>Convert logits to probabilities with softmax: \(p_{b,i} = \exp(z_{b,i}) / \sum_j \exp(z_{b,j})\).</li>
+  <li>Find the maximum probability in the row: \(p^{\max}_b = \max_i p_{b,i}\).</li>
+  <li>Mask every token whose probability is below \(\text{min\_p} \cdot p^{\max}_b\) (set it to 0).</li>
+  <li>Renormalize the surviving probabilities so they sum to 1.</li>
+</ol>
+<p>
+Unlike top-k or top-p sampling, min-p does not require any sort: the cutoff is defined relative
+to the row's most likely token, which makes it well-suited to GPU parallelization while still
+adapting to how peaked or flat each distribution is.
+</p>
+
+<h2>Implementation Requirements</h2>
+<ul>
+  <li>Implement <code>solve(logits, probs, min_p, B, V)</code>; do not change the signature or use external libraries beyond the standard GPU frameworks.</li>
+  <li>Write the result into the provided <code>probs</code> buffer. Every row must sum to exactly 1; masked positions must be exactly 0.</li>
+  <li>Apply min-p independently per row of the batch.</li>
+  <li>Use the numerically stable softmax (subtract the per-row max before exponentiating).</li>
+</ul>
+
+<h2>Example</h2>
+<p>
+  With <code>B</code> = 2, <code>V</code> = 4, <code>min_p</code> = 0.1:
+</p>
+<p>
+  <strong>Input</strong> <code>logits</code> (2&times;4):
+  \[
+  \begin{bmatrix} 1.0 & 2.0 & 3.0 & 4.0 \\ -1.0 & 0.0 & 1.0 & -2.0 \end{bmatrix}
+  \]
+</p>
+<p>
+  For row 0, \(\max z = 4\) so \(e = [e^{-3}, e^{-2}, e^{-1}, e^{0}] \approx [0.0498, 0.1353, 0.3679, 1.0000]\).
+  The first entry falls below the threshold \(\text{min\_p} = 0.1\) (note that \(e^{-3} / \sum e &lt; 0.1 \cdot e^{0} / \sum e\)),
+  so it is masked. Renormalizing the rest gives row 0 of <code>probs</code>.
+  For row 1, \(\max z = 1\) and the last entry is masked by the same reasoning.
+</p>
+<p>
+  <strong>Output</strong> <code>probs</code> (2&times;4):
+  \[
+  \begin{bmatrix} 0.0000 & 0.0900 & 0.2447 & 0.6652 \\ 0.0900 & 0.2447 & 0.6652 & 0.0000 \end{bmatrix}
+  \]
+</p>
+
+<h2>Constraints</h2>
+<ul>
+  <li>1 &le; <code>B</code> &le; 256</li>
+  <li>1 &le; <code>V</code> &le; 200,000</li>
+  <li>0.0 &le; <code>min_p</code> &le; 1.0</li>
+  <li>-50.0 &le; <code>logits[b, i]</code> &le; 50.0</li>
+  <li>Inputs and outputs are <code>float32</code></li>
+  <li>Performance is measured with <code>B</code> = 64, <code>V</code> = 128,000, <code>min_p</code> = 0.05</li>
+</ul>
+</div>
+<div class="note"><b>Guided walkthrough coming soon.</b> Below is the official starter signature in each language; the clickable line-by-line explanation hasn't been authored yet.</div>
+<div class="intro md" id="intro"></div>
+<div class="grid">
+  <div class="codecol" id="codecol"></div>
+  <aside class="panel" id="panel"><div class="hint">Select a line of code to see what it does.</div></aside>
+</div>
+<div class="foot">Problem text & starters from the official <a href="https://github.com/AlphaGPU/leetgpu-challenges">AlphaGPU/leetgpu-challenges</a>. Solve it on <a href="https://leetgpu.com">leetgpu.com</a>.</div>
+</div>
+<script>
+var DATA = {"authored":false,"order":["cpp","triton"],"langs":{"cpp":{"label":"C++ (CUDA)","intro":null,"blocks":[{"code":"#include &lt;cuda_runtime.h&gt;\n\n// logits, probs are device pointers\nextern \"C\" void solve(const float* logits, float* probs, float min_p, int B, int V) {}","explain":null,"diagram":null}]},"triton":{"label":"Python (Triton)","intro":null,"blocks":[{"code":"import torch\nimport triton\nimport triton.language as tl\n\n\n# logits, probs are tensors on the GPU\ndef solve(logits: torch.Tensor, probs: torch.Tensor, min_p: float, B: int, V: int):\n    pass","explain":null,"diagram":null}]}}};
+var lang = DATA.order[0], idx = 0;
+var codecol=document.getElementById("codecol"), panel=document.getElementById("panel"), introEl=document.getElementById("intro");
+function renderCode(){
+  var L=DATA.langs[lang]; introEl.innerHTML = L.intro || "";
+  var html="";
+  L.blocks.forEach(function(b,i){
+    var clickable = b.explain!==null;
+    html += '<button class="blk'+(clickable?'':' static')+(clickable&&i===idx?' on':'')+'" data-i="'+i+'"'+(clickable?'':' tabindex="-1"')+'>'+b.code+'</button>';
+  });
+  codecol.innerHTML=html;
+  codecol.querySelectorAll(".blk").forEach(function(el){
+    if(el.classList.contains("static")) return;
+    el.onclick=function(){ idx=+el.dataset.i; renderCode(); renderPanel(); };
+  });
+}
+function renderPanel(){
+  var L=DATA.langs[lang], b=L.blocks[idx];
+  if(!b || b.explain===null){ panel.innerHTML='<div class="hint">Select a line of code to see what it does.</div>'; return; }
+  var n=L.blocks.filter(function(x){return x.explain!==null;}).length;
+  var pos=0,c=0; for(var i=0;i<=idx;i++){ if(L.blocks[i].explain!==null) c++; } pos=c;
+  var html='<div class="step">Step '+pos+' of '+n+'</div><div class="exp">'+b.explain+'</div>';
+  if(b.diagram) html+='<pre class="ascii">'+b.diagram.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</pre>';
+  panel.innerHTML=html;
+}
+function firstClickable(){ var L=DATA.langs[lang]; for(var i=0;i<L.blocks.length;i++) if(L.blocks[i].explain!==null) return i; return 0; }
+document.getElementById("langs").querySelectorAll("button").forEach(function(btn){
+  btn.onclick=function(){
+    document.querySelectorAll("#langs button").forEach(function(b){b.classList.remove("on");});
+    btn.classList.add("on"); lang=btn.dataset.lang; idx=firstClickable(); renderCode(); renderPanel();
+  };
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="ArrowDown"&&e.key!=="ArrowUp") return;
+  var L=DATA.langs[lang], n=L.blocks.length, d=e.key==="ArrowDown"?1:-1, j=idx;
+  for(var k=0;k<n;k++){ j=(j+d+n)%n; if(L.blocks[j].explain!==null){ idx=j; break; } }
+  renderCode(); renderPanel(); e.preventDefault();
+});
+idx=firstClickable(); renderCode();
+if(DATA.authored) renderPanel();
+</script></body></html>

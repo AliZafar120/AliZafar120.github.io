@@ -1,0 +1,420 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LeetGPU — Problem Index</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{--easy:#2e8b57;--medium:#c7820a;--hard:#d64545;--todo:#9aa0a6;--solving:#c7820a;--solved:#2e8b57;
+ --bg:#fff;--fg:#1f2328;--muted:#5c636b;--border:#e3e6ea;--panel:#f7f8fa;--code:#0b0f14;--accent:#2e8b57;--sel:#fde68a;--seldark:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--fg:#e6edf3;--muted:#9aa7b4;--border:#2a313c;--panel:#161b22;--accent:#58d6a0;--sel:#273449}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:22px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:#fff;vertical-align:middle}
+.badge.Easy{background:var(--easy)}.badge.Medium{background:var(--medium)}.badge.Hard{background:var(--hard)}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* index */
+.hdr h1{margin:0 0 2px;font-size:28px}.hdr p{color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.controls input{flex:1 1 220px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--fg)}
+.fbtn{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.fbtn.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:4px 0 2px}.bar>span{display:block;height:100%;background:var(--solved);width:0}
+.tier h2{margin:26px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.row .dot{width:9px;height:9px;border-radius:50%;background:var(--todo);flex:0 0 auto}
+.row .dot.solving{background:var(--solving)}.row .dot.solved{background:var(--solved)}
+.row .num{color:var(--muted);font-size:13px;min-width:34px}
+.row a.t{font-weight:600;flex:1}
+.row .tag{font-size:10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 7px}
+/* problem page */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:8px}
+.top .ttl{font-size:22px;font-weight:700;flex:1}.top .num{color:var(--muted);font-weight:400;font-size:16px}
+.langs{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.langs button{border:0;background:var(--bg);color:var(--fg);padding:8px 14px;cursor:pointer;font-size:14px;font-weight:600}
+.langs button+button{border-left:1px solid var(--border)}
+.langs button.on{background:var(--accent);color:#06240f}
+.statement{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:4px 18px;margin:14px 0}
+.statement h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.statement pre{background:var(--code);color:#d7e3ef;padding:12px;border-radius:8px;overflow:auto}
+.intro{margin:14px 0}
+.note{background:rgba(199,130,10,.12);border:1px solid var(--medium);border-radius:10px;padding:10px 14px;margin:14px 0;color:var(--fg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.codecol{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--code)}
+.blk{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#d7e3ef;
+  padding:3px 14px;cursor:pointer;white-space:pre;font-size:13.5px;line-height:1.5}
+.blk:hover{background:#17202b}
+.blk.on{background:#1b2b24;border-left-color:var(--accent)}
+.blk.static{cursor:default}.blk.static:hover{background:transparent}
+.panel{position:sticky;top:14px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:var(--panel);min-height:160px}
+.panel .step{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.panel .exp :first-child{margin-top:0}
+.panel pre.ascii{background:var(--code);color:#cfe3d6;padding:12px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45;margin-top:12px}
+.panel .hint{color:var(--muted);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:13px}
+</style></head><body><div class="wrap">
+<div class="hdr"><h1>LeetGPU</h1>
+<p>107 GPU programming problems · line-by-line walkthroughs in C++ (CUDA) and Python (Triton). 18 authored so far.</p></div>
+<div class="bar"><span id="fill"></span></div><div id="count" style="color:var(--muted);font-size:14px"></div>
+<div class="controls">
+  <input id="q" placeholder="Search problems…">
+  <button class="fbtn on" data-f="all">All</button>
+  <button class="fbtn" data-f="Easy">Easy</button>
+  <button class="fbtn" data-f="Medium">Medium</button>
+  <button class="fbtn" data-f="Hard">Hard</button>
+  <button class="fbtn" data-f="walk">Has walkthrough</button>
+</div>
+<div id="list"><div class="tier" data-tier="Easy"><h2>Easy <span style="color:var(--muted);font-weight:400;font-size:15px">(19)</span></h2><div class="rows"><div class="row" data-slug="vector-add" data-title="vector add">
+        <span class="dot" data-dot="vector-add"></span>
+        <span class="num">#1</span>
+        <a class="t" href="./vector-add/">Vector Add</a><span class="tag">walkthrough</span></div><div class="row" data-slug="matrix-multiplication" data-title="matrix multiplication">
+        <span class="dot" data-dot="matrix-multiplication"></span>
+        <span class="num">#2</span>
+        <a class="t" href="./matrix-multiplication/">Matrix Multiplication</a><span class="tag">walkthrough</span></div><div class="row" data-slug="matrix-transpose" data-title="matrix transpose">
+        <span class="dot" data-dot="matrix-transpose"></span>
+        <span class="num">#3</span>
+        <a class="t" href="./matrix-transpose/">Matrix Transpose</a><span class="tag">walkthrough</span></div><div class="row" data-slug="color-inversion" data-title="color inversion">
+        <span class="dot" data-dot="color-inversion"></span>
+        <span class="num">#7</span>
+        <a class="t" href="./color-inversion/">Color Inversion</a><span class="tag">walkthrough</span></div><div class="row" data-slug="matrix-addition" data-title="matrix addition">
+        <span class="dot" data-dot="matrix-addition"></span>
+        <span class="num">#8</span>
+        <a class="t" href="./matrix-addition/">Matrix Addition</a><span class="tag">walkthrough</span></div><div class="row" data-slug="1d-convolution" data-title="1d convolution">
+        <span class="dot" data-dot="1d-convolution"></span>
+        <span class="num">#9</span>
+        <a class="t" href="./1d-convolution/">1D Convolution</a><span class="tag">walkthrough</span></div><div class="row" data-slug="reverse-array" data-title="reverse array">
+        <span class="dot" data-dot="reverse-array"></span>
+        <span class="num">#19</span>
+        <a class="t" href="./reverse-array/">Reverse Array</a><span class="tag">walkthrough</span></div><div class="row" data-slug="relu" data-title="relu">
+        <span class="dot" data-dot="relu"></span>
+        <span class="num">#21</span>
+        <a class="t" href="./relu/">ReLU</a><span class="tag">walkthrough</span></div><div class="row" data-slug="leaky-relu" data-title="leaky relu">
+        <span class="dot" data-dot="leaky-relu"></span>
+        <span class="num">#23</span>
+        <a class="t" href="./leaky-relu/">Leaky ReLU</a><span class="tag">walkthrough</span></div><div class="row" data-slug="rainbow-table" data-title="rainbow table">
+        <span class="dot" data-dot="rainbow-table"></span>
+        <span class="num">#24</span>
+        <a class="t" href="./rainbow-table/">Rainbow Table</a><span class="tag">walkthrough</span></div><div class="row" data-slug="matrix-copy" data-title="matrix copy">
+        <span class="dot" data-dot="matrix-copy"></span>
+        <span class="num">#31</span>
+        <a class="t" href="./matrix-copy/">Matrix Copy</a><span class="tag">walkthrough</span></div><div class="row" data-slug="simple-inference" data-title="simple inference">
+        <span class="dot" data-dot="simple-inference"></span>
+        <span class="num">#41</span>
+        <a class="t" href="./simple-inference/">Simple Inference</a></div><div class="row" data-slug="silu" data-title="silu">
+        <span class="dot" data-dot="silu"></span>
+        <span class="num">#52</span>
+        <a class="t" href="./silu/">SiLU</a><span class="tag">walkthrough</span></div><div class="row" data-slug="swiglu" data-title="swiglu">
+        <span class="dot" data-dot="swiglu"></span>
+        <span class="num">#54</span>
+        <a class="t" href="./swiglu/">SwiGLU</a><span class="tag">walkthrough</span></div><div class="row" data-slug="value-clipping" data-title="value clipping">
+        <span class="dot" data-dot="value-clipping"></span>
+        <span class="num">#62</span>
+        <a class="t" href="./value-clipping/">Value Clipping</a><span class="tag">walkthrough</span></div><div class="row" data-slug="interleave" data-title="interleave">
+        <span class="dot" data-dot="interleave"></span>
+        <span class="num">#63</span>
+        <a class="t" href="./interleave/">Interleave</a><span class="tag">walkthrough</span></div><div class="row" data-slug="geglu" data-title="geglu">
+        <span class="dot" data-dot="geglu"></span>
+        <span class="num">#65</span>
+        <a class="t" href="./geglu/">GEGLU</a><span class="tag">walkthrough</span></div><div class="row" data-slug="rgb-to-grayscale" data-title="rgb to grayscale">
+        <span class="dot" data-dot="rgb-to-grayscale"></span>
+        <span class="num">#66</span>
+        <a class="t" href="./rgb-to-grayscale/">RGB To Grayscale</a><span class="tag">walkthrough</span></div><div class="row" data-slug="sigmoid" data-title="sigmoid">
+        <span class="dot" data-dot="sigmoid"></span>
+        <span class="num">#68</span>
+        <a class="t" href="./sigmoid/">Sigmoid</a><span class="tag">walkthrough</span></div></div></div><div class="tier" data-tier="Medium"><h2>Medium <span style="color:var(--muted);font-weight:400;font-size:15px">(70)</span></h2><div class="rows"><div class="row" data-slug="reduction" data-title="reduction">
+        <span class="dot" data-dot="reduction"></span>
+        <span class="num">#4</span>
+        <a class="t" href="./reduction/">Reduction</a></div><div class="row" data-slug="softmax" data-title="softmax">
+        <span class="dot" data-dot="softmax"></span>
+        <span class="num">#5</span>
+        <a class="t" href="./softmax/">Softmax</a></div><div class="row" data-slug="softmax-attention" data-title="softmax attention">
+        <span class="dot" data-dot="softmax-attention"></span>
+        <span class="num">#6</span>
+        <a class="t" href="./softmax-attention/">Softmax Attention</a></div><div class="row" data-slug="2d-convolution" data-title="2d convolution">
+        <span class="dot" data-dot="2d-convolution"></span>
+        <span class="num">#10</span>
+        <a class="t" href="./2d-convolution/">2D Convolution</a></div><div class="row" data-slug="3d-convolution" data-title="3d convolution">
+        <span class="dot" data-dot="3d-convolution"></span>
+        <span class="num">#11</span>
+        <a class="t" href="./3d-convolution/">3D Convolution</a></div><div class="row" data-slug="histogramming" data-title="histogramming">
+        <span class="dot" data-dot="histogramming"></span>
+        <span class="num">#13</span>
+        <a class="t" href="./histogramming/">Histogramming</a></div><div class="row" data-slug="prefix-sum" data-title="prefix sum">
+        <span class="dot" data-dot="prefix-sum"></span>
+        <span class="num">#16</span>
+        <a class="t" href="./prefix-sum/">Prefix Sum</a></div><div class="row" data-slug="dot-product" data-title="dot product">
+        <span class="dot" data-dot="dot-product"></span>
+        <span class="num">#17</span>
+        <a class="t" href="./dot-product/">Dot Product</a></div><div class="row" data-slug="sparse-matrix-vector-multiplication" data-title="sparse matrix vector multiplication">
+        <span class="dot" data-dot="sparse-matrix-vector-multiplication"></span>
+        <span class="num">#18</span>
+        <a class="t" href="./sparse-matrix-vector-multiplication/">Sparse Matrix Vector Multiplication</a></div><div class="row" data-slug="gemm" data-title="gemm">
+        <span class="dot" data-dot="gemm"></span>
+        <span class="num">#22</span>
+        <a class="t" href="./gemm/">GEMM</a></div><div class="row" data-slug="categorical-cross-entropy-loss" data-title="categorical cross entropy loss">
+        <span class="dot" data-dot="categorical-cross-entropy-loss"></span>
+        <span class="num">#25</span>
+        <a class="t" href="./categorical-cross-entropy-loss/">Categorical Cross Entropy Loss</a></div><div class="row" data-slug="mean-squared-error" data-title="mean squared error">
+        <span class="dot" data-dot="mean-squared-error"></span>
+        <span class="num">#27</span>
+        <a class="t" href="./mean-squared-error/">Mean Squared Error</a></div><div class="row" data-slug="gaussian-blur" data-title="gaussian blur">
+        <span class="dot" data-dot="gaussian-blur"></span>
+        <span class="num">#28</span>
+        <a class="t" href="./gaussian-blur/">Gaussian Blur</a></div><div class="row" data-slug="top-k-selection" data-title="top k selection">
+        <span class="dot" data-dot="top-k-selection"></span>
+        <span class="num">#29</span>
+        <a class="t" href="./top-k-selection/">Top K Selection</a></div><div class="row" data-slug="batched-matrix-multiplication" data-title="batched matrix multiplication">
+        <span class="dot" data-dot="batched-matrix-multiplication"></span>
+        <span class="num">#30</span>
+        <a class="t" href="./batched-matrix-multiplication/">Batched Matrix Multiplication</a></div><div class="row" data-slug="int8-quantized-matmul" data-title="int8 quantized matmul">
+        <span class="dot" data-dot="int8-quantized-matmul"></span>
+        <span class="num">#32</span>
+        <a class="t" href="./int8-quantized-matmul/">INT8 Quantized Matmul</a></div><div class="row" data-slug="ordinary-least-squares" data-title="ordinary least squares">
+        <span class="dot" data-dot="ordinary-least-squares"></span>
+        <span class="num">#33</span>
+        <a class="t" href="./ordinary-least-squares/">Ordinary Least Squares</a></div><div class="row" data-slug="logistic-regression" data-title="logistic regression">
+        <span class="dot" data-dot="logistic-regression"></span>
+        <span class="num">#34</span>
+        <a class="t" href="./logistic-regression/">Logistic Regression</a></div><div class="row" data-slug="monte-carlo-integration" data-title="monte carlo integration">
+        <span class="dot" data-dot="monte-carlo-integration"></span>
+        <span class="num">#35</span>
+        <a class="t" href="./monte-carlo-integration/">Monte Carlo Integration</a></div><div class="row" data-slug="matrix-power" data-title="matrix power">
+        <span class="dot" data-dot="matrix-power"></span>
+        <span class="num">#37</span>
+        <a class="t" href="./matrix-power/">Matrix Power</a></div><div class="row" data-slug="nearest-neighbor" data-title="nearest neighbor">
+        <span class="dot" data-dot="nearest-neighbor"></span>
+        <span class="num">#38</span>
+        <a class="t" href="./nearest-neighbor/">Nearest Neighbor</a></div><div class="row" data-slug="batch-normalization" data-title="batch normalization">
+        <span class="dot" data-dot="batch-normalization"></span>
+        <span class="num">#40</span>
+        <a class="t" href="./batch-normalization/">Batch Normalization</a></div><div class="row" data-slug="2d-max-pooling" data-title="2d max pooling">
+        <span class="dot" data-dot="2d-max-pooling"></span>
+        <span class="num">#42</span>
+        <a class="t" href="./2d-max-pooling/">2D Max Pooling</a></div><div class="row" data-slug="count-array-element" data-title="count array element">
+        <span class="dot" data-dot="count-array-element"></span>
+        <span class="num">#43</span>
+        <a class="t" href="./count-array-element/">Count Array Element</a></div><div class="row" data-slug="count-2d-array-element" data-title="count 2d array element">
+        <span class="dot" data-dot="count-2d-array-element"></span>
+        <span class="num">#44</span>
+        <a class="t" href="./count-2d-array-element/">Count 2D Array Element</a></div><div class="row" data-slug="count-3d-array-element" data-title="count 3d array element">
+        <span class="dot" data-dot="count-3d-array-element"></span>
+        <span class="num">#45</span>
+        <a class="t" href="./count-3d-array-element/">Count 3D Array Element</a></div><div class="row" data-slug="subarray-sum" data-title="subarray sum">
+        <span class="dot" data-dot="subarray-sum"></span>
+        <span class="num">#47</span>
+        <a class="t" href="./subarray-sum/">Subarray Sum</a></div><div class="row" data-slug="2d-subarray-sum" data-title="2d subarray sum">
+        <span class="dot" data-dot="2d-subarray-sum"></span>
+        <span class="num">#48</span>
+        <a class="t" href="./2d-subarray-sum/">2D Subarray Sum</a></div><div class="row" data-slug="3d-subarray-sum" data-title="3d subarray sum">
+        <span class="dot" data-dot="3d-subarray-sum"></span>
+        <span class="num">#49</span>
+        <a class="t" href="./3d-subarray-sum/">3D Subarray Sum</a></div><div class="row" data-slug="rms-normalization" data-title="rms normalization">
+        <span class="dot" data-dot="rms-normalization"></span>
+        <span class="num">#50</span>
+        <a class="t" href="./rms-normalization/">RMS Normalization</a></div><div class="row" data-slug="max-subarray-sum" data-title="max subarray sum">
+        <span class="dot" data-dot="max-subarray-sum"></span>
+        <span class="num">#51</span>
+        <a class="t" href="./max-subarray-sum/">Max Subarray Sum</a></div><div class="row" data-slug="attn-w-linear-bias" data-title="attention with linear bias">
+        <span class="dot" data-dot="attn-w-linear-bias"></span>
+        <span class="num">#55</span>
+        <a class="t" href="./attn-w-linear-bias/">Attention with Linear Bias</a></div><div class="row" data-slug="fp16-batched-matmul" data-title="fp16 batched matmul">
+        <span class="dot" data-dot="fp16-batched-matmul"></span>
+        <span class="num">#57</span>
+        <a class="t" href="./fp16-batched-matmul/">FP16 Batched Matmul</a></div><div class="row" data-slug="fp16-dot-product" data-title="fp16 dot product">
+        <span class="dot" data-dot="fp16-dot-product"></span>
+        <span class="num">#58</span>
+        <a class="t" href="./fp16-dot-product/">FP16 Dot Product</a></div><div class="row" data-slug="top-p-sampling" data-title="top p sampling">
+        <span class="dot" data-dot="top-p-sampling"></span>
+        <span class="num">#60</span>
+        <a class="t" href="./top-p-sampling/">Top P Sampling</a></div><div class="row" data-slug="rope-embedding" data-title="rope embedding">
+        <span class="dot" data-dot="rope-embedding"></span>
+        <span class="num">#61</span>
+        <a class="t" href="./rope-embedding/">RoPE Embedding</a></div><div class="row" data-slug="weight-dequantization" data-title="weight dequantization">
+        <span class="dot" data-dot="weight-dequantization"></span>
+        <span class="num">#64</span>
+        <a class="t" href="./weight-dequantization/">Weight Dequantization</a></div><div class="row" data-slug="moe-topk-gating" data-title="moe top-k gating">
+        <span class="dot" data-dot="moe-topk-gating"></span>
+        <span class="num">#67</span>
+        <a class="t" href="./moe-topk-gating/">MoE Top-K Gating</a></div><div class="row" data-slug="jacobi-stencil-2d" data-title="jacobi stencil 2d">
+        <span class="dot" data-dot="jacobi-stencil-2d"></span>
+        <span class="num">#69</span>
+        <a class="t" href="./jacobi-stencil-2d/">Jacobi Stencil 2D</a></div><div class="row" data-slug="segmented-prefix-sum" data-title="segmented prefix sum">
+        <span class="dot" data-dot="segmented-prefix-sum"></span>
+        <span class="num">#70</span>
+        <a class="t" href="./segmented-prefix-sum/">Segmented Prefix Sum</a></div><div class="row" data-slug="parallel-merge" data-title="parallel merge">
+        <span class="dot" data-dot="parallel-merge"></span>
+        <span class="num">#71</span>
+        <a class="t" href="./parallel-merge/">Parallel Merge</a></div><div class="row" data-slug="stream-compaction" data-title="stream compaction">
+        <span class="dot" data-dot="stream-compaction"></span>
+        <span class="num">#72</span>
+        <a class="t" href="./stream-compaction/">Stream Compaction</a></div><div class="row" data-slug="sparse-matrix-dense-matrix-multiplication" data-title="sparse matrix dense matrix multiplication">
+        <span class="dot" data-dot="sparse-matrix-dense-matrix-multiplication"></span>
+        <span class="num">#75</span>
+        <a class="t" href="./sparse-matrix-dense-matrix-multiplication/">Sparse Matrix Dense Matrix Multiplication</a></div><div class="row" data-slug="adder-transformer" data-title="adder transformer">
+        <span class="dot" data-dot="adder-transformer"></span>
+        <span class="num">#76</span>
+        <a class="t" href="./adder-transformer/">Adder Transformer</a></div><div class="row" data-slug="2d-fft" data-title="2d fft">
+        <span class="dot" data-dot="2d-fft"></span>
+        <span class="num">#78</span>
+        <a class="t" href="./2d-fft/">2D FFT</a></div><div class="row" data-slug="grouped-query-attention" data-title="grouped query attention">
+        <span class="dot" data-dot="grouped-query-attention"></span>
+        <span class="num">#80</span>
+        <a class="t" href="./grouped-query-attention/">Grouped Query Attention</a></div><div class="row" data-slug="int4-matmul" data-title="int4 matmul">
+        <span class="dot" data-dot="int4-matmul"></span>
+        <span class="num">#81</span>
+        <a class="t" href="./int4-matmul/">INT4 Matmul</a></div><div class="row" data-slug="linear-recurrence" data-title="linear recurrence">
+        <span class="dot" data-dot="linear-recurrence"></span>
+        <span class="num">#82</span>
+        <a class="t" href="./linear-recurrence/">Linear Recurrence</a></div><div class="row" data-slug="fused-residual-add-rms-norm" data-title="fused residual add rms norm">
+        <span class="dot" data-dot="fused-residual-add-rms-norm"></span>
+        <span class="num">#83</span>
+        <a class="t" href="./fused-residual-add-rms-norm/">Fused Residual Add RMS Norm</a></div><div class="row" data-slug="swiglu-mlp-block" data-title="swiglu mlp block">
+        <span class="dot" data-dot="swiglu-mlp-block"></span>
+        <span class="num">#84</span>
+        <a class="t" href="./swiglu-mlp-block/">SwiGLU MLP Block</a></div><div class="row" data-slug="lora-linear" data-title="lora linear">
+        <span class="dot" data-dot="lora-linear"></span>
+        <span class="num">#85</span>
+        <a class="t" href="./lora-linear/">LoRA Linear</a></div><div class="row" data-slug="speculative-decoding-verification" data-title="speculative decoding verification">
+        <span class="dot" data-dot="speculative-decoding-verification"></span>
+        <span class="num">#87</span>
+        <a class="t" href="./speculative-decoding-verification/">Speculative Decoding Verification</a></div><div class="row" data-slug="causal-depthwise-conv1d" data-title="causal depthwise conv1d">
+        <span class="dot" data-dot="causal-depthwise-conv1d"></span>
+        <span class="num">#90</span>
+        <a class="t" href="./causal-depthwise-conv1d/">Causal Depthwise Conv1d</a></div><div class="row" data-slug="decaying-causal-attention" data-title="decaying causal attention">
+        <span class="dot" data-dot="decaying-causal-attention"></span>
+        <span class="num">#92</span>
+        <a class="t" href="./decaying-causal-attention/">Decaying Causal Attention</a></div><div class="row" data-slug="ssm-selective-scan" data-title="ssm selective scan">
+        <span class="dot" data-dot="ssm-selective-scan"></span>
+        <span class="num">#94</span>
+        <a class="t" href="./ssm-selective-scan/">SSM Selective Scan</a></div><div class="row" data-slug="int8-kv-cache-attention" data-title="int8 kv cache attention">
+        <span class="dot" data-dot="int8-kv-cache-attention"></span>
+        <span class="num">#96</span>
+        <a class="t" href="./int8-kv-cache-attention/">INT8 KV Cache Attention</a></div><div class="row" data-slug="beam-search-step" data-title="beam search step">
+        <span class="dot" data-dot="beam-search-step"></span>
+        <span class="num">#98</span>
+        <a class="t" href="./beam-search-step/">Beam Search Step</a></div><div class="row" data-slug="varlen-causal-attention" data-title="varlen causal attention">
+        <span class="dot" data-dot="varlen-causal-attention"></span>
+        <span class="num">#102</span>
+        <a class="t" href="./varlen-causal-attention/">Varlen Causal Attention</a></div><div class="row" data-slug="min-p-sampling" data-title="min p sampling">
+        <span class="dot" data-dot="min-p-sampling"></span>
+        <span class="num">#104</span>
+        <a class="t" href="./min-p-sampling/">Min P Sampling</a></div><div class="row" data-slug="group-normalization" data-title="group normalization">
+        <span class="dot" data-dot="group-normalization"></span>
+        <span class="num">#105</span>
+        <a class="t" href="./group-normalization/">Group Normalization</a></div><div class="row" data-slug="token-embedding-layer" data-title="token embedding layer">
+        <span class="dot" data-dot="token-embedding-layer"></span>
+        <span class="num">#106</span>
+        <a class="t" href="./token-embedding-layer/">Token Embedding Layer</a></div><div class="row" data-slug="ppo-clipped-surrogate-loss" data-title="ppo clipped surrogate loss">
+        <span class="dot" data-dot="ppo-clipped-surrogate-loss"></span>
+        <span class="num">#107</span>
+        <a class="t" href="./ppo-clipped-surrogate-loss/">PPO Clipped Surrogate Loss</a></div><div class="row" data-slug="dpo-sequence-loss" data-title="dpo sequence loss">
+        <span class="dot" data-dot="dpo-sequence-loss"></span>
+        <span class="num">#108</span>
+        <a class="t" href="./dpo-sequence-loss/">DPO Sequence Loss</a></div><div class="row" data-slug="grpo-surrogate-loss" data-title="grpo surrogate loss">
+        <span class="dot" data-dot="grpo-surrogate-loss"></span>
+        <span class="num">#109</span>
+        <a class="t" href="./grpo-surrogate-loss/">GRPO Surrogate Loss</a></div><div class="row" data-slug="gae-reverse-scan" data-title="gae reverse scan">
+        <span class="dot" data-dot="gae-reverse-scan"></span>
+        <span class="num">#110</span>
+        <a class="t" href="./gae-reverse-scan/">GAE Reverse Scan</a></div><div class="row" data-slug="softmax-attention-backward" data-title="softmax attention backward">
+        <span class="dot" data-dot="softmax-attention-backward"></span>
+        <span class="num">#111</span>
+        <a class="t" href="./softmax-attention-backward/">Softmax Attention Backward</a></div><div class="row" data-slug="attention-with-sinks" data-title="attention with sinks">
+        <span class="dot" data-dot="attention-with-sinks"></span>
+        <span class="num">#112</span>
+        <a class="t" href="./attention-with-sinks/">Attention With Sinks</a></div><div class="row" data-slug="layer-normalization" data-title="layer normalization">
+        <span class="dot" data-dot="layer-normalization"></span>
+        <span class="num">#113</span>
+        <a class="t" href="./layer-normalization/">Layer Normalization</a></div><div class="row" data-slug="fused-qkv-rope-kv-cache-update" data-title="fused qkv rope kv cache update">
+        <span class="dot" data-dot="fused-qkv-rope-kv-cache-update"></span>
+        <span class="num">#115</span>
+        <a class="t" href="./fused-qkv-rope-kv-cache-update/">Fused QKV RoPE KV Cache Update</a></div><div class="row" data-slug="vit-patch-embedding" data-title="vit patch embedding">
+        <span class="dot" data-dot="vit-patch-embedding"></span>
+        <span class="num">#118</span>
+        <a class="t" href="./vit-patch-embedding/">ViT Patch Embedding</a></div></div></div><div class="tier" data-tier="Hard"><h2>Hard <span style="color:var(--muted);font-weight:400;font-size:15px">(18)</span></h2><div class="rows"><div class="row" data-slug="multi-head-attention" data-title="multi head attention">
+        <span class="dot" data-dot="multi-head-attention"></span>
+        <span class="num">#12</span>
+        <a class="t" href="./multi-head-attention/">Multi Head Attention</a></div><div class="row" data-slug="multi-agent-sim" data-title="multi agent sim">
+        <span class="dot" data-dot="multi-agent-sim"></span>
+        <span class="num">#14</span>
+        <a class="t" href="./multi-agent-sim/">Multi Agent Sim</a></div><div class="row" data-slug="sorting" data-title="sorting">
+        <span class="dot" data-dot="sorting"></span>
+        <span class="num">#15</span>
+        <a class="t" href="./sorting/">Sorting</a></div><div class="row" data-slug="kmeans-clustering" data-title="k-means clustering">
+        <span class="dot" data-dot="kmeans-clustering"></span>
+        <span class="num">#20</span>
+        <a class="t" href="./kmeans-clustering/">K-Means Clustering</a></div><div class="row" data-slug="multi-head-cross-attention" data-title="multi head cross attention">
+        <span class="dot" data-dot="multi-head-cross-attention"></span>
+        <span class="num">#26</span>
+        <a class="t" href="./multi-head-cross-attention/">Multi Head Cross Attention</a></div><div class="row" data-slug="radix-sort" data-title="radix sort">
+        <span class="dot" data-dot="radix-sort"></span>
+        <span class="num">#36</span>
+        <a class="t" href="./radix-sort/">Radix Sort</a></div><div class="row" data-slug="fast-fourier-transform" data-title="fast fourier transform">
+        <span class="dot" data-dot="fast-fourier-transform"></span>
+        <span class="num">#39</span>
+        <a class="t" href="./fast-fourier-transform/">Fast Fourier Transform</a></div><div class="row" data-slug="bfs-shortest-path" data-title="bfs shortest path">
+        <span class="dot" data-dot="bfs-shortest-path"></span>
+        <span class="num">#46</span>
+        <a class="t" href="./bfs-shortest-path/">BFS Shortest Path</a></div><div class="row" data-slug="casual-attention" data-title="causal attention">
+        <span class="dot" data-dot="casual-attention"></span>
+        <span class="num">#53</span>
+        <a class="t" href="./casual-attention/">Causal Attention</a></div><div class="row" data-slug="linear-attention" data-title="linear attention">
+        <span class="dot" data-dot="linear-attention"></span>
+        <span class="num">#56</span>
+        <a class="t" href="./linear-attention/">Linear Attention</a></div><div class="row" data-slug="sliding-window-attn" data-title="sliding window attention">
+        <span class="dot" data-dot="sliding-window-attn"></span>
+        <span class="num">#59</span>
+        <a class="t" href="./sliding-window-attn/">Sliding Window Attention</a></div><div class="row" data-slug="all-pairs-shortest-paths" data-title="all pairs shortest paths">
+        <span class="dot" data-dot="all-pairs-shortest-paths"></span>
+        <span class="num">#73</span>
+        <a class="t" href="./all-pairs-shortest-paths/">All Pairs Shortest Paths</a></div><div class="row" data-slug="gpt2-block" data-title="gpt-2 block">
+        <span class="dot" data-dot="gpt2-block"></span>
+        <span class="num">#74</span>
+        <a class="t" href="./gpt2-block/">GPT-2 Block</a></div><div class="row" data-slug="llama-transformer-block" data-title="llama transformer block">
+        <span class="dot" data-dot="llama-transformer-block"></span>
+        <span class="num">#93</span>
+        <a class="t" href="./llama-transformer-block/">Llama Transformer Block</a></div><div class="row" data-slug="multi-head-latent-attention" data-title="multi head latent attention">
+        <span class="dot" data-dot="multi-head-latent-attention"></span>
+        <span class="num">#114</span>
+        <a class="t" href="./multi-head-latent-attention/">Multi Head Latent Attention</a></div><div class="row" data-slug="dit-block" data-title="dit block">
+        <span class="dot" data-dot="dit-block"></span>
+        <span class="num">#116</span>
+        <a class="t" href="./dit-block/">DiT Block</a></div><div class="row" data-slug="non-max-suppression" data-title="non max suppression">
+        <span class="dot" data-dot="non-max-suppression"></span>
+        <span class="num">#117</span>
+        <a class="t" href="./non-max-suppression/">Non Max Suppression</a></div><div class="row" data-slug="block-sparse-kv-selection" data-title="block sparse kv selection">
+        <span class="dot" data-dot="block-sparse-kv-selection"></span>
+        <span class="num">#119</span>
+        <a class="t" href="./block-sparse-kv-selection/">Block Sparse KV Selection</a></div></div></div></div>
+<script>
+var KEY="leetgpu-progress";
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}");}catch(e){return {};}}
+var state=load(), slugs=["vector-add","matrix-multiplication","matrix-transpose","color-inversion","matrix-addition","1d-convolution","reverse-array","relu","leaky-relu","rainbow-table","matrix-copy","simple-inference","silu","swiglu","value-clipping","interleave","geglu","rgb-to-grayscale","sigmoid","reduction","softmax","softmax-attention","2d-convolution","3d-convolution","histogramming","prefix-sum","dot-product","sparse-matrix-vector-multiplication","gemm","categorical-cross-entropy-loss","mean-squared-error","gaussian-blur","top-k-selection","batched-matrix-multiplication","int8-quantized-matmul","ordinary-least-squares","logistic-regression","monte-carlo-integration","matrix-power","nearest-neighbor","batch-normalization","2d-max-pooling","count-array-element","count-2d-array-element","count-3d-array-element","subarray-sum","2d-subarray-sum","3d-subarray-sum","rms-normalization","max-subarray-sum","attn-w-linear-bias","fp16-batched-matmul","fp16-dot-product","top-p-sampling","rope-embedding","weight-dequantization","moe-topk-gating","jacobi-stencil-2d","segmented-prefix-sum","parallel-merge","stream-compaction","sparse-matrix-dense-matrix-multiplication","adder-transformer","2d-fft","grouped-query-attention","int4-matmul","linear-recurrence","fused-residual-add-rms-norm","swiglu-mlp-block","lora-linear","speculative-decoding-verification","causal-depthwise-conv1d","decaying-causal-attention","ssm-selective-scan","int8-kv-cache-attention","beam-search-step","varlen-causal-attention","min-p-sampling","group-normalization","token-embedding-layer","ppo-clipped-surrogate-loss","dpo-sequence-loss","grpo-surrogate-loss","gae-reverse-scan","softmax-attention-backward","attention-with-sinks","layer-normalization","fused-qkv-rope-kv-cache-update","vit-patch-embedding","multi-head-attention","multi-agent-sim","sorting","kmeans-clustering","multi-head-cross-attention","radix-sort","fast-fourier-transform","bfs-shortest-path","casual-attention","linear-attention","sliding-window-attn","all-pairs-shortest-paths","gpt2-block","llama-transformer-block","multi-head-latent-attention","dit-block","non-max-suppression","block-sparse-kv-selection"];
+function paint(){
+  slugs.forEach(function(s){var d=document.querySelector('[data-dot="'+s+'"]'); if(d) d.className="dot "+(state[s]||"todo");});
+  var solved=slugs.filter(function(s){return state[s]==="solved";}).length;
+  document.getElementById("count").textContent=solved+" / "+slugs.length+" solved";
+  document.getElementById("fill").style.width=(100*solved/slugs.length)+"%";
+}
+paint();
+var q=document.getElementById("q"), filter="all";
+function apply(){
+  var term=q.value.trim().toLowerCase();
+  document.querySelectorAll(".row").forEach(function(r){
+    var okT = filter==="all" || (filter==="walk" ? r.querySelector(".tag") : r.closest(".tier").dataset.tier===filter);
+    var okQ = !term || r.dataset.title.indexOf(term)>=0;
+    r.style.display = (okT&&okQ)?"":"none";
+  });
+  document.querySelectorAll(".tier").forEach(function(t){
+    var any=[].slice.call(t.querySelectorAll(".row")).some(function(r){return r.style.display!=="none";});
+    t.style.display=any?"":"none";
+  });
+}
+q.oninput=apply;
+document.querySelectorAll(".fbtn").forEach(function(b){b.onclick=function(){
+  document.querySelectorAll(".fbtn").forEach(function(x){x.classList.remove("on");});
+  b.classList.add("on"); filter=b.dataset.f; apply();
+};});
+</script>
+</div></body></html>
