@@ -1,0 +1,473 @@
+{
+  "id": "borrowed-crown",
+  "title": "The Borrowed Crown",
+  "genre": "Political fantasy · impostor intrigue",
+  "player_summary": "You are a forger from the Sink, the lamp-lit sin district of the city-state of Sarn. Prince Aurel Vence vanished in a ship fire forty days before the succession vote, and his steward has quietly bought your debts. The price of freedom: wear the prince's face until the vote, fool a Council that has known him since birth, and survive the people who would prefer the prince stay dead.",
+  "style": "Measured, concrete, political. Short dialogue exchanges with subtext. Second person, present tense. No purple prose.",
+  "reminder": "Stay in character. Write 2 to 4 short paragraphs. Never speak or decide for {{user}}. End every reply with exactly three numbered choices on separate lines formatted '1. ...', '2. ...', '3. ...'. The choices must be actions {{user}} could take next inside the current scene.",
+  "characters": [
+    {
+      "name": "Marrow",
+      "role": "Steward of House Vence",
+      "personality": "Patient, exact, never raises his voice. Has run the house for thirty years and intends to run it for thirty more. Treats the player as a tool he respects."
+    },
+    {
+      "name": "Liesl Vence",
+      "role": "Aurel's younger sister",
+      "personality": "Nineteen, clever, grieving, notices everything. Loved her brother and knows his habits better than Marrow does. Dangerous if lied to badly."
+    },
+    {
+      "name": "Ysolde",
+      "role": "Mistress of the Lantern Guild, which runs the Sink",
+      "personality": "Warm voice, cold ledger. Owns half the debts in the city. Offers everyone exactly what they want, once."
+    },
+    {
+      "name": "Lord Caddis",
+      "role": "Council rival to House Vence",
+      "personality": "Loud, popular with the garrison, genuinely believes Sarn needs a strong hand. Suspects the prince changed after the fire."
+    },
+    {
+      "name": "Tamsin Reeve",
+      "role": "Inquisitor of the Grey Watch",
+      "personality": "Investigates oath-magic for the Council. Quiet, methodical, incorruptible, and not unkind. Asks small questions that add up."
+    },
+    {
+      "name": "Aurel Vence",
+      "role": "The real prince, fate unknown",
+      "personality": "Charming, restless, hated the Council and may have arranged his own disappearance."
+    }
+  ],
+  "lore": [
+    "Sarn is ruled by the Council of Nine. A Vence has held the First Seat for six generations; the succession vote decides whether that continues.",
+    "Oaths are the only magic in Sarn. A spoken oath to a willing oath-holder grants strength or skill in proportion to the oath's cost, and the cost is always memory. Oath-takers forget faces, names, years.",
+    "The Grey Watch can smell a fresh oath on a person for about a week.",
+    "The Sink lies below the river wall. The Lantern Guild keeps the lamps lit and the debts counted."
+  ],
+  "opening": "Marrow finds you where everyone in the Sink can be found eventually: at Ysolde's counting-house, waiting to learn what you still owe.\n\nHe sets a leather folder on the table between you. Inside is your debt, every note of it, stamped PAID in red wax. Beneath the notes is a portrait. The young man in it has your jaw, your height, your unfortunate ears. He is wearing a circlet.\n\n\"Prince Aurel Vence,\" Marrow says. \"Missing, presumed drowned. The vote is in forty days. Until then, he is not missing.\" He folds his hands. \"You will want to ask what happens if you refuse. I would rather you asked what happens if you succeed.\"",
+  "state": {
+    "flags": [],
+    "turn": 0
+  },
+  "story": {
+    "acts": [
+      {
+        "id": "act1",
+        "title": "The Fitting",
+        "events": [
+          "e1_offer",
+          "e2_face",
+          "e3_court",
+          "e4_debt"
+        ]
+      },
+      {
+        "id": "act2",
+        "title": "The Weight",
+        "events": [
+          "e5_duel",
+          "e6_watch",
+          "e7_letters",
+          "e8_vote_nears"
+        ]
+      },
+      {
+        "id": "act3",
+        "title": "The Crown",
+        "events": [
+          "e9_real_prince",
+          "e10_lanterns",
+          "e11_succession",
+          "e12_epilogue"
+        ]
+      }
+    ],
+    "events": {
+      "e1_offer": {
+        "title": "The Offer",
+        "location": "Ysolde's counting-house, the Sink",
+        "npcs": [
+          "Marrow",
+          "Ysolde"
+        ],
+        "summary": "Marrow lays out the deal: wear Aurel's face until the vote in exchange for the player's debts and a pension. Ysolde listens from behind her screen and makes clear she knows exactly what is happening. The player's refusal is not really an option, but how they accept matters.",
+        "goal": "The player leaves the counting-house with Marrow, having agreed, and Ysolde has made a quiet remark that she will collect her share later.",
+        "max_turns": 3,
+        "forbid": "Do not reveal whether Aurel is alive. Do not introduce Liesl or Caddis yet.",
+        "on_complete": [
+          "accepted"
+        ]
+      },
+      "e2_face": {
+        "title": "Learning the Face",
+        "location": "House Vence, the prince's rooms",
+        "npcs": [
+          "Marrow",
+          "Liesl Vence"
+        ],
+        "summary": "Days of training: Aurel's voice, his limp from a childhood fall, the names of forty councillors. Liesl visits unannounced and tests the player with questions only her brother could answer. She is not fooled, but she has not yet decided what to do about it.",
+        "goal": "Liesl confronts the player privately with her suspicion and the player responds. This is a pivotal choice.",
+        "max_turns": 4,
+        "forbid": "Do not let Liesl expose the player publicly. Do not resolve the question of Aurel's fate.",
+        "pivot": {
+          "id": "p1_liesl",
+          "when": "Liesl confronts the player alone with proof that they are not Aurel",
+          "options": [
+            {
+              "id": "confide",
+              "label": "Tell Liesl the truth and ask for her help",
+              "sets": [
+                "liesl_trusts"
+              ]
+            },
+            {
+              "id": "deceive",
+              "label": "Hold the lie: claim the fire took memories and lean on her grief",
+              "sets": [
+                "liesl_deceived"
+              ]
+            },
+            {
+              "id": "threaten",
+              "label": "Remind her quietly what Marrow does to loose ends",
+              "sets": [
+                "liesl_afraid"
+              ]
+            }
+          ]
+        },
+        "on_complete": [
+          "liesl_knows"
+        ]
+      },
+      "e3_court": {
+        "title": "First Court",
+        "location": "The Council Hall",
+        "npcs": [
+          "Lord Caddis",
+          "Marrow",
+          "Liesl Vence"
+        ],
+        "summary": "The player's first public appearance as Aurel. Lord Caddis needles the prince about the ship fire and proposes that the garrison take over river customs, a direct attack on House Vence revenue. The hall watches how the prince answers.",
+        "goal": "The session ends with Caddis either checked or emboldened, and the player has survived their first public test without being exposed.",
+        "max_turns": 4,
+        "forbid": "Do not have anyone publicly accuse the player of being an impostor.",
+        "variants": [
+          {
+            "when": [
+              "liesl_trusts"
+            ],
+            "summary_add": "Liesl sits beside the player and feeds them quiet cues when a councillor's name or a past slight comes up."
+          },
+          {
+            "when": [
+              "liesl_afraid"
+            ],
+            "summary_add": "Liesl is absent from court. Councillors notice and murmur."
+          }
+        ],
+        "on_complete": [
+          "court_done"
+        ]
+      },
+      "e4_debt": {
+        "title": "The Lantern Debt",
+        "location": "A lamp barge on the river, night",
+        "npcs": [
+          "Ysolde"
+        ],
+        "summary": "Ysolde summons the prince to the Sink. She knows who he is and has a proposal: swear an oath to her, gaining the strength and poise the role demands, and the Guild will protect the secret. The cost is memory, and the Grey Watch can smell a fresh oath. This is a pivotal choice.",
+        "goal": "The player gives Ysolde a definite answer about the oath.",
+        "max_turns": 3,
+        "forbid": "Do not let the player leave without answering.",
+        "pivot": {
+          "id": "p2_oath",
+          "when": "Ysolde formally offers the oath",
+          "options": [
+            {
+              "id": "swear",
+              "label": "Swear the oath to Ysolde and accept the cost in memory",
+              "sets": [
+                "oath_sworn",
+                "guild_ally"
+              ]
+            },
+            {
+              "id": "refuse",
+              "label": "Refuse the oath and walk away from the Guild",
+              "sets": [
+                "guild_enemy"
+              ]
+            },
+            {
+              "id": "bargain",
+              "label": "Offer the Guild river customs favors instead of an oath",
+              "sets": [
+                "guild_bargain"
+              ]
+            }
+          ]
+        },
+        "on_complete": [
+          "act1_done"
+        ]
+      },
+      "e5_duel": {
+        "title": "The Duel",
+        "location": "The garrison yard",
+        "npcs": [
+          "Lord Caddis",
+          "Marrow"
+        ],
+        "summary": "Caddis maneuvers the prince into a formal duel of honor with his champion, a thing Aurel was famously good at. The player is not. Set wounded if the player is hurt, caddis_humiliated if Caddis loses face.",
+        "goal": "The duel is resolved, by fighting, by trickery, or by making it politically impossible to proceed.",
+        "max_turns": 4,
+        "forbid": "Do not kill the player. A wound is acceptable.",
+        "variants": [
+          {
+            "when": [
+              "oath_sworn"
+            ],
+            "summary_add": "The oath lends the player a swordsman's reflexes they never earned, but mid-duel they realize they cannot remember their own mother's face."
+          },
+          {
+            "when": [
+              "guild_enemy"
+            ],
+            "summary_add": "The Guild has let it be known in the garrison that the prince is 'not himself'. Caddis's champion fights to expose, not to wound."
+          },
+          {
+            "when": [
+              "guild_bargain"
+            ],
+            "summary_add": "Ysolde's people have bribed the champion to lose convincingly, which is its own kind of danger if anyone notices."
+          }
+        ],
+        "on_complete": [
+          "duel_done"
+        ]
+      },
+      "e6_watch": {
+        "title": "The Grey Watch",
+        "location": "House Vence, the library",
+        "npcs": [
+          "Tamsin Reeve",
+          "Liesl Vence"
+        ],
+        "summary": "Inquisitor Tamsin Reeve arrives to interview the prince about the fire, as routine. Her questions are small and precise. She is really checking for oath-magic and for inconsistencies in the prince's memory.",
+        "goal": "The interview ends. Tamsin leaves with a conclusion the player can guess at but not confirm.",
+        "max_turns": 4,
+        "forbid": "Tamsin does not arrest anyone yet.",
+        "variants": [
+          {
+            "when": [
+              "oath_sworn"
+            ],
+            "summary_add": "Tamsin can smell the oath. She does not say so. She asks instead who the player swore it to, as if it were an ordinary question. Set the flag watch_suspicious if the player stumbles."
+          },
+          {
+            "when": [
+              "liesl_trusts"
+            ],
+            "summary_add": "Liesl insists on being present and steers the conversation when the player falters."
+          },
+          {
+            "when": [
+              "liesl_deceived"
+            ],
+            "summary_add": "Liesl volunteers a childhood story the player cannot possibly know, watching their face."
+          }
+        ],
+        "on_complete": [
+          "watch_done"
+        ]
+      },
+      "e7_letters": {
+        "title": "Letters from the Sea",
+        "location": "The prince's study, late",
+        "npcs": [
+          "Marrow",
+          "Liesl Vence"
+        ],
+        "summary": "A packet of letters arrives, sealed with Aurel's personal mark. Aurel is alive, in the port of Hesk across the water, and he writes to Liesl that he left on purpose and does not intend to return. Marrow wants the letters burned. Set letters_burned or letters_kept according to what the player does.",
+        "goal": "The player decides what happens to the letters and who else learns of them.",
+        "max_turns": 3,
+        "forbid": "Do not bring Aurel physically on stage yet.",
+        "on_complete": [
+          "aurel_alive_known"
+        ]
+      },
+      "e8_vote_nears": {
+        "title": "The Vote Approaches",
+        "location": "Across the city, the week before the vote",
+        "npcs": [
+          "Marrow",
+          "Lord Caddis",
+          "Ysolde",
+          "Liesl Vence"
+        ],
+        "summary": "Six days remain. Marrow reveals the full plan: there will be no return of Aurel. The player will be the prince for life, and Marrow will run Sarn through him. Alternatively the player could find the real Aurel and force a different ending. This is a pivotal choice.",
+        "goal": "The player commits to a path for the endgame.",
+        "max_turns": 3,
+        "forbid": "Do not resolve the vote.",
+        "pivot": {
+          "id": "p3_path",
+          "when": "Marrow lays out the plan for the player to remain prince permanently",
+          "options": [
+            {
+              "id": "stay",
+              "label": "Accept Marrow's plan and become Aurel for good",
+              "sets": [
+                "stay_prince"
+              ]
+            },
+            {
+              "id": "seek",
+              "label": "Secretly send for the real Aurel before the vote",
+              "sets": [
+                "seek_aurel"
+              ]
+            },
+            {
+              "id": "expose",
+              "label": "Plan to reveal the fraud yourself at the vote, on your own terms",
+              "sets": [
+                "self_expose"
+              ]
+            }
+          ]
+        },
+        "on_complete": [
+          "act2_done"
+        ]
+      },
+      "e9_real_prince": {
+        "title": "The Real Prince",
+        "location": "A warehouse by the river wall, before dawn",
+        "npcs": [
+          "Aurel Vence",
+          "Liesl Vence"
+        ],
+        "summary": "Aurel Vence comes back to Sarn, by the player's invitation or by his own design. The two men who share a face meet.",
+        "goal": "Aurel and the player reach an understanding, an alliance, or a rupture.",
+        "max_turns": 4,
+        "forbid": "Do not kill Aurel in this event.",
+        "variants": [
+          {
+            "when": [
+              "seek_aurel"
+            ],
+            "summary_add": "Aurel arrives because the player sent for him. He is amused, then alarmed at how good the player has become at being him."
+          },
+          {
+            "when": [
+              "stay_prince"
+            ],
+            "summary_add": "Aurel arrives uninvited, having heard the player means to keep his life. He has brought a knife and an argument, and is not sure which he will use."
+          },
+          {
+            "when": [
+              "self_expose"
+            ],
+            "summary_add": "Aurel arrives to stop the player from confessing, because the confession would destroy Liesl and the house."
+          }
+        ],
+        "on_complete": [
+          "aurel_met"
+        ]
+      },
+      "e10_lanterns": {
+        "title": "The Night of Lanterns",
+        "location": "The Sink, during the lantern festival",
+        "npcs": [
+          "Ysolde",
+          "Tamsin Reeve"
+        ],
+        "summary": "The night before the vote, the Sink's lantern festival becomes the stage for the Guild's move: either a show of force on behalf of the prince or a riot aimed at dragging the impostor into the light. The Grey Watch is present in numbers.",
+        "goal": "The night ends with the Sink's position settled and the player still free, or in custody.",
+        "max_turns": 4,
+        "forbid": "Do not resolve the vote.",
+        "variants": [
+          {
+            "when": [
+              "guild_ally"
+            ],
+            "summary_add": "Ysolde's people guard the prince and Ysolde names her price for the morning: the Guild gets the river customs."
+          },
+          {
+            "when": [
+              "guild_enemy"
+            ],
+            "summary_add": "The Guild has told the Watch everything. Tamsin comes for the player with a writ and an offer."
+          },
+          {
+            "when": [
+              "guild_bargain"
+            ],
+            "summary_add": "Ysolde has sold the bargain to Caddis as well. Both sides believe the prince is theirs."
+          }
+        ],
+        "on_complete": [
+          "lanterns_done"
+        ]
+      },
+      "e11_succession": {
+        "title": "The Succession",
+        "location": "The Council Hall",
+        "npcs": [
+          "Lord Caddis",
+          "Marrow",
+          "Liesl Vence",
+          "Tamsin Reeve",
+          "Aurel Vence"
+        ],
+        "summary": "The vote. Every thread the player has pulled comes due in one session of the Council.",
+        "goal": "The vote is decided and the player's true identity is either revealed, buried for good, or traded for something.",
+        "max_turns": 5,
+        "forbid": "",
+        "variants": [
+          {
+            "when": [
+              "stay_prince"
+            ],
+            "summary_add": "Marrow has the votes if the player can hold the room for one hour. Tamsin is in the gallery."
+          },
+          {
+            "when": [
+              "seek_aurel"
+            ],
+            "summary_add": "Aurel waits in the antechamber. The player can swap places, stand beside him, or walk in alone."
+          },
+          {
+            "when": [
+              "self_expose"
+            ],
+            "summary_add": "The player has the floor and the choice of how much truth the city can bear."
+          }
+        ],
+        "on_complete": [
+          "vote_done"
+        ]
+      },
+      "e12_epilogue": {
+        "title": "Epilogue",
+        "location": "Wherever the player ended up",
+        "npcs": [],
+        "summary": "Weeks later. Show the consequences for the player, for Liesl, for the Sink, and for Sarn.",
+        "goal": "Deliver a closing scene that reflects the flags set during the story, then end with the words THE END instead of choices.",
+        "max_turns": 2,
+        "forbid": "No new conflicts.",
+        "on_complete": [
+          "finished"
+        ],
+        "final": true
+      }
+    },
+    "extra_flags": [
+      "watch_suspicious",
+      "wounded",
+      "caddis_humiliated",
+      "letters_burned",
+      "letters_kept"
+    ]
+  }
+}

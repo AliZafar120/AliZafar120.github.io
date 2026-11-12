@@ -1,4 +1,5 @@
 [
+  { "id": "borrowed-crown", "title": "The Borrowed Crown", "tagline": "Wear a missing prince's face for forty days. Survive the people who want him dead.", "genre": "Political fantasy" },
   { "id": "ashen-gate",  "title": "The Ashen Gate",  "tagline": "You wake in a burning shrine with a stranger's sword in your hand.", "genre": "Isekai fantasy" },
   { "id": "neon-harbor", "title": "Neon Harbor",     "tagline": "A debt collector with a conscience, in a port city that never dries.", "genre": "Cyberpunk noir" }
 ]

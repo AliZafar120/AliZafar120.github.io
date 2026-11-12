@@ -4,31 +4,35 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Isekai Engine</title>
-<meta name="description" content="Interactive story engine that runs a language model inside the browser.">
+<meta name="description" content="Interactive story engine with a pre-planned event spine, run by a language model inside the browser.">
 <meta name="robots" content="noindex,nofollow">
 <style>
-:root{--bg:#f6f4ef;--panel:#fffdf8;--fg:#1f2328;--muted:#6b7280;--border:#e2ddd3;--accent:#8b2e2e;--accent-fg:#fff;--user:#ece7dc;--choice:#faf6ee;--code:#f0ebe0;}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111317;--panel:#181b21;--fg:#e7e9ee;--muted:#9aa3b2;--border:#2a2f3a;--accent:#d97a6c;--accent-fg:#1a0d0b;--user:#232834;--choice:#1d2129;--code:#1f242d;}}
-:root[data-theme="dark"]{--bg:#111317;--panel:#181b21;--fg:#e7e9ee;--muted:#9aa3b2;--border:#2a2f3a;--accent:#d97a6c;--accent-fg:#1a0d0b;--user:#232834;--choice:#1d2129;--code:#1f242d;}
+:root{--bg:#f6f4ef;--panel:#fffdf8;--fg:#1f2328;--muted:#6b7280;--border:#e2ddd3;--accent:#8b2e2e;--accent-fg:#fff;--user:#ece7dc;--choice:#faf6ee;--pivot:#fff3d6;--pivot-b:#d9a441;--code:#f0ebe0;--chip:#ebe6da}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111317;--panel:#181b21;--fg:#e7e9ee;--muted:#9aa3b2;--border:#2a2f3a;--accent:#d97a6c;--accent-fg:#1a0d0b;--user:#232834;--choice:#1d2129;--pivot:#2a2412;--pivot-b:#a87d2a;--code:#1f242d;--chip:#262b35}}
+:root[data-theme="dark"]{--bg:#111317;--panel:#181b21;--fg:#e7e9ee;--muted:#9aa3b2;--border:#2a2f3a;--accent:#d97a6c;--accent-fg:#1a0d0b;--user:#232834;--choice:#1d2129;--pivot:#2a2412;--pivot-b:#a87d2a;--code:#1f242d;--chip:#262b35}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 Georgia,"Iowan Old Style",serif}
-.wrap{max-width:860px;margin:0 auto;padding:16px}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
 header{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
 header h1{font-size:20px;margin:0 auto 0 0;font-weight:600}
-select,input,button,textarea{font:14px/1.4 system-ui,sans-serif;color:var(--fg);background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+select,input,button,textarea{font:14px/1.4 system-ui,sans-serif;color:var(--fg);background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 10px;max-width:100%}
 button{cursor:pointer}
 button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);font-weight:600}
 button:disabled{opacity:.5;cursor:default}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
 .status{font:13px system-ui,sans-serif;color:var(--muted);min-height:18px;white-space:pre-wrap}
 .bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:6px}.bar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
-#log{display:flex;flex-direction:column;gap:12px;min-height:200px}
+#log{display:flex;flex-direction:column;gap:12px;min-height:160px}
 .msg{padding:12px 14px;border-radius:12px;white-space:pre-wrap;max-width:100%}
 .msg.ai{background:var(--panel);border:1px solid var(--border)}
 .msg.user{background:var(--user);align-self:flex-end;font-family:system-ui,sans-serif;font-size:15px}
 .msg.user::before{content:"You";display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.msg .scene{display:block;margin-top:8px;font:12px system-ui,sans-serif;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.msg.sys{font:13px system-ui,sans-serif;color:var(--muted);text-align:center;background:none}
 .choices{display:flex;flex-direction:column;gap:6px;margin:4px 0 8px}
 .choices button{text-align:left;background:var(--choice)}
+.choices button.pivot{background:var(--pivot);border-color:var(--pivot-b);font-weight:600}
+.choices .label{font:12px system-ui,sans-serif;color:var(--pivot-b);text-transform:uppercase;letter-spacing:.06em}
 .compose{display:flex;gap:8px;margin-top:10px}
 .compose textarea{flex:1;resize:vertical;min-height:44px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -37,6 +41,11 @@ details summary{cursor:pointer;font:14px system-ui,sans-serif;color:var(--muted)
 .hint{font:13px system-ui,sans-serif;color:var(--muted)}
 .world{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .world .genre{font:12px system-ui,sans-serif;color:var(--accent);text-transform:uppercase;letter-spacing:.06em}
+.progress{font:13px system-ui,sans-serif}
+.progress b{font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.chip{font:11px system-ui,sans-serif;background:var(--chip);border-radius:99px;padding:2px 8px;color:var(--muted)}
+.notes{margin:6px 0 0;padding-left:18px;font:13px/1.5 system-ui,sans-serif;color:var(--muted)}
 code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--code);padding:1px 5px;border-radius:5px;font-size:13px}
 @media (max-width:600px){header h1{width:100%}}
 </style>
@@ -46,12 +55,18 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--code);pa
 <header>
   <h1>Isekai Engine</h1>
   <select id="world" title="World"></select>
+  <button id="export" title="Download this story's save as JSON">Export</button>
   <button id="newgame" title="Forget this world's saved story">New game</button>
 </header>
 
 <div class="card" id="worldcard">
   <div class="world"><strong id="wtitle">Loading worlds…</strong><span class="genre" id="wgenre"></span></div>
   <p id="wsummary" class="hint"></p>
+  <div id="progress" class="progress" style="display:none">
+    <div><b id="pact"></b> · <span id="pevent"></span> · <span id="pturn"></span></div>
+    <div class="chips" id="pflags"></div>
+    <details><summary>Story memory</summary><ul class="notes" id="pnotes"></ul></details>
+  </div>
 </div>
 
 <div class="card">
@@ -68,13 +83,13 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--code);pa
     <span id="apiopts" class="row" style="display:none">
       <input id="apibase" placeholder="https://openrouter.ai/api/v1" size="28">
       <input id="apimodel" placeholder="model id" size="22">
-      <input id="apikey" type="password" placeholder="API key (stays in this browser)" size="26">
+      <input id="apikey" type="password" placeholder="API key (stored unencrypted in this browser)" size="26">
     </span>
   </div>
   <div class="status" id="status"></div>
   <div class="bar"><i id="prog"></i></div>
   <details><summary>How this works</summary>
-    <p class="hint">The story is a prompt built from the world card (plot, characters, style) plus the recent turns. With the in-browser engine, the model weights download once from the MLC CDN and are cached by your browser, then run on your GPU through WebGPU. Nothing you type leaves your machine. First load is 1 to 3 GB depending on the model. Chrome, Edge, and recent Safari and Firefox on a desktop GPU work best. Your story is saved in this browser only.</p>
+    <p class="hint">Each world is a JSON file: characters, style, an opening, and for plotted worlds a <em>story spine</em> of acts and major events with entry flags, variants, and a few pivotal choices. Every turn runs two model calls. The <em>narrator</em> writes the scene from the world card, the current event's brief, the story flags, recent memory notes, and the last turns. The <em>director</em> then returns a small JSON record: whether the event's goal was met, which flags to set, a one-line memory note, and an image prompt for a future scene illustrator. Ordinary choices change the scene; only pivot choices change which version of later events you get. With the in-browser engine the weights download once from the MLC CDN, are cached, and run on your GPU through WebGPU, so nothing leaves your machine. Saves live in this browser; use Export to keep one.</p>
   </details>
 </div>
 
@@ -91,63 +106,194 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--code);pa
 import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 
 const $ = id => document.getElementById(id);
-const S = {world:null, worlds:[], engine:null, engineId:null, busy:false, history:[]};
+const S = {world:null, worlds:[], engine:null, engineId:null, busy:false, history:[], story:null};
 const LS = {get:(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}}, set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}, del:k=>{try{localStorage.removeItem(k)}catch{}}};
 const settings = LS.get("isekai:settings", {engine:"local", model:"", apibase:"https://openrouter.ai/api/v1", apimodel:"", apikey:""});
+const PLAYER = "the player";
+const KEEP_TURNS = 14;      // recent messages kept verbatim after the opening
+const KEEP_NOTES = 10;      // director memory notes shown to the narrator
+const KEEP_CHARS = 9000;    // rough token budget for recent history (about 2200 tokens)
 
 const status = (t, frac) => { $("status").textContent = t || ""; if (frac != null) $("prog").style.width = Math.round(frac*100) + "%"; };
+const fill = t => (t||"").replaceAll("{{user}}", PLAYER);
 
-/* ---------- worlds ---------- */
+/* ---------- worlds and saves ---------- */
 async function loadWorldIndex(){
   const r = await fetch("worlds/index.json"); S.worlds = await r.json();
-  $("world").innerHTML = S.worlds.map(w => `<option value="${w.id}">${w.title}</option>`).join("");
+  $("world").replaceChildren(...S.worlds.map(w => { const o = document.createElement("option"); o.value = w.id; o.textContent = w.title; return o; }));
   const want = LS.get("isekai:lastWorld", S.worlds[0].id);
   $("world").value = S.worlds.some(w => w.id === want) ? want : S.worlds[0].id;
   await selectWorld($("world").value);
 }
+function freshStory(w){
+  if (!w.story) return null;
+  return {eventIndex:0, turnInEvent:0, flags:[...(w.state?.flags||[])], notes:[], pivots:{}, pendingPivot:false, justAdvanced:false, finished:false};
+}
 async function selectWorld(id){
-  const r = await fetch(`worlds/${id}.json`); S.world = await r.json();
+  const r = await fetch(`worlds/${id}.json`); S.world = JSON.parse(fill(await r.text()));
   LS.set("isekai:lastWorld", id);
   $("wtitle").textContent = S.world.title; $("wgenre").textContent = S.world.genre; $("wsummary").textContent = S.world.player_summary;
-  S.history = LS.get(`isekai:story:${id}`, null) || [{role:"assistant", content:S.world.opening}];
-  renderLog();
+  const save = LS.get(`isekai:save:${id}`, null);
+  if (save && Array.isArray(save.history) && save.history.length && validSave(save)){ S.history = save.history; S.story = save.story ? {...freshStory(S.world), ...save.story} : freshStory(S.world); }
+  else { S.history = [{role:"assistant", content:S.world.opening}]; S.story = freshStory(S.world); }
+  if (S.story && !S.story.finished && S.story.eventIndex >= eventOrder(S.world).length) S.story.finished = true;
+  renderAll(); refreshChat();
 }
+function validSave(save){
+  if (!S.world.story) return !save.story || typeof save.story === "object";
+  const st = save.story; if (!st || typeof st !== "object") return false;
+  const order = eventOrder(S.world), ids = new Set(Object.keys(S.world.story.events));
+  if (typeof st.eventIndex !== "number" || st.eventIndex < 0 || st.eventIndex > order.length) return false;
+  const pivotIds = new Set(Object.values(S.world.story.events).map(e => e.pivot?.id).filter(Boolean));
+  return Object.keys(st.pivots||{}).every(k => pivotIds.has(k)) && order.every(e => ids.has(e));
+}
+function saveGame(){ LS.set(`isekai:save:${S.world.id}`, {history:S.history, story:S.story, savedAt:new Date().toISOString(), world:S.world.id}); }
+
+/* ---------- story spine ---------- */
+const eventOrder = w => w.story.acts.flatMap(a => a.events);
+const actOf = (w, eid) => w.story.acts.find(a => a.events.includes(eid));
+function currentEvent(){
+  if (!S.story) return null;
+  const order = eventOrder(S.world), eid = order[S.story.eventIndex];
+  if (!eid) return null;
+  const ev = S.world.story.events[eid];
+  const has = f => S.story.flags.includes(f);
+  const adds = (ev.variants||[]).filter(v => (v.when||[]).every(has)).map(v => v.summary_add);
+  return {id:eid, ...ev, act:actOf(S.world, eid), fullSummary:[ev.summary, ...adds].join(" "), index:S.story.eventIndex, total:order.length};
+}
+const directorFlags = w => [...(w.story.extra_flags||[])];
+function knownFlags(w){
+  const s = new Set(w.state?.flags||[]);
+  for (const e of Object.values(w.story.events)){ (e.on_complete||[]).forEach(f => s.add(f)); (e.variants||[]).forEach(v => (v.when||[]).forEach(f => s.add(f))); (e.pivot?.options||[]).forEach(o => (o.sets||[]).forEach(f => s.add(f))); }
+  (w.story.extra_flags||[]).forEach(f => s.add(f));
+  return [...s];
+}
+function pivotIsPending(ev){ return !!(ev?.pivot && !S.story.pivots[ev.pivot.id] && (S.story.pendingPivot || S.story.turnInEvent >= Math.max(1, (ev.max_turns||3) - 2))); }
+function directorBrief(ev){
+  const st = S.story, lines = [];
+  lines.push(`CURRENT EVENT ${ev.index+1}/${ev.total} — Act "${ev.act.title}", event "${ev.title}" at ${ev.location}. Characters available: ${(ev.npcs||[]).join(", ") || "none"}.`);
+  lines.push(`WHAT THIS EVENT IS: ${ev.fullSummary}`);
+  lines.push(`GOAL OF THIS EVENT: ${ev.goal}`);
+  if (ev.forbid) lines.push(`DO NOT: ${ev.forbid}`);
+  const maxT = ev.max_turns||3;
+  if (st.turnInEvent+1 > maxT) lines.push(`This event has run past its planned ${maxT} turns. Resolve it now.`);
+  else lines.push(`TURN ${st.turnInEvent+1} of at most ${maxT} for this event.` + (st.turnInEvent+1 >= maxT ? " This is the last turn: bring the event to its goal now." : ""));
+  if (st.justAdvanced) lines.push("A NEW EVENT HAS JUST BEGUN. Resolve the player's last action in one or two sentences, then mark a scene break with a blank line and '* * *', then establish the new time and place.");
+  if (st.flags.length) lines.push(`STORY FLAGS SO FAR: ${st.flags.join(", ")}.`);
+  if (st.notes.length) lines.push(`MEMORY (most recent last):\n- ${st.notes.slice(-KEEP_NOTES).join("\n- ")}`);
+  if (pivotIsPending(ev)){
+    st.pendingPivot = true;
+    lines.push(`PIVOTAL CHOICE: ${ev.pivot.when}. Bring the scene to this moment now. The three numbered choices MUST be exactly, in this order:\n` + ev.pivot.options.map((o,i) => `${i+1}. ${o.label}`).join("\n"));
+  }
+  if (ev.final) lines.push("This is the final event. When the goal is met, write the closing scene, finish with a line containing only THE END, and give NO numbered choices. This overrides the three-choices rule.");
+  return lines.join("\n");
+}
+function matchPivotOption(ev, text){
+  if (!ev?.pivot) return null; const t = text.trim().toLowerCase();
+  return ev.pivot.options.find(o => o.label.toLowerCase() === t || /^[1-3]$/.test(t) && ev.pivot.options[+t-1] === o) || null;
+}
+function applyPivot(ev, opt){ S.story.pivots[ev.pivot.id] = opt.id; for (const f of (opt.sets||[])) if (!S.story.flags.includes(f)) S.story.flags.push(f); S.story.pendingPivot = false; }
+function advanceEvent(ev){
+  for (const f of (ev.on_complete||[])) if (!S.story.flags.includes(f)) S.story.flags.push(f);
+  if (ev.final){ S.story.finished = true; return; }
+  S.story.eventIndex++; S.story.turnInEvent = 0; S.story.pendingPivot = false; S.story.justAdvanced = true;
+}
+
+/* ---------- prompts ---------- */
 function systemPrompt(){
-  const w = S.world, name = "the player";
+  const w = S.world;
   const chars = (w.characters||[]).map(c => `- ${c.name} (${c.role}): ${c.personality}`).join("\n");
-  return [
-    `You are the narrator and every non-player character of an interactive story titled "${w.title}" (${w.genre}).`,
-    `STORY PLAN (private, never reveal directly):\n${w.ai_plot}`,
-    `CHARACTERS:\n${chars}`,
-    `STYLE: ${w.style}`,
-    `RULES: ${w.reminder}`
-  ].join("\n\n").replaceAll("{{user}}", name);
+  const parts = [`You are the narrator and every non-player character of an interactive story titled "${w.title}" (${w.genre}). The reader is ${PLAYER}, addressed as "you".`];
+  if (w.ai_plot) parts.push(`STORY PLAN (private, never reveal directly):\n${w.ai_plot}`);
+  if (w.lore?.length) parts.push(`WORLD FACTS:\n- ${w.lore.join("\n- ")}`);
+  parts.push(`CHARACTERS:\n${chars}`, `STYLE: ${w.style}`, `RULES: ${w.reminder}`);
+  if (w.story) parts.push("You follow a pre-planned sequence of major events. Each turn you receive a director brief in brackets after the player's message. Obey it: stay inside the current event, work toward its goal, never jump ahead to later events. Small player choices change details and relationships; only the marked pivotal choices change the plot.");
+  return fill(parts.join("\n\n"));
 }
-const MAX_TURNS = 14;  // messages kept verbatim after the opening
-function buildMessages(){
-  const opening = S.history[0];
-  const rest = S.history.slice(1);
-  const recent = rest.slice(-MAX_TURNS);
+function buildMessages(ev){
+  const opening = S.history[0]; let recent = S.history.slice(1).slice(-KEEP_TURNS);
+  while (recent.length > 2 && recent.reduce((n,m) => n + m.content.length, 0) > KEEP_CHARS) recent = recent.slice(2);
   const msgs = [{role:"system", content:systemPrompt()}, opening, ...recent];
-  // Pin the reminder after the latest user message, like Isekai Zero's "AI Reminder".
   const last = msgs[msgs.length-1];
-  if (last.role === "user") msgs[msgs.length-1] = {role:"user", content: last.content + "\n\n[Narrator note: " + S.world.reminder.replaceAll("{{user}}","the player") + "]"};
+  if (last.role === "user"){
+    const notes = [ev ? directorBrief(ev) : "", `REMINDER: ${fill(S.world.reminder)}`].filter(Boolean).join("\n\n");
+    msgs[msgs.length-1] = {role:"user", content:`${last.content}\n\n[${notes}]`};
+  }
   return msgs;
+}
+function directorSchema(ev){
+  const pivotEnum = ev.pivot && !S.story.pivots[ev.pivot.id] ? ["none", ...ev.pivot.options.map(o => o.id)] : ["none"];
+  return {type:"object", properties:{
+    event_complete:{type:"boolean"},
+    pivot_choice:{type:"string", enum:pivotEnum},
+    set_flags:{type:"array", items:{type:"string", enum:directorFlags(S.world).length ? directorFlags(S.world) : ["none"]}, maxItems:4},
+    memory_note:{type:"string", maxLength:220},
+    image_prompt:{type:"string", maxLength:220}
+  }, required:["event_complete","pivot_choice","set_flags","memory_note","image_prompt"]};
+}
+function directorMessages(ev, playerText, narration){
+  const sys = "You are the story director for an interactive novel. You read the latest exchange and return ONLY a compact JSON object, no prose.";
+  const u = [
+    `EVENT: "${ev.title}". SUMMARY: ${ev.fullSummary}`,
+    `GOAL (event_complete is true only if the narration has clearly achieved this): ${ev.goal}`,
+    ev.pivot && !S.story.pivots[ev.pivot.id] ? `PIVOT OPTIONS (pivot_choice must be the id the player clearly committed to, else "none"): ${ev.pivot.options.map(o => `${o.id} = ${o.label}`).join("; ")}` : `No pivot in this event; pivot_choice must be "none".`,
+    `FLAGS ALREADY SET: ${S.story.flags.join(", ") || "none"}. You may add flags from this list only when the narration clearly establishes them: ${directorFlags(S.world).join(", ") || "none"}. Usually set none.`,
+    `PLAYER DID: ${playerText}`,
+    `NARRATION:\n${narration}`,
+    `Return JSON with keys event_complete (boolean), pivot_choice (string), set_flags (array of strings), memory_note (one sentence, past tense, the single most important new fact about what happened or changed), image_prompt (one sentence describing the key visual of this scene for an illustrator, no character names, no text).`
+  ].join("\n\n");
+  return [{role:"system", content:sys}, {role:"user", content:u}];
+}
+function parseDirector(text, ev){
+  let obj = null;
+  try{ obj = JSON.parse(text); }catch{ const m = text.match(/\{[\s\S]*\}/); if (m){ try{ obj = JSON.parse(m[0]); }catch{} } }
+  if (!obj || typeof obj !== "object") return null;
+  const known = new Set(directorFlags(S.world));
+  const pivotIds = new Set((ev.pivot?.options||[]).map(o => o.id));
+  return {
+    event_complete: obj.event_complete === true,
+    pivot_choice: pivotIds.has(obj.pivot_choice) ? obj.pivot_choice : null,
+    set_flags: Array.isArray(obj.set_flags) ? obj.set_flags.filter(f => known.has(f)).slice(0,4) : [],
+    memory_note: typeof obj.memory_note === "string" ? obj.memory_note.trim().slice(0,220) : "",
+    image_prompt: typeof obj.image_prompt === "string" ? obj.image_prompt.trim().slice(0,220) : ""
+  };
 }
 
 /* ---------- rendering ---------- */
+function renderAll(){ renderLog(); renderProgress(); }
 function renderLog(){
   const log = $("log"); log.innerHTML = "";
-  for (const m of S.history){ const d = document.createElement("div"); d.className = "msg " + (m.role === "user" ? "user" : "ai"); d.textContent = stripChoices(m.content); log.appendChild(d); }
+  for (const m of S.history){
+    const d = document.createElement("div"); d.className = "msg " + (m.role === "user" ? "user" : "ai"); d.textContent = stripChoices(m.content);
+    if (m.scene){ const s = document.createElement("span"); s.className = "scene"; s.textContent = "Scene: " + m.scene; d.appendChild(s); }
+    log.appendChild(d);
+  }
+  if (S.story?.finished){ const d = document.createElement("div"); d.className = "msg sys"; d.textContent = "The story is complete. Start a new game to play another path."; log.appendChild(d); }
   renderChoices(S.history[S.history.length-1]);
   window.scrollTo(0, document.body.scrollHeight);
 }
-const CHOICE_RE = /^\s*([1-3])[.)]\s+(.+?)\s*$/gm;
-function parseChoices(t){ const out=[]; for (const m of (t||"").matchAll(CHOICE_RE)) out.push(m[2]); return out.length >= 2 ? out : []; }
-function stripChoices(t){ return parseChoices(t).length ? t.replace(CHOICE_RE, "").replace(/\n{3,}/g,"\n\n").trim() : t; }
+function renderProgress(){
+  const ev = currentEvent(); const box = $("progress");
+  if (!ev || !S.story){ box.style.display = "none"; return; }
+  box.style.display = "";
+  $("pact").textContent = ev.act.title; $("pevent").textContent = `${ev.title} (${ev.index+1}/${ev.total})`;
+  $("pturn").textContent = S.story.finished ? "finished" : `turn ${S.story.turnInEvent+1}/${ev.max_turns||3}`;
+  $("pflags").replaceChildren(...S.story.flags.map(f => { const c = document.createElement("span"); c.className = "chip"; c.textContent = f; return c; }));
+  $("pnotes").replaceChildren(...(S.story.notes.length ? S.story.notes : ["Nothing yet."]).map(n => { const li = document.createElement("li"); li.textContent = n; return li; }));
+}
+const CHOICE_BLOCK = /(?:^|\n)[ \t]*1[.)][ \t]+\S[^\n]*\n[ \t]*2[.)][ \t]+\S[^\n]*(?:\n[ \t]*3[.)][ \t]+\S[^\n]*)?[\s*_]*$/;
+function parseChoices(t){ const m = (t||"").match(CHOICE_BLOCK); if (!m) return []; return m[0].trim().split("\n").map(l => l.replace(/^\s*[1-3][.)]\s+/, "").trim()).filter(Boolean); }
+function stripChoices(t){ const m = (t||"").match(CHOICE_BLOCK); return m ? t.slice(0, m.index).trim() : t; }
 function renderChoices(m){
   const box = $("choices"); box.innerHTML = "";
-  if (!m || m.role !== "assistant" || S.busy) return;
+  if (S.busy || S.story?.finished) return;
+  const ev = currentEvent();
+  if (ev && S.story.pendingPivot && ev.pivot && !S.story.pivots[ev.pivot.id]){
+    const l = document.createElement("div"); l.className = "label"; l.textContent = "Pivotal choice"; box.appendChild(l);
+    for (const o of ev.pivot.options){ const b = document.createElement("button"); b.className = "pivot"; b.textContent = o.label; b.onclick = () => send(o.label); box.appendChild(b); }
+    return;
+  }
+  if (!m || m.role !== "assistant") return;
   for (const c of parseChoices(m.content)){ const b = document.createElement("button"); b.textContent = c; b.onclick = () => send(c); box.appendChild(b); }
 }
 
@@ -156,9 +302,9 @@ function populateModels(){
   const list = webllm.prebuiltAppConfig.model_list
     .filter(m => /instruct|-it-|chat|Qwen3/i.test(m.model_id) && !/vision|embed|coder|math|snowflake/i.test(m.model_id))
     .sort((a,b) => (a.vram_required_MB||0) - (b.vram_required_MB||0));
-  $("model").innerHTML = list.map(m => `<option value="${m.model_id}">${m.model_id.replace(/-MLC$/,"")} · ${Math.round((m.vram_required_MB||0)/1024*10)/10} GB</option>`).join("");
-  const def = settings.model || (list.find(m => /Qwen3-4B|Llama-3.2-3B/i.test(m.model_id))||list[0]).model_id;
-  if (list.some(m => m.model_id === def)) $("model").value = def;
+  $("model").replaceChildren(...list.map(m => { const o = document.createElement("option"); o.value = m.model_id; o.textContent = `${m.model_id.replace(/-MLC$/,"")} · ${Math.round((m.vram_required_MB||0)/1024*10)/10} GB`; return o; }));
+  const def = settings.model || (list.find(m => /Qwen3-4B|Llama-3.2-3B/i.test(m.model_id))||list[0])?.model_id;
+  if (def && list.some(m => m.model_id === def)) $("model").value = def;
 }
 async function loadLocal(){
   if (!navigator.gpu){ status("This browser has no WebGPU. Use Chrome or Edge on a desktop, or switch to the remote API engine."); return; }
@@ -166,63 +312,104 @@ async function loadLocal(){
   $("load").disabled = true; S.busy = true;
   try{
     if (S.engine && S.engineId !== id){ try{ await S.engine.unload(); }catch{} S.engine = null; }
-    if (!S.engine){
-      S.engine = await webllm.CreateMLCEngine(id, { initProgressCallback: p => status(p.text, p.progress) });
-      S.engineId = id;
-    }
-    status(`Ready: ${id}. Cached for next time.`, 1); enableChat(true);
+    if (!S.engine){ S.engine = await webllm.CreateMLCEngine(id, { initProgressCallback: p => status(p.text, p.progress) }); S.engineId = id; }
+    status(`Ready: ${id}. Cached for next time.`, 1);
   }catch(e){ status("Load failed: " + (e?.message || e)); console.error(e); }
-  finally{ $("load").disabled = false; S.busy = false; renderChoices(S.history[S.history.length-1]); }
+  finally{ S.busy = false; refreshChat(); renderChoices(S.history[S.history.length-1]); }
 }
-async function* streamLocal(messages){
-  const chunks = await S.engine.chat.completions.create({messages, stream:true, temperature:0.85, top_p:0.95, max_tokens:450});
-  for await (const c of chunks){ const d = c.choices?.[0]?.delta?.content; if (d) yield d; }
-}
-async function* streamApi(messages){
+const useApi = () => $("engine").value === "api";
+async function* streamChat(messages, opts={}){
+  if (!useApi()){
+    const req = {messages, stream:true, temperature:opts.temperature ?? 0.85, top_p:0.95, max_tokens:opts.max_tokens ?? 450};
+    if (/qwen3/i.test(S.engineId||"")) req.extra_body = {enable_thinking:false};   // Qwen3 otherwise emits <think> blocks that fight the JSON grammar
+    if (opts.schema) req.response_format = {type:"json_object", schema:JSON.stringify(opts.schema)};
+    const chunks = await S.engine.chat.completions.create(req);
+    for await (const c of chunks){ const d = c.choices?.[0]?.delta?.content; if (d) yield d; }
+    return;
+  }
   const base = $("apibase").value.replace(/\/+$/,""), key = $("apikey").value, model = $("apimodel").value;
-  const r = await fetch(base + "/chat/completions", {method:"POST", headers:{"Content-Type":"application/json","Authorization":"Bearer "+key}, body:JSON.stringify({model, messages, stream:true, temperature:0.85, max_tokens:450})});
+  const body = {model, messages, stream:true, temperature:opts.temperature ?? 0.85, max_tokens:opts.max_tokens ?? 450};
+  if (opts.schema) body.response_format = {type:"json_object"};
+  const r = await fetch(base + "/chat/completions", {method:"POST", headers:{"Content-Type":"application/json","Authorization":"Bearer "+key}, body:JSON.stringify(body)});
   if (!r.ok) throw new Error(`API ${r.status}: ${(await r.text()).slice(0,200)}`);
   const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
   while (true){ const {done, value} = await rd.read(); if (done) break; buf += dec.decode(value, {stream:true});
     let i; while ((i = buf.indexOf("\n")) >= 0){ const line = buf.slice(0,i).trim(); buf = buf.slice(i+1);
       if (!line.startsWith("data:")) continue; const data = line.slice(5).trim(); if (data === "[DONE]") return;
-      try{ const d = JSON.parse(data).choices?.[0]?.delta?.content; if (d) yield d; }catch{} } }
+      let j = null; try{ j = JSON.parse(data); }catch{ continue; }
+      if (j.error) throw new Error("API error: " + (j.error.message || JSON.stringify(j.error)).slice(0,200));
+      const d = j.choices?.[0]?.delta?.content; if (d) yield d; } }
 }
+const stripThink = t => t.replace(/<think>[\s\S]*?<\/think>\s*/g, "").trim();
+async function complete(messages, opts){ let out = ""; for await (const p of streamChat(messages, opts)) out += p; return stripThink(out); }
 
 /* ---------- turn loop ---------- */
 async function send(text){
-  text = (text||"").trim(); if (!text || S.busy) return;
-  const useApi = $("engine").value === "api";
-  if (!useApi && !S.engine){ status("Load a model first."); return; }
-  if (useApi && !$("apikey").value){ status("Enter an API key, or switch to the in-browser engine."); return; }
-  S.busy = true; enableChat(false); $("input").value = "";
+  text = (text||"").trim(); if (!text || S.busy || S.story?.finished) return;
+  if (!useApi() && !S.engine){ status("Load a model first."); return; }
+  if (useApi() && !$("apikey").value){ status("Enter an API key, or switch to the in-browser engine."); return; }
+  S.busy = true; refreshChat(); $("input").value = ""; $("choices").innerHTML = "";
+  const ev = currentEvent();
+  const snapshot = S.story ? JSON.stringify(S.story) : null;
+  // A pivot option clicked or typed verbatim is applied deterministically, before narration.
+  let pivotLocked = false;
+  if (ev && S.story.pendingPivot){ const opt = matchPivotOption(ev, text); if (opt){ applyPivot(ev, opt); pivotLocked = true; } }
   S.history.push({role:"user", content:text}); renderLog();
   const d = document.createElement("div"); d.className = "msg ai"; d.textContent = "…"; $("log").appendChild(d);
   let out = "";
   try{
-    const gen = useApi ? streamApi(buildMessages()) : streamLocal(buildMessages());
-    for await (const piece of gen){ out += piece; d.textContent = out; window.scrollTo(0, document.body.scrollHeight); }
-    S.history.push({role:"assistant", content:out});
-    LS.set(`isekai:story:${S.world.id}`, S.history);
-  }catch(e){ d.textContent = "The story engine failed: " + (e?.message || e); S.history.pop(); console.error(e); }
-  finally{ S.busy = false; enableChat(true); renderLog(); }
+    const msgs = buildMessages(ev);           // computes the brief; may set pendingPivot
+    for await (const piece of streamChat(msgs)){ out += piece; d.textContent = stripChoices(stripThink(out)) || out; window.scrollTo(0, document.body.scrollHeight); }
+    out = stripThink(out);
+    if (!out) throw new Error("the model returned an empty reply");
+    const aiMsg = {role:"assistant", content:out}; S.history.push(aiMsg);
+    if (ev){
+      S.story.justAdvanced = false; S.story.turnInEvent++;
+      status("Director is updating the story state…");
+      let dir = null;
+      try{ dir = parseDirector(await complete(directorMessages(ev, text, out), {schema:directorSchema(ev), temperature:0.2, max_tokens:320}), ev); }
+      catch(e){ console.warn("director failed", e); }
+      if (!dir) status("The director's reply was unreadable this turn. Story state unchanged.");
+      if (dir){
+        if (dir.memory_note) S.story.notes.push(dir.memory_note);
+        if (dir.image_prompt) aiMsg.scene = dir.image_prompt;
+        for (const f of dir.set_flags) if (!S.story.flags.includes(f)) S.story.flags.push(f);
+        if (!pivotLocked && dir.pivot_choice && ev.pivot && !S.story.pivots[ev.pivot.id]){ const opt = ev.pivot.options.find(o => o.id === dir.pivot_choice); if (opt) applyPivot(ev, opt); }
+      }
+      const pivotDone = !ev.pivot || !!S.story.pivots[ev.pivot.id];
+      const outOfTurns = S.story.turnInEvent >= (ev.max_turns||3);
+      const ended = !ev.final || /\bTHE END\b/.test(out);                 // the last event only ends with a real ending
+      if (pivotDone && ended && ((dir && dir.event_complete) || outOfTurns)) advanceEvent(ev);
+      else if (!pivotDone && outOfTurns) S.story.pendingPivot = true;   // hold here until the player decides
+      if (dir) status(useApi() ? "" : `Ready: ${S.engineId}`);
+    }
+    saveGame();
+  }catch(e){
+    if (snapshot) S.story = JSON.parse(snapshot);          // undo pivot/pendingPivot changes from this turn
+    if (S.history[S.history.length-1]?.role === "user") S.history.pop();
+    status("The story engine failed: " + (e?.message || e)); console.error(e);
+  }
+  finally{ S.busy = false; renderAll(); refreshChat(); }
 }
-function enableChat(on){ $("input").disabled = !on; $("send").disabled = !on; if (on) $("input").focus(); }
+function engineReady(){ return useApi() ? !!$("apikey").value : !!S.engine; }
+function refreshChat(){ const on = engineReady() && !S.busy && !S.story?.finished; $("input").disabled = !on; $("send").disabled = !on; for (const id of ["world","newgame","engine","load","model"]) $(id).disabled = S.busy; if (on) $("input").focus(); }
+const enableChat = () => refreshChat();
 function saveSettings(){ settings.engine = $("engine").value; settings.apibase = $("apibase").value; settings.apimodel = $("apimodel").value; settings.apikey = $("apikey").value; LS.set("isekai:settings", settings); }
-function syncEngineUI(){ const api = $("engine").value === "api"; $("localopts").style.display = api ? "none" : ""; $("apiopts").style.display = api ? "" : "none"; if (api) enableChat(true); else enableChat(!!S.engine); }
+function syncEngineUI(){ const api = useApi(); $("localopts").style.display = api ? "none" : ""; $("apiopts").style.display = api ? "" : "none"; refreshChat(); }
 
 /* ---------- wire up ---------- */
 $("world").onchange = e => selectWorld(e.target.value);
-$("newgame").onclick = () => { if (confirm("Forget the saved story for this world?")) { LS.del(`isekai:story:${S.world.id}`); selectWorld(S.world.id); } };
+$("newgame").onclick = () => { if (confirm("Forget the saved story for this world?")) { LS.del(`isekai:save:${S.world.id}`); selectWorld(S.world.id); } };
+$("export").onclick = () => { const blob = new Blob([JSON.stringify({world:S.world.id, history:S.history, story:S.story}, null, 2)], {type:"application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${S.world.id}-save.json`; a.click(); URL.revokeObjectURL(a.href); };
 $("load").onclick = loadLocal;
 $("send").onclick = () => send($("input").value);
 $("input").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send($("input").value); } });
 $("engine").onchange = () => { saveSettings(); syncEngineUI(); };
-for (const id of ["apibase","apimodel","apikey"]) $(id).onchange = saveSettings;
+for (const id of ["apibase","apimodel","apikey"]) $(id).onchange = () => { saveSettings(); refreshChat(); };
 $("engine").value = settings.engine; $("apibase").value = settings.apibase; $("apimodel").value = settings.apimodel; $("apikey").value = settings.apikey;
 
 populateModels(); syncEngineUI();
-$("footer").textContent = navigator.gpu ? "WebGPU available. Model runs on this device." : "No WebGPU in this browser. The in-browser engine needs Chrome, Edge, or recent Safari/Firefox on a desktop GPU.";
+$("footer").textContent = navigator.gpu ? "WebGPU available. The model runs on this device." : "No WebGPU in this browser. The in-browser engine needs Chrome, Edge, or recent Safari/Firefox on a desktop GPU.";
 loadWorldIndex().catch(e => status("Could not load worlds: " + e.message));
 </script>
 </body>
