@@ -110,8 +110,9 @@ export function createIllustrator({ort, fetchBytes, fetchText, pipeline = "lcm",
   const baseOpt = { executionProviders:[provider], enableMemPattern:false, enableCpuMemArena:false,
     extra:{ session:{ disable_prepacking:"1", use_device_allocator_for_initializers:"1", use_ort_model_bytes_directly:"1", use_ort_model_bytes_for_initializers:"1" } }, ...sessionExtra };
   const makeSession = createSession || (async (name, m, opt, report) => {
-    const bytes = await fetchBytes(`${base}/${m.path}`, report);
-    let externalData; if (m.data){ const d = await fetchBytes(`${base}/${m.data}`, report); externalData = [{path:m.data.split("/").pop(), data:new Uint8Array(d)}]; }
+    let doneMb = 0;                                   // bytes of files already fetched for this model, so the bar never jumps back
+    const bytes = await fetchBytes(`${base}/${m.path}`, mb => report(doneMb + mb)); doneMb += bytes.byteLength / 1048576;
+    let externalData; if (m.data){ const d = await fetchBytes(`${base}/${m.data}`, mb => report(doneMb + mb)); externalData = [{path:m.data.split("/").pop(), data:new Uint8Array(d)}]; }
     return ort.InferenceSession.create(bytes, {...opt, ...(externalData ? {externalData} : {})});
   });
   async function load(){
@@ -122,7 +123,8 @@ export function createIllustrator({ort, fetchBytes, fetchText, pipeline = "lcm",
     const total = Object.values(P.files).reduce((n, m) => n + m.mb, 0); let done = 0;
     for (const [name, m] of Object.entries(P.files)){
       onProgress({stage:`downloading ${name}`, frac:done / total});
-      sessions[name] = await makeSession(name, m, {...baseOpt, ...m.opt}, mb => onProgress({stage:`downloading ${name}`, frac:(done + Math.min(mb, m.mb)) / total}));
+      sessions[name] = await makeSession(name, m, {...baseOpt, ...m.opt}, mb => onProgress({stage:`downloading ${name}`, frac:(done + Math.min(mb, m.mb)) / total, mb:Math.min(mb, m.mb), fileMb:m.mb, doneMb:done, totalMb:total}));
+      onProgress({stage:`compiling ${name}`, frac:(done + m.mb) / total});
       done += m.mb; onProgress({stage:`loaded ${name}`, frac:done / total});
     }
     loaded = true; onProgress({stage:"ready", frac:1});

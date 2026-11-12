@@ -306,17 +306,29 @@ async function fetchCached(url, onMb){
   if (cache) try{ await cache.put(url, new Response(buf, {headers:{"content-length":String(got)}})); }catch(e){ console.warn("cache put", e); }
   return buf.buffer;
 }
+const illProg = {t:0, mb:0, lastUi:0};
+function illusProgress(p){
+  const now = Date.now();
+  if (p.mb != null){
+    const cum = p.doneMb + p.mb;
+    if (!illProg.t){ illProg.t = now; illProg.mb = cum; }
+    const dt = (now - illProg.t) / 1000, rate = dt > 1 ? (cum - illProg.mb) / dt : 0;
+    if (now - illProg.lastUi < 250 && p.mb < p.fileMb) return;
+    illProg.lastUi = now;
+    status(`Illustrator: ${p.stage} · ${Math.round(p.mb)} of ${p.fileMb} MB · total ${Math.round(cum)} of ${p.totalMb} MB (${Math.round(p.frac*100)}%)${rate ? ` · ${rate.toFixed(1)} MB/s` : ""}`, p.frac);
+  } else status(`Illustrator: ${p.stage}${p.frac < 1 ? ` (${Math.round(p.frac*100)}%)` : ""}`, p.frac);
+}
 async function loadIllustrator(){
   if (S.ill?.loaded) return;
   if (!navigator.gpu){ status("The illustrator needs WebGPU."); return; }
   try{ const ad = await navigator.gpu.requestAdapter(); if (!ad?.features?.has("shader-f16")){ status("This GPU or browser has no 16-bit float support, which the illustrator needs."); return; } }catch{}
-  S.busy = true; refreshChat(); $("illload").disabled = true;
+  S.busy = true; refreshChat(); $("illload").disabled = true; illProg.t = 0; illProg.lastUi = 0;
   try{
     const [ort, mod] = await Promise.all([import(ORT_CDN + "ort.webgpu.mjs"), import("./illustrator.js")]);
     ort.env.wasm.wasmPaths = ORT_CDN; ort.env.wasm.numThreads = 1;
     S.ill = mod.createIllustrator({ ort, pipeline:$("illus").value, fetchBytes:fetchCached, fetchText:async u => (await fetch(u)).text(),
       sessionExtra:{preferredOutputLocation:{last_hidden_state:"gpu-buffer"}},
-      onProgress:p => status(`Illustrator: ${p.stage}`, p.frac) });
+      onProgress:illusProgress });
     await S.ill.load(); status("Illustrator ready. Each turn now gets a picture.", 1);
   }catch(e){ status("Illustrator failed to load: " + (e?.message || e)); console.error(e); S.ill = null; }
   finally{ S.busy = false; $("illload").disabled = false; refreshChat(); renderChoices(S.history[S.history.length-1]); }
