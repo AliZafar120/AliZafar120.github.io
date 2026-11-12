@@ -30,6 +30,8 @@ button:disabled{opacity:.5;cursor:default}
 .msg.user::before{content:"You";display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
 .msg .scene{display:block;margin-top:8px;font:12px system-ui,sans-serif;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
 .msg.sys{font:13px system-ui,sans-serif;color:var(--muted);text-align:center;background:none}
+.msg img.illus{display:block;width:100%;max-width:512px;border-radius:8px;margin:10px auto 0;border:1px solid var(--border)}
+.msg .illbtn{font:12px system-ui,sans-serif;margin-top:8px}
 .choices{display:flex;flex-direction:column;gap:6px;margin:4px 0 8px}
 .choices button{text-align:left;background:var(--choice)}
 .choices button.pivot{background:var(--pivot);border-color:var(--pivot-b);font-weight:600}
@@ -87,10 +89,18 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--code);pa
       <input id="apikey" type="password" placeholder="API key (stored unencrypted in this browser)" size="26">
     </span>
   </div>
+  <div class="row" style="margin-top:8px">
+    <label>Illustrator</label>
+    <select id="illus">
+      <option value="none">None (text only)</option>
+      <option value="sdturbo">SD-Turbo 512px · in-browser · 2.4 GB · needs 8 GB GPU</option>
+    </select>
+    <button id="illload" class="primary" style="display:none">Load illustrator</button>
+  </div>
   <div class="status" id="status"></div>
   <div class="bar"><i id="prog"></i></div>
   <details><summary>How this works</summary>
-    <p class="hint">Each world is a JSON file: characters, style, an opening, and for plotted worlds a <em>story spine</em> of acts and major events with entry flags, variants, and a few pivotal choices. Every turn runs two model calls. The <em>narrator</em> writes the scene from the world card, the current event's brief, the story flags, recent memory notes, and the last turns. The <em>director</em> then returns a small JSON record: whether the event's goal was met, which flags to set, a one-line memory note, and an image prompt for a future scene illustrator. Ordinary choices change the scene; only pivot choices change which version of later events you get. Use a recommended model: anything under about 2B parameters cannot follow the story brief and will wander. With the in-browser engine the weights download once from the MLC CDN, are cached, and run on your GPU through WebGPU, so nothing leaves your machine. Saves live in this browser; use Export to keep one.</p>
+    <p class="hint">Each world is a JSON file: characters, style, an opening, and for plotted worlds a <em>story spine</em> of acts and major events with entry flags, variants, and a few pivotal choices. Every turn runs two model calls. The <em>narrator</em> writes the scene from the world card, the current event's brief, the story flags, recent memory notes, and the last turns. The <em>director</em> then returns a small JSON record: whether the event's goal was met, which flags to set, a one-line memory note, and an image prompt for a future scene illustrator. Ordinary choices change the scene; only pivot choices change which version of later events you get. The illustrator runs SD-Turbo through ONNX Runtime on WebGPU and draws one picture per turn from the director's image prompt; it needs a GPU with 16-bit float support and about 8 GB of memory alongside the text model, and SD-Turbo's license is non-commercial. Use a recommended model: anything under about 2B parameters cannot follow the story brief and will wander. With the in-browser engine the weights download once from the MLC CDN, are cached, and run on your GPU through WebGPU, so nothing leaves your machine. Saves live in this browser; use Export to keep one.</p>
   </details>
 </div>
 
@@ -107,9 +117,9 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--code);pa
 import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 
 const $ = id => document.getElementById(id);
-const S = {world:null, worlds:[], engine:null, engineId:null, busy:false, history:[], story:null};
+const S = {world:null, worlds:[], engine:null, engineId:null, busy:false, history:[], story:null, ill:null, imgUrls:new Map()};
 const LS = {get:(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}}, set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}, del:k=>{try{localStorage.removeItem(k)}catch{}}};
-const settings = LS.get("isekai:settings", {engine:"local", model:"", apibase:"https://openrouter.ai/api/v1", apimodel:"", apikey:""});
+const settings = LS.get("isekai:settings", {engine:"local", model:"", apibase:"https://openrouter.ai/api/v1", apimodel:"", apikey:"", illus:"none"});
 const PLAYER = "the player";
 const KEEP_TURNS = 14;      // recent messages kept verbatim after the opening
 const KEEP_NOTES = 10;      // director memory notes shown to the narrator
@@ -138,6 +148,7 @@ async function selectWorld(id){
   if (save && Array.isArray(save.history) && save.history.length && validSave(save)){ S.history = save.history; S.story = save.story ? {...freshStory(S.world), ...save.story} : freshStory(S.world); }
   else { S.history = [{role:"assistant", content:S.world.opening}]; S.story = freshStory(S.world); }
   if (S.story && !S.story.finished && S.story.eventIndex >= eventOrder(S.world).length) S.story.finished = true;
+  await loadImagesForWorld();
   renderAll(); refreshChat();
 }
 function validSave(save){
@@ -262,13 +273,65 @@ function parseDirector(text, ev){
   };
 }
 
+/* ---------- illustrator ---------- */
+const ORT_CDN = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.1/dist/";
+const IDB = {
+  open(){ return new Promise((res, rej) => { if (typeof indexedDB === "undefined") return rej(new Error("no indexedDB")); const r = indexedDB.open("isekai-images", 1); r.onupgradeneeded = () => r.result.createObjectStore("img"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+  async put(key, blob){ try{ const db = await this.open(); await new Promise((res, rej) => { const t = db.transaction("img", "readwrite"); t.objectStore("img").put(blob, key); t.oncomplete = res; t.onerror = () => rej(t.error); }); }catch(e){ console.warn("image store", e); } },
+  async get(key){ try{ const db = await this.open(); return await new Promise((res, rej) => { const r = db.transaction("img").objectStore("img").get(key); r.onsuccess = () => res(r.result || null); r.onerror = () => rej(r.error); }); }catch{ return null; } },
+  async clear(prefix){ try{ const db = await this.open(); const keys = await new Promise((res, rej) => { const r = db.transaction("img").objectStore("img").getAllKeys(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); await new Promise((res, rej) => { const t = db.transaction("img", "readwrite"); for (const k of keys) if (String(k).startsWith(prefix)) t.objectStore("img").delete(k); t.oncomplete = res; t.onerror = () => rej(t.error); }); }catch{} }
+};
+const imgKey = i => `${S.world.id}:${i}`;
+async function fetchCached(url, onMb){
+  let cache = null; try{ cache = await caches.open("isekai-sd"); const hit = await cache.match(url); if (hit) return await hit.arrayBuffer(); }catch{}
+  const r = await fetch(url); if (!r.ok) throw new Error(`download failed ${r.status}`);
+  const total = +r.headers.get("content-length") || 0; const parts = []; let got = 0; const rd = r.body.getReader();
+  while (true){ const {done, value} = await rd.read(); if (done) break; parts.push(value); got += value.length; onMb?.(got / 1048576); }
+  const buf = new Uint8Array(got); let o = 0; for (const p of parts){ buf.set(p, o); o += p.length; }
+  if (cache) try{ await cache.put(url, new Response(buf, {headers:{"content-length":String(got)}})); }catch(e){ console.warn("cache put", e); }
+  return buf.buffer;
+}
+async function loadIllustrator(){
+  if (S.ill?.loaded) return;
+  if (!navigator.gpu){ status("The illustrator needs WebGPU."); return; }
+  try{ const ad = await navigator.gpu.requestAdapter(); if (!ad?.features?.has("shader-f16")){ status("This GPU or browser has no 16-bit float support, which SD-Turbo needs."); return; } }catch{}
+  S.busy = true; refreshChat(); $("illload").disabled = true;
+  try{
+    const [ort, mod] = await Promise.all([import(ORT_CDN + "ort.webgpu.mjs"), import("./illustrator.js")]);
+    ort.env.wasm.wasmPaths = ORT_CDN; ort.env.wasm.numThreads = 1;
+    S.ill = mod.createIllustrator({ ort, fetchBytes:fetchCached, fetchText:async u => (await fetch(u)).text(),
+      sessionExtra:{preferredOutputLocation:{last_hidden_state:"gpu-buffer"}},
+      onProgress:p => status(`Illustrator: ${p.stage}`, p.frac) });
+    await S.ill.load(); status("Illustrator ready. Each turn now gets a picture.", 1);
+  }catch(e){ status("Illustrator failed to load: " + (e?.message || e)); console.error(e); S.ill = null; }
+  finally{ S.busy = false; $("illload").disabled = false; refreshChat(); renderChoices(S.history[S.history.length-1]); }
+}
+async function illustrate(index){
+  const m = S.history[index]; if (!m?.scene || !S.ill?.loaded) return;
+  const prompt = [m.scene, S.world.art_style].filter(Boolean).join(", ");
+  const t0 = Date.now(); status("Illustrating…");
+  const {width, height, rgba} = await S.ill.generate(prompt);
+  const c = document.createElement("canvas"); c.width = width; c.height = height; c.getContext("2d").putImageData(new ImageData(rgba, width, height), 0, 0);
+  const blob = await new Promise(res => c.toBlob(res, "image/png"));
+  await IDB.put(imgKey(index), blob); S.imgUrls.set(imgKey(index), URL.createObjectURL(blob));
+  status(`Illustrated in ${Math.round((Date.now()-t0)/1000)}s.`);
+}
+async function loadImagesForWorld(){
+  for (const u of S.imgUrls.values()) URL.revokeObjectURL(u); S.imgUrls.clear();
+  await Promise.all(S.history.map(async (m, i) => { if (m.role === "assistant" && m.scene){ const b = await IDB.get(imgKey(i)); if (b) S.imgUrls.set(imgKey(i), URL.createObjectURL(b)); } }));
+}
+function syncIllusUI(){ const on = $("illus").value !== "none"; $("illload").style.display = on ? "" : "none"; $("illload").textContent = S.ill?.loaded ? "Illustrator loaded" : "Load illustrator"; }
+
 /* ---------- rendering ---------- */
 function renderAll(){ renderLog(); renderProgress(); }
 function renderLog(){
   const log = $("log"); log.innerHTML = "";
   for (const m of S.history){
     const d = document.createElement("div"); d.className = "msg " + (m.role === "user" ? "user" : "ai"); d.textContent = stripChoices(m.content);
+    const idx = S.history.indexOf(m);
+    if (m.scene && S.imgUrls.has(imgKey(idx))){ const im = document.createElement("img"); im.className = "illus"; im.src = S.imgUrls.get(imgKey(idx)); im.alt = m.scene; d.appendChild(im); }
     if (m.scene){ const s = document.createElement("span"); s.className = "scene"; s.textContent = "Scene: " + m.scene; d.appendChild(s); }
+    if (m.scene && !S.imgUrls.has(imgKey(idx)) && S.ill?.loaded && !S.busy){ const b = document.createElement("button"); b.className = "illbtn"; b.textContent = "Illustrate this scene"; b.onclick = async () => { S.busy = true; refreshChat(); try{ await illustrate(idx); }catch(e){ status("Illustration failed: " + (e?.message || e)); } S.busy = false; renderAll(); refreshChat(); }; d.appendChild(b); }
     log.appendChild(d);
   }
   if (S.story?.finished){ const d = document.createElement("div"); d.className = "msg sys"; d.textContent = "The story is complete. Start a new game to play another path."; log.appendChild(d); }
@@ -387,6 +450,7 @@ async function send(text){
       if (dir){
         if (dir.memory_note) S.story.notes.push(dir.memory_note);
         if (dir.image_prompt) aiMsg.scene = dir.image_prompt;
+        if (dir.image_prompt && S.ill?.loaded){ try{ await illustrate(S.history.length - 1); }catch(e){ console.warn("illustrate failed", e); status("Illustration failed: " + (e?.message || e)); } }
         for (const f of dir.set_flags) if (!S.story.flags.includes(f)) S.story.flags.push(f);
         if (!pivotLocked && dir.pivot_choice && ev.pivot && !S.story.pivots[ev.pivot.id]){ const opt = ev.pivot.options.find(o => o.id === dir.pivot_choice); if (opt) applyPivot(ev, opt); }
       }
@@ -406,21 +470,23 @@ async function send(text){
   finally{ S.busy = false; renderAll(); refreshChat(); }
 }
 function engineReady(){ return useApi() ? !!$("apikey").value : !!S.engine; }
-function refreshChat(){ $("prog").parentElement.classList.toggle("busy", S.busy && !!(S.engine || useApi())); const on = engineReady() && !S.busy && !S.story?.finished; $("input").disabled = !on; $("send").disabled = !on; for (const id of ["world","newgame","engine","load","model"]) $(id).disabled = S.busy; if (on) $("input").focus(); }
+function refreshChat(){ $("prog").parentElement.classList.toggle("busy", S.busy && !!(S.engine || useApi())); const on = engineReady() && !S.busy && !S.story?.finished; $("input").disabled = !on; $("send").disabled = !on; for (const id of ["world","newgame","engine","load","model","illus","illload"]) $(id).disabled = S.busy; if (on) $("input").focus(); }
 const enableChat = () => refreshChat();
-function saveSettings(){ settings.engine = $("engine").value; settings.apibase = $("apibase").value; settings.apimodel = $("apimodel").value; settings.apikey = $("apikey").value; LS.set("isekai:settings", settings); }
+function saveSettings(){ settings.illus = $("illus").value; settings.engine = $("engine").value; settings.apibase = $("apibase").value; settings.apimodel = $("apimodel").value; settings.apikey = $("apikey").value; LS.set("isekai:settings", settings); }
 function syncEngineUI(){ const api = useApi(); $("localopts").style.display = api ? "none" : ""; $("apiopts").style.display = api ? "" : "none"; refreshChat(); }
 
 /* ---------- wire up ---------- */
 $("world").onchange = e => selectWorld(e.target.value);
-$("newgame").onclick = () => { if (confirm("Forget the saved story for this world?")) { LS.del(`isekai:save:${S.world.id}`); selectWorld(S.world.id); } };
+$("newgame").onclick = async () => { if (confirm("Forget the saved story for this world?")) { LS.del(`isekai:save:${S.world.id}`); await IDB.clear(S.world.id + ":"); selectWorld(S.world.id); } };
+$("illus").onchange = () => { settings.illus = $("illus").value; saveSettings(); syncIllusUI(); };
+$("illload").onclick = loadIllustrator;
 $("export").onclick = () => { const blob = new Blob([JSON.stringify({world:S.world.id, history:S.history, story:S.story}, null, 2)], {type:"application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${S.world.id}-save.json`; a.click(); URL.revokeObjectURL(a.href); };
 $("load").onclick = loadLocal;
 $("send").onclick = () => send($("input").value);
 $("input").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send($("input").value); } });
 $("engine").onchange = () => { saveSettings(); syncEngineUI(); };
 for (const id of ["apibase","apimodel","apikey"]) $(id).onchange = () => { saveSettings(); refreshChat(); };
-$("engine").value = settings.engine; $("apibase").value = settings.apibase; $("apimodel").value = settings.apimodel; $("apikey").value = settings.apikey;
+$("illus").value = settings.illus || "none"; syncIllusUI(); $("engine").value = settings.engine; $("apibase").value = settings.apibase; $("apimodel").value = settings.apimodel; $("apikey").value = settings.apikey;
 
 populateModels(); syncEngineUI();
 $("footer").textContent = navigator.gpu ? "WebGPU available. The model runs on this device." : "No WebGPU in this browser. The in-browser engine needs Chrome, Edge, or recent Safari/Firefox on a desktop GPU.";

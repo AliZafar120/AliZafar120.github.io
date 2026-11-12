@@ -7,7 +7,8 @@ local engine. Saves live in the browser's localStorage; Export downloads one.
 
 ## Files
 
-- `index.html`: the whole app.
+- `index.html`: the app.
+- `illustrator.js`: in-browser scene illustrator (SD-Turbo, one step, 512px) on ONNX Runtime WebGPU, with its own CLIP tokenizer.
 - `worlds/index.json`: list shown in the world picker. One entry per world:
   `{ "id", "title", "tagline", "genre" }`.
 - `worlds/<id>.json`: a world card.
@@ -33,6 +34,7 @@ Optional:
 | `lore[]` | Short world facts given to the narrator every turn. |
 | `state.flags[]` | Flags set at the start of a new game. |
 | `story` | The event spine. Without it the world is freeform and no director runs. |
+| `art_style` | Appended to every image prompt so a world's pictures share one look. |
 
 `{{user}}` anywhere in text is replaced with "the player".
 
@@ -85,3 +87,23 @@ Only pivots change the spine. Keep two to four pivots per story.
   turn to build before the choice is forced.
 - `forbid` is the main tool against a small model jumping ahead. Name the
   later reveals explicitly.
+
+## Illustrator
+
+Pick an illustrator in the engine panel and load it. Each turn the director's
+`image_prompt` plus the world's `art_style` is rendered to a 512px image and
+shown under the scene. Images are kept in the browser's IndexedDB per world and
+cleared by New game. Older scenes without a picture get an "Illustrate this
+scene" button.
+
+Requirements and limits:
+
+- WebGPU with the `shader-f16` feature. Chrome or Edge on a desktop GPU.
+- About 2.4 GB of model download, cached by the browser after the first load.
+- Roughly 8 GB of GPU memory to hold the text model and SD-Turbo together.
+- SD-Turbo is published under Stability AI's non-commercial license. Swap the
+  model files for a permissively licensed one before monetizing.
+
+The pipeline is a port of Microsoft's onnxruntime-web sd-turbo example. The
+headless test in the project's work folder runs the same module on CPU with
+onnxruntime-node and checks the tokenizer against Transformers.js.
