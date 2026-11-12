@@ -8,7 +8,7 @@ local engine. Saves live in the browser's localStorage; Export downloads one.
 ## Files
 
 - `index.html`: the app.
-- `illustrator.js`: in-browser scene illustrator (SD-Turbo, one step, 512px) on ONNX Runtime WebGPU, with its own CLIP tokenizer.
+- `illustrator.js`: in-browser scene illustrator (LCM Dreamshaper v7, 4 steps, 512px) on ONNX Runtime WebGPU, with its own CLIP tokenizer and LCM scheduler.
 - `worlds/index.json`: list shown in the world picker. One entry per world:
   `{ "id", "title", "tagline", "genre" }`.
 - `worlds/<id>.json`: a world card.
@@ -99,11 +99,16 @@ scene" button.
 Requirements and limits:
 
 - WebGPU with the `shader-f16` feature. Chrome or Edge on a desktop GPU.
-- About 2.4 GB of model download, cached by the browser after the first load.
-- Roughly 8 GB of GPU memory to hold the text model and SD-Turbo together.
-- SD-Turbo is published under Stability AI's non-commercial license. Swap the
-  model files for a permissively licensed one before monetizing.
+- About 2.1 GB of model download, cached by the browser after the first load.
+- Roughly 8 GB of GPU memory to hold the text model and the illustrator together.
 
-The pipeline is a port of Microsoft's onnxruntime-web sd-turbo example. The
-headless test in the project's work folder runs the same module on CPU with
-onnxruntime-node and checks the tokenizer against Transformers.js.
+Licensing: LCM Dreamshaper v7 is MIT, its base Dreamshaper 7 is CreativeML
+OpenRAIL-M. Both allow hosted and commercial use, with OpenRAIL's use-based
+restrictions on harmful content. The module also carries an SD-Turbo config
+for reference, unused by the page, because Stability's non-commercial license
+forbids offering it through a hosted service.
+
+The LCM scheduler and guidance embedding follow diffusers' LCMScheduler and
+LatentConsistencyModelPipeline. The headless tests in the project's work
+folder run the same module on CPU with onnxruntime-node and check the
+tokenizer against Transformers.js.

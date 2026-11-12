@@ -93,14 +93,14 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--code);pa
     <label>Illustrator</label>
     <select id="illus">
       <option value="none">None (text only)</option>
-      <option value="sdturbo">SD-Turbo 512px · in-browser · 2.4 GB · needs 8 GB GPU</option>
+      <option value="lcm">LCM Dreamshaper 512px · in-browser · 2.1 GB · needs 8 GB GPU</option>
     </select>
     <button id="illload" class="primary" style="display:none">Load illustrator</button>
   </div>
   <div class="status" id="status"></div>
   <div class="bar"><i id="prog"></i></div>
   <details><summary>How this works</summary>
-    <p class="hint">Each world is a JSON file: characters, style, an opening, and for plotted worlds a <em>story spine</em> of acts and major events with entry flags, variants, and a few pivotal choices. Every turn runs two model calls. The <em>narrator</em> writes the scene from the world card, the current event's brief, the story flags, recent memory notes, and the last turns. The <em>director</em> then returns a small JSON record: whether the event's goal was met, which flags to set, a one-line memory note, and an image prompt for a future scene illustrator. Ordinary choices change the scene; only pivot choices change which version of later events you get. The illustrator runs SD-Turbo through ONNX Runtime on WebGPU and draws one picture per turn from the director's image prompt; it needs a GPU with 16-bit float support and about 8 GB of memory alongside the text model, and SD-Turbo's license is non-commercial. Use a recommended model: anything under about 2B parameters cannot follow the story brief and will wander. With the in-browser engine the weights download once from the MLC CDN, are cached, and run on your GPU through WebGPU, so nothing leaves your machine. Saves live in this browser; use Export to keep one.</p>
+    <p class="hint">Each world is a JSON file: characters, style, an opening, and for plotted worlds a <em>story spine</em> of acts and major events with entry flags, variants, and a few pivotal choices. Every turn runs two model calls. The <em>narrator</em> writes the scene from the world card, the current event's brief, the story flags, recent memory notes, and the last turns. The <em>director</em> then returns a small JSON record: whether the event's goal was met, which flags to set, a one-line memory note, and an image prompt for a future scene illustrator. Ordinary choices change the scene; only pivot choices change which version of later events you get. The illustrator runs LCM Dreamshaper v7, a Stable Diffusion 1.5 model distilled to 4 steps (MIT and CreativeML OpenRAIL-M licenses), through ONNX Runtime on WebGPU, and draws one picture per turn from the director's image prompt. It needs a GPU with 16-bit float support and about 8 GB of memory alongside the text model. Use a recommended model: anything under about 2B parameters cannot follow the story brief and will wander. With the in-browser engine the weights download once from the MLC CDN, are cached, and run on your GPU through WebGPU, so nothing leaves your machine. Saves live in this browser; use Export to keep one.</p>
   </details>
 </div>
 
@@ -294,12 +294,12 @@ async function fetchCached(url, onMb){
 async function loadIllustrator(){
   if (S.ill?.loaded) return;
   if (!navigator.gpu){ status("The illustrator needs WebGPU."); return; }
-  try{ const ad = await navigator.gpu.requestAdapter(); if (!ad?.features?.has("shader-f16")){ status("This GPU or browser has no 16-bit float support, which SD-Turbo needs."); return; } }catch{}
+  try{ const ad = await navigator.gpu.requestAdapter(); if (!ad?.features?.has("shader-f16")){ status("This GPU or browser has no 16-bit float support, which the illustrator needs."); return; } }catch{}
   S.busy = true; refreshChat(); $("illload").disabled = true;
   try{
     const [ort, mod] = await Promise.all([import(ORT_CDN + "ort.webgpu.mjs"), import("./illustrator.js")]);
     ort.env.wasm.wasmPaths = ORT_CDN; ort.env.wasm.numThreads = 1;
-    S.ill = mod.createIllustrator({ ort, fetchBytes:fetchCached, fetchText:async u => (await fetch(u)).text(),
+    S.ill = mod.createIllustrator({ ort, pipeline:$("illus").value, fetchBytes:fetchCached, fetchText:async u => (await fetch(u)).text(),
       sessionExtra:{preferredOutputLocation:{last_hidden_state:"gpu-buffer"}},
       onProgress:p => status(`Illustrator: ${p.stage}`, p.frac) });
     await S.ill.load(); status("Illustrator ready. Each turn now gets a picture.", 1);
@@ -310,7 +310,7 @@ async function illustrate(index){
   const m = S.history[index]; if (!m?.scene || !S.ill?.loaded) return;
   const prompt = [m.scene, S.world.art_style].filter(Boolean).join(", ");
   const t0 = Date.now(); status("Illustrating…");
-  const {width, height, rgba} = await S.ill.generate(prompt);
+  const {width, height, rgba} = await S.ill.generate(prompt, {onStep:(i, n) => status(`Illustrating… step ${i}/${n}`)});
   const c = document.createElement("canvas"); c.width = width; c.height = height; c.getContext("2d").putImageData(new ImageData(rgba, width, height), 0, 0);
   const blob = await new Promise(res => c.toBlob(res, "image/png"));
   await IDB.put(imgKey(index), blob); S.imgUrls.set(imgKey(index), URL.createObjectURL(blob));
@@ -486,7 +486,7 @@ $("send").onclick = () => send($("input").value);
 $("input").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send($("input").value); } });
 $("engine").onchange = () => { saveSettings(); syncEngineUI(); };
 for (const id of ["apibase","apimodel","apikey"]) $(id).onchange = () => { saveSettings(); refreshChat(); };
-$("illus").value = settings.illus || "none"; syncIllusUI(); $("engine").value = settings.engine; $("apibase").value = settings.apibase; $("apimodel").value = settings.apimodel; $("apikey").value = settings.apikey;
+$("illus").value = [...$("illus").options].some(o => o.value === settings.illus) ? settings.illus : "none"; syncIllusUI(); $("engine").value = settings.engine; $("apibase").value = settings.apibase; $("apimodel").value = settings.apimodel; $("apikey").value = settings.apikey;
 
 populateModels(); syncEngineUI();
 $("footer").textContent = navigator.gpu ? "WebGPU available. The model runs on this device." : "No WebGPU in this browser. The in-browser engine needs Chrome, Edge, or recent Safari/Firefox on a desktop GPU.";
