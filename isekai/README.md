@@ -88,6 +88,14 @@ Only pivots change the spine. Keep two to four pivots per story.
 - `forbid` is the main tool against a small model jumping ahead. Name the
   later reveals explicitly.
 
+## Storage panel
+
+"Storage on this device" in the engine card lists what the browser holds for
+the site: cached text models (WebLLM's cache), the illustrator's ONNX files,
+generated images per world, and saved stories, each with its size and a Clear
+button. Loaded models also get an "Unload from GPU" button. "Clear everything"
+removes all of it; models then download again on the next load.
+
 ## Illustrator
 
 Pick an illustrator in the engine panel and load it. Each turn the director's

@@ -45,6 +45,12 @@ details summary{cursor:pointer;font:14px system-ui,sans-serif;color:var(--muted)
 .world{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .world .genre{font:12px system-ui,sans-serif;color:var(--accent);text-transform:uppercase;letter-spacing:.06em}
 .progress{font:13px system-ui,sans-serif}
+table.store{width:100%;border-collapse:collapse;font:13px system-ui,sans-serif;margin-top:8px}
+table.store td{padding:5px 6px;border-top:1px solid var(--border);vertical-align:middle}
+table.store td.sz{text-align:right;white-space:nowrap;color:var(--muted)}
+table.store td.act{text-align:right;white-space:nowrap}
+table.store button{padding:3px 9px;font-size:12px}
+table.store tr.group td{color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-size:11px;padding-top:10px;border-top:none}
 .progress b{font-weight:600}
 .chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
 .chip{font:11px system-ui,sans-serif;background:var(--chip);border-radius:99px;padding:2px 8px;color:var(--muted)}
@@ -101,6 +107,15 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--code);pa
   <div class="bar"><i id="prog"></i></div>
   <details><summary>How this works</summary>
     <p class="hint">Each world is a JSON file: characters, style, an opening, and for plotted worlds a <em>story spine</em> of acts and major events with entry flags, variants, and a few pivotal choices. Every turn runs two model calls. The <em>narrator</em> writes the scene from the world card, the current event's brief, the story flags, recent memory notes, and the last turns. The <em>director</em> then returns a small JSON record: whether the event's goal was met, which flags to set, a one-line memory note, and an image prompt for a future scene illustrator. Ordinary choices change the scene; only pivot choices change which version of later events you get. The illustrator runs LCM Dreamshaper v7, a Stable Diffusion 1.5 model distilled to 4 steps (MIT and CreativeML OpenRAIL-M licenses), through ONNX Runtime on WebGPU, and draws one picture per turn from the director's image prompt. It needs a GPU with 16-bit float support and about 8 GB of memory alongside the text model. Use a recommended model: anything under about 2B parameters cannot follow the story brief and will wander. With the in-browser engine the weights download once from the MLC CDN, are cached, and run on your GPU through WebGPU, so nothing leaves your machine. Saves live in this browser; use Export to keep one.</p>
+  </details>
+</div>
+
+<div class="card">
+  <details id="storage">
+    <summary>Storage on this device <span id="storesum" class="hint"></span></summary>
+    <p class="hint">Everything below lives in this browser only. Models are cached so the next load is instant; clearing one means downloading it again.</p>
+    <div class="row"><button id="storerefresh">Refresh</button><button id="storeclearall">Clear everything</button><span id="storequota" class="hint"></span></div>
+    <table class="store"><tbody id="storebody"></tbody></table>
   </details>
 </div>
 
@@ -322,6 +337,54 @@ async function loadImagesForWorld(){
 }
 function syncIllusUI(){ const on = $("illus").value !== "none"; $("illload").style.display = on ? "" : "none"; $("illload").textContent = S.ill?.loaded ? "Illustrator loaded" : "Load illustrator"; }
 
+/* ---------- storage panel ---------- */
+const fmtMB = b => b >= 1e9 ? (b/1e9).toFixed(2) + " GB" : b >= 1e6 ? Math.round(b/1e6) + " MB" : Math.max(1, Math.round(b/1e3)) + " KB";
+async function cacheEntries(name){
+  const out = []; try{ const c = await caches.open(name); for (const req of await c.keys()){ const r = await c.match(req); let size = +(r?.headers.get("content-length") || 0); if (!size && r){ try{ size = (await r.clone().blob()).size; }catch{} } out.push({cache:name, url:req.url, size}); } }catch{} return out;
+}
+async function storageInventory(){
+  const inv = {models:new Map(), illus:[], images:new Map(), saves:[]};
+  let names = []; try{ names = await caches.keys(); }catch{}
+  for (const n of names){
+    if (n.startsWith("webllm")){ for (const e of await cacheEntries(n)){ const m = e.url.match(/huggingface\.co\/[^/]+\/([^/]+)\//); const key = m ? m[1] : (n.includes("wasm") ? "WebLLM runtime (wasm)" : "WebLLM other"); const g = inv.models.get(key) || {size:0, entries:[]}; g.size += e.size; g.entries.push(e); inv.models.set(key, g); } }
+    else if (n === "isekai-sd"){ inv.illus = await cacheEntries(n); }
+  }
+  try{ const db = await IDB.open(); const keys = await new Promise((res, rej) => { const r = db.transaction("img").objectStore("img").getAllKeys(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+    for (const k of keys){ const w = String(k).split(":")[0]; const b = await IDB.get(k); const g = inv.images.get(w) || {count:0, size:0}; g.count++; g.size += b?.size || 0; inv.images.set(w, g); } }catch{}
+  try{ for (let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if (k.startsWith("isekai:save:")) inv.saves.push({key:k, world:k.slice(12), size:(localStorage.getItem(k)||"").length * 2}); } }catch{}
+  return inv;
+}
+async function renderStorage(){
+  const body = $("storebody"); body.replaceChildren();
+  const row = (label, size, onClear, extra) => { const tr = document.createElement("tr"); const a = document.createElement("td"); a.textContent = label; const b = document.createElement("td"); b.className = "sz"; b.textContent = size; const c = document.createElement("td"); c.className = "act"; if (extra) c.appendChild(extra); if (onClear){ const btn = document.createElement("button"); btn.textContent = "Clear"; btn.onclick = async () => { btn.disabled = true; try{ await onClear(); }catch(e){ status("Could not clear: " + (e?.message || e)); } renderStorage(); }; c.appendChild(btn); } tr.append(a, b, c); body.appendChild(tr); };
+  const group = t => { const tr = document.createElement("tr"); tr.className = "group"; const td = document.createElement("td"); td.colSpan = 3; td.textContent = t; tr.appendChild(td); body.appendChild(tr); };
+  const unloadBtn = (label, fn) => { const b = document.createElement("button"); b.textContent = label; b.style.marginRight = "6px"; b.onclick = async () => { b.disabled = true; try{ await fn(); }catch{} renderStorage(); refreshChat(); }; return b; };
+  const inv = await storageInventory(); let total = 0;
+  group("Text models (WebLLM cache)");
+  if (!inv.models.size) row("none cached", "", null);
+  for (const [id, g] of inv.models){ total += g.size; const loaded = S.engine && S.engineId === id; row(id + (loaded ? " · loaded on GPU" : ""), fmtMB(g.size), async () => { if (loaded){ try{ await S.engine.unload(); }catch{} S.engine = null; S.engineId = null; } if (webllm.deleteModelAllInfoInCache && /-MLC/.test(id)){ try{ await webllm.deleteModelAllInfoInCache(id); }catch{} } for (const e of g.entries){ try{ const c = await caches.open(e.cache); await c.delete(e.url); }catch{} } }, loaded ? unloadBtn("Unload from GPU", async () => { await S.engine.unload(); S.engine = null; S.engineId = null; status("Text model unloaded."); }) : null); }
+  group("Illustrator (ONNX cache)");
+  if (!inv.illus.length) row("none cached", "", null);
+  else { const sz = inv.illus.reduce((n, e) => n + e.size, 0); total += sz; const loaded = !!S.ill?.loaded; row(`${inv.illus.length} files${loaded ? " · loaded on GPU" : ""}`, fmtMB(sz), async () => { if (S.ill){ try{ await S.ill.unload(); }catch{} S.ill = null; syncIllusUI(); } try{ await caches.delete("isekai-sd"); }catch{} }, loaded ? unloadBtn("Unload from GPU", async () => { await S.ill.unload(); S.ill = null; syncIllusUI(); status("Illustrator unloaded."); }) : null); }
+  group("Generated images");
+  if (!inv.images.size) row("none", "", null);
+  for (const [w, g] of inv.images){ total += g.size; row(`${(S.worlds.find(x => x.id === w)||{}).title || w}: ${g.count} image${g.count === 1 ? "" : "s"}`, fmtMB(g.size), async () => { await IDB.clear(w + ":"); if (S.world?.id === w){ await loadImagesForWorld(); renderLog(); } }); }
+  group("Saved stories");
+  if (!inv.saves.length) row("none", "", null);
+  for (const sv of inv.saves){ total += sv.size; row((S.worlds.find(x => x.id === sv.world)||{}).title || sv.world, fmtMB(sv.size), async () => { LS.del(sv.key); if (S.world?.id === sv.world) await selectWorld(sv.world); }); }
+  $("storesum").textContent = total ? `· about ${fmtMB(total)} used` : "";
+  try{ const est = await navigator.storage?.estimate?.(); if (est) $("storequota").textContent = `Browser reports ${fmtMB(est.usage||0)} used of ${fmtMB(est.quota||0)} allowed for this site.`; }catch{}
+}
+async function clearEverything(){
+  if (!confirm("Delete all cached models, illustrator files, generated images and saved stories for this site?")) return;
+  try{ if (S.engine){ await S.engine.unload(); S.engine = null; S.engineId = null; } }catch{}
+  try{ if (S.ill){ await S.ill.unload(); S.ill = null; syncIllusUI(); } }catch{}
+  try{ for (const n of await caches.keys()) if (n.startsWith("webllm") || n === "isekai-sd") await caches.delete(n); }catch{}
+  try{ await IDB.clear(""); }catch{}
+  try{ for (const k of Object.keys(localStorage)) if (k.startsWith("isekai:save:")) localStorage.removeItem(k); }catch{}
+  await selectWorld(S.world.id); status("Cleared. Models will download again on the next load."); refreshChat();
+}
+
 /* ---------- rendering ---------- */
 function renderAll(){ renderLog(); renderProgress(); }
 function renderLog(){
@@ -480,6 +543,9 @@ $("world").onchange = e => selectWorld(e.target.value);
 $("newgame").onclick = async () => { if (confirm("Forget the saved story for this world?")) { LS.del(`isekai:save:${S.world.id}`); await IDB.clear(S.world.id + ":"); selectWorld(S.world.id); } };
 $("illus").onchange = () => { settings.illus = $("illus").value; saveSettings(); syncIllusUI(); };
 $("illload").onclick = loadIllustrator;
+$("storage").addEventListener("toggle", () => { if ($("storage").open) renderStorage(); });
+$("storerefresh").onclick = renderStorage;
+$("storeclearall").onclick = clearEverything;
 $("export").onclick = () => { const blob = new Blob([JSON.stringify({world:S.world.id, history:S.history, story:S.story}, null, 2)], {type:"application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `${S.world.id}-save.json`; a.click(); URL.revokeObjectURL(a.href); };
 $("load").onclick = loadLocal;
 $("send").onclick = () => send($("input").value);
