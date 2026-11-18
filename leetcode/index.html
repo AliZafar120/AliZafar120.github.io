@@ -1,0 +1,328 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LeetCode — Blind 75 Walkthroughs</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{--easy:#2e8b57;--medium:#c7820a;--hard:#d64545;--todo:#9aa0a6;--solving:#c7820a;--solved:#2e8b57;
+ --bg:#fff;--fg:#1f2328;--muted:#5c636b;--border:#e3e6ea;--panel:#f7f8fa;--code:#0b0f14;--accent:#2e8b57;--sel:#fde68a;--seldark:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--fg:#e6edf3;--muted:#9aa7b4;--border:#2a313c;--panel:#161b22;--accent:#58d6a0;--sel:#273449}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:22px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:#fff;vertical-align:middle}
+.badge.Easy{background:var(--easy)}.badge.Medium{background:var(--medium)}.badge.Hard{background:var(--hard)}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* index */
+.hdr h1{margin:0 0 2px;font-size:28px}.hdr p{color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.controls input{flex:1 1 220px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--fg)}
+.fbtn{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.fbtn.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:4px 0 2px}.bar>span{display:block;height:100%;background:var(--solved);width:0}
+.tier h2{margin:26px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.row .dot{width:9px;height:9px;border-radius:50%;background:var(--todo);flex:0 0 auto}
+.row .dot.solving{background:var(--solving)}.row .dot.solved{background:var(--solved)}
+.row .num{color:var(--muted);font-size:13px;min-width:34px}
+.row a.t{font-weight:600;flex:1}
+.row .tag{font-size:10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 7px}
+/* problem page */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:8px}
+.top .ttl{font-size:22px;font-weight:700;flex:1}.top .num{color:var(--muted);font-weight:400;font-size:16px}
+.langs{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.langs button{border:0;background:var(--bg);color:var(--fg);padding:8px 14px;cursor:pointer;font-size:14px;font-weight:600}
+.langs button+button{border-left:1px solid var(--border)}
+.langs button.on{background:var(--accent);color:#06240f}
+.statement{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:4px 18px;margin:14px 0}
+.statement h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.statement pre{background:var(--code);color:#d7e3ef;padding:12px;border-radius:8px;overflow:auto}
+.intro{margin:14px 0}
+.note{background:rgba(199,130,10,.12);border:1px solid var(--medium);border-radius:10px;padding:10px 14px;margin:14px 0;color:var(--fg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.codecol{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--code)}
+.blk{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#d7e3ef;
+  padding:3px 14px;cursor:pointer;white-space:pre;font-size:13.5px;line-height:1.5}
+.blk:hover{background:#17202b}
+.blk.on{background:#1b2b24;border-left-color:var(--accent)}
+.blk.static{cursor:default}.blk.static:hover{background:transparent}
+.panel{position:sticky;top:14px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:var(--panel);min-height:160px}
+.panel .step{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.panel .exp :first-child{margin-top:0}
+.panel pre.ascii{background:var(--code);color:#cfe3d6;padding:12px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45;margin-top:12px}
+.panel .hint{color:var(--muted);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:13px}
+
+.row .badge{padding:1px 7px}</style></head>
+<body><div class="wrap">
+<div class="hdr"><h1>LeetCode · Blind 75</h1>
+<p>75 problems, every one solved in Python with a line-by-line walkthrough and ASCII traces. Grouped by the categories of the <a href="https://www.teamblind.com/post/New-Year-Gift---Curated-List-of-Top-75-LeetCode-Questions-to-Save-Your-Time-OaM1orEU">Blind 75</a> list.</p></div>
+<div class="bar"><span id="fill"></span></div><div id="count" style="color:var(--muted);font-size:14px"></div>
+<div class="controls">
+  <input id="q" placeholder="Search problems…">
+  <button class="fbtn on" data-f="all">All</button>
+  <button class="fbtn" data-f="Easy">Easy</button>
+  <button class="fbtn" data-f="Medium">Medium</button>
+  <button class="fbtn" data-f="Hard">Hard</button>
+  <button class="fbtn" data-f="todo">Not solved</button>
+</div>
+<div id="list"><div class="tier" data-tier="Array"><h2>Array <span style="color:var(--muted);font-weight:400;font-size:15px">(10)</span></h2><div class="rows"><div class="row" data-slug="two-sum" data-title="two sum" data-diff="Easy">
+        <span class="dot" data-dot="two-sum" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#1</span>
+        <a class="t" href="./two-sum/">Two Sum</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="container-with-most-water" data-title="container with most water" data-diff="Medium">
+        <span class="dot" data-dot="container-with-most-water" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#11</span>
+        <a class="t" href="./container-with-most-water/">Container With Most Water</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="3sum" data-title="3sum" data-diff="Medium">
+        <span class="dot" data-dot="3sum" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#15</span>
+        <a class="t" href="./3sum/">3Sum</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="search-in-rotated-sorted-array" data-title="search in rotated sorted array" data-diff="Medium">
+        <span class="dot" data-dot="search-in-rotated-sorted-array" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#33</span>
+        <a class="t" href="./search-in-rotated-sorted-array/">Search in Rotated Sorted Array</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="maximum-subarray" data-title="maximum subarray" data-diff="Medium">
+        <span class="dot" data-dot="maximum-subarray" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#53</span>
+        <a class="t" href="./maximum-subarray/">Maximum Subarray</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="best-time-to-buy-and-sell-stock" data-title="best time to buy and sell stock" data-diff="Easy">
+        <span class="dot" data-dot="best-time-to-buy-and-sell-stock" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#121</span>
+        <a class="t" href="./best-time-to-buy-and-sell-stock/">Best Time to Buy and Sell Stock</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="maximum-product-subarray" data-title="maximum product subarray" data-diff="Medium">
+        <span class="dot" data-dot="maximum-product-subarray" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#152</span>
+        <a class="t" href="./maximum-product-subarray/">Maximum Product Subarray</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="find-minimum-in-rotated-sorted-array" data-title="find minimum in rotated sorted array" data-diff="Medium">
+        <span class="dot" data-dot="find-minimum-in-rotated-sorted-array" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#153</span>
+        <a class="t" href="./find-minimum-in-rotated-sorted-array/">Find Minimum in Rotated Sorted Array</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="contains-duplicate" data-title="contains duplicate" data-diff="Easy">
+        <span class="dot" data-dot="contains-duplicate" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#217</span>
+        <a class="t" href="./contains-duplicate/">Contains Duplicate</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="product-of-array-except-self" data-title="product of array except self" data-diff="Medium">
+        <span class="dot" data-dot="product-of-array-except-self" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#238</span>
+        <a class="t" href="./product-of-array-except-self/">Product of Array Except Self</a><span class="badge Medium" style="font-size:10px">Medium</span></div></div></div><div class="tier" data-tier="Binary"><h2>Binary <span style="color:var(--muted);font-weight:400;font-size:15px">(5)</span></h2><div class="rows"><div class="row" data-slug="reverse-bits" data-title="reverse bits" data-diff="Easy">
+        <span class="dot" data-dot="reverse-bits" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#190</span>
+        <a class="t" href="./reverse-bits/">Reverse Bits</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="number-of-1-bits" data-title="number of 1 bits" data-diff="Easy">
+        <span class="dot" data-dot="number-of-1-bits" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#191</span>
+        <a class="t" href="./number-of-1-bits/">Number of 1 Bits</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="missing-number" data-title="missing number" data-diff="Easy">
+        <span class="dot" data-dot="missing-number" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#268</span>
+        <a class="t" href="./missing-number/">Missing Number</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="counting-bits" data-title="counting bits" data-diff="Easy">
+        <span class="dot" data-dot="counting-bits" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#338</span>
+        <a class="t" href="./counting-bits/">Counting Bits</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="sum-of-two-integers" data-title="sum of two integers" data-diff="Medium">
+        <span class="dot" data-dot="sum-of-two-integers" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#371</span>
+        <a class="t" href="./sum-of-two-integers/">Sum of Two Integers</a><span class="badge Medium" style="font-size:10px">Medium</span></div></div></div><div class="tier" data-tier="Dynamic Programming"><h2>Dynamic Programming <span style="color:var(--muted);font-weight:400;font-size:15px">(11)</span></h2><div class="rows"><div class="row" data-slug="jump-game" data-title="jump game" data-diff="Medium">
+        <span class="dot" data-dot="jump-game" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#55</span>
+        <a class="t" href="./jump-game/">Jump Game</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="unique-paths" data-title="unique paths" data-diff="Medium">
+        <span class="dot" data-dot="unique-paths" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#62</span>
+        <a class="t" href="./unique-paths/">Unique Paths</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="climbing-stairs" data-title="climbing stairs" data-diff="Easy">
+        <span class="dot" data-dot="climbing-stairs" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#70</span>
+        <a class="t" href="./climbing-stairs/">Climbing Stairs</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="decode-ways" data-title="decode ways" data-diff="Medium">
+        <span class="dot" data-dot="decode-ways" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#91</span>
+        <a class="t" href="./decode-ways/">Decode Ways</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="word-break" data-title="word break" data-diff="Medium">
+        <span class="dot" data-dot="word-break" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#139</span>
+        <a class="t" href="./word-break/">Word Break</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="house-robber" data-title="house robber" data-diff="Medium">
+        <span class="dot" data-dot="house-robber" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#198</span>
+        <a class="t" href="./house-robber/">House Robber</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="house-robber-ii" data-title="house robber ii" data-diff="Medium">
+        <span class="dot" data-dot="house-robber-ii" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#213</span>
+        <a class="t" href="./house-robber-ii/">House Robber II</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="longest-increasing-subsequence" data-title="longest increasing subsequence" data-diff="Medium">
+        <span class="dot" data-dot="longest-increasing-subsequence" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#300</span>
+        <a class="t" href="./longest-increasing-subsequence/">Longest Increasing Subsequence</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="coin-change" data-title="coin change" data-diff="Medium">
+        <span class="dot" data-dot="coin-change" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#322</span>
+        <a class="t" href="./coin-change/">Coin Change</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="combination-sum-iv" data-title="combination sum iv" data-diff="Medium">
+        <span class="dot" data-dot="combination-sum-iv" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#377</span>
+        <a class="t" href="./combination-sum-iv/">Combination Sum IV</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="longest-common-subsequence" data-title="longest common subsequence" data-diff="Medium">
+        <span class="dot" data-dot="longest-common-subsequence" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#1143</span>
+        <a class="t" href="./longest-common-subsequence/">Longest Common Subsequence</a><span class="badge Medium" style="font-size:10px">Medium</span></div></div></div><div class="tier" data-tier="Graph"><h2>Graph <span style="color:var(--muted);font-weight:400;font-size:15px">(8)</span></h2><div class="rows"><div class="row" data-slug="longest-consecutive-sequence" data-title="longest consecutive sequence" data-diff="Medium">
+        <span class="dot" data-dot="longest-consecutive-sequence" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#128</span>
+        <a class="t" href="./longest-consecutive-sequence/">Longest Consecutive Sequence</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="clone-graph" data-title="clone graph" data-diff="Medium">
+        <span class="dot" data-dot="clone-graph" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#133</span>
+        <a class="t" href="./clone-graph/">Clone Graph</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="number-of-islands" data-title="number of islands" data-diff="Medium">
+        <span class="dot" data-dot="number-of-islands" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#200</span>
+        <a class="t" href="./number-of-islands/">Number of Islands</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="course-schedule" data-title="course schedule" data-diff="Medium">
+        <span class="dot" data-dot="course-schedule" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#207</span>
+        <a class="t" href="./course-schedule/">Course Schedule</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="graph-valid-tree" data-title="graph valid tree" data-diff="Medium">
+        <span class="dot" data-dot="graph-valid-tree" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#261</span>
+        <a class="t" href="./graph-valid-tree/">Graph Valid Tree</a><span class="badge Medium" style="font-size:10px">Medium</span><span class="tag">premium</span></div><div class="row" data-slug="alien-dictionary" data-title="alien dictionary" data-diff="Hard">
+        <span class="dot" data-dot="alien-dictionary" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#269</span>
+        <a class="t" href="./alien-dictionary/">Alien Dictionary</a><span class="badge Hard" style="font-size:10px">Hard</span><span class="tag">premium</span></div><div class="row" data-slug="number-of-connected-components-in-an-undirected-graph" data-title="number of connected components in an undirected graph" data-diff="Medium">
+        <span class="dot" data-dot="number-of-connected-components-in-an-undirected-graph" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#323</span>
+        <a class="t" href="./number-of-connected-components-in-an-undirected-graph/">Number of Connected Components in an Undirected Graph</a><span class="badge Medium" style="font-size:10px">Medium</span><span class="tag">premium</span></div><div class="row" data-slug="pacific-atlantic-water-flow" data-title="pacific atlantic water flow" data-diff="Medium">
+        <span class="dot" data-dot="pacific-atlantic-water-flow" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#417</span>
+        <a class="t" href="./pacific-atlantic-water-flow/">Pacific Atlantic Water Flow</a><span class="badge Medium" style="font-size:10px">Medium</span></div></div></div><div class="tier" data-tier="Interval"><h2>Interval <span style="color:var(--muted);font-weight:400;font-size:15px">(5)</span></h2><div class="rows"><div class="row" data-slug="merge-intervals" data-title="merge intervals" data-diff="Medium">
+        <span class="dot" data-dot="merge-intervals" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#56</span>
+        <a class="t" href="./merge-intervals/">Merge Intervals</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="insert-interval" data-title="insert interval" data-diff="Medium">
+        <span class="dot" data-dot="insert-interval" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#57</span>
+        <a class="t" href="./insert-interval/">Insert Interval</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="meeting-rooms" data-title="meeting rooms" data-diff="Easy">
+        <span class="dot" data-dot="meeting-rooms" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#252</span>
+        <a class="t" href="./meeting-rooms/">Meeting Rooms</a><span class="badge Easy" style="font-size:10px">Easy</span><span class="tag">premium</span></div><div class="row" data-slug="meeting-rooms-ii" data-title="meeting rooms ii" data-diff="Medium">
+        <span class="dot" data-dot="meeting-rooms-ii" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#253</span>
+        <a class="t" href="./meeting-rooms-ii/">Meeting Rooms II</a><span class="badge Medium" style="font-size:10px">Medium</span><span class="tag">premium</span></div><div class="row" data-slug="non-overlapping-intervals" data-title="non-overlapping intervals" data-diff="Medium">
+        <span class="dot" data-dot="non-overlapping-intervals" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#435</span>
+        <a class="t" href="./non-overlapping-intervals/">Non-overlapping Intervals</a><span class="badge Medium" style="font-size:10px">Medium</span></div></div></div><div class="tier" data-tier="Linked List"><h2>Linked List <span style="color:var(--muted);font-weight:400;font-size:15px">(6)</span></h2><div class="rows"><div class="row" data-slug="remove-nth-node-from-end-of-list" data-title="remove nth node from end of list" data-diff="Medium">
+        <span class="dot" data-dot="remove-nth-node-from-end-of-list" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#19</span>
+        <a class="t" href="./remove-nth-node-from-end-of-list/">Remove Nth Node From End of List</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="merge-two-sorted-lists" data-title="merge two sorted lists" data-diff="Easy">
+        <span class="dot" data-dot="merge-two-sorted-lists" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#21</span>
+        <a class="t" href="./merge-two-sorted-lists/">Merge Two Sorted Lists</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="merge-k-sorted-lists" data-title="merge k sorted lists" data-diff="Hard">
+        <span class="dot" data-dot="merge-k-sorted-lists" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#23</span>
+        <a class="t" href="./merge-k-sorted-lists/">Merge k Sorted Lists</a><span class="badge Hard" style="font-size:10px">Hard</span></div><div class="row" data-slug="linked-list-cycle" data-title="linked list cycle" data-diff="Easy">
+        <span class="dot" data-dot="linked-list-cycle" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#141</span>
+        <a class="t" href="./linked-list-cycle/">Linked List Cycle</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="reorder-list" data-title="reorder list" data-diff="Medium">
+        <span class="dot" data-dot="reorder-list" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#143</span>
+        <a class="t" href="./reorder-list/">Reorder List</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="reverse-linked-list" data-title="reverse linked list" data-diff="Easy">
+        <span class="dot" data-dot="reverse-linked-list" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#206</span>
+        <a class="t" href="./reverse-linked-list/">Reverse Linked List</a><span class="badge Easy" style="font-size:10px">Easy</span></div></div></div><div class="tier" data-tier="Matrix"><h2>Matrix <span style="color:var(--muted);font-weight:400;font-size:15px">(4)</span></h2><div class="rows"><div class="row" data-slug="rotate-image" data-title="rotate image" data-diff="Medium">
+        <span class="dot" data-dot="rotate-image" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#48</span>
+        <a class="t" href="./rotate-image/">Rotate Image</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="spiral-matrix" data-title="spiral matrix" data-diff="Medium">
+        <span class="dot" data-dot="spiral-matrix" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#54</span>
+        <a class="t" href="./spiral-matrix/">Spiral Matrix</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="set-matrix-zeroes" data-title="set matrix zeroes" data-diff="Medium">
+        <span class="dot" data-dot="set-matrix-zeroes" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#73</span>
+        <a class="t" href="./set-matrix-zeroes/">Set Matrix Zeroes</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="word-search" data-title="word search" data-diff="Medium">
+        <span class="dot" data-dot="word-search" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#79</span>
+        <a class="t" href="./word-search/">Word Search</a><span class="badge Medium" style="font-size:10px">Medium</span></div></div></div><div class="tier" data-tier="String"><h2>String <span style="color:var(--muted);font-weight:400;font-size:15px">(10)</span></h2><div class="rows"><div class="row" data-slug="longest-substring-without-repeating-characters" data-title="longest substring without repeating characters" data-diff="Medium">
+        <span class="dot" data-dot="longest-substring-without-repeating-characters" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#3</span>
+        <a class="t" href="./longest-substring-without-repeating-characters/">Longest Substring Without Repeating Characters</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="longest-palindromic-substring" data-title="longest palindromic substring" data-diff="Medium">
+        <span class="dot" data-dot="longest-palindromic-substring" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#5</span>
+        <a class="t" href="./longest-palindromic-substring/">Longest Palindromic Substring</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="valid-parentheses" data-title="valid parentheses" data-diff="Easy">
+        <span class="dot" data-dot="valid-parentheses" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#20</span>
+        <a class="t" href="./valid-parentheses/">Valid Parentheses</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="group-anagrams" data-title="group anagrams" data-diff="Medium">
+        <span class="dot" data-dot="group-anagrams" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#49</span>
+        <a class="t" href="./group-anagrams/">Group Anagrams</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="minimum-window-substring" data-title="minimum window substring" data-diff="Hard">
+        <span class="dot" data-dot="minimum-window-substring" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#76</span>
+        <a class="t" href="./minimum-window-substring/">Minimum Window Substring</a><span class="badge Hard" style="font-size:10px">Hard</span></div><div class="row" data-slug="valid-palindrome" data-title="valid palindrome" data-diff="Easy">
+        <span class="dot" data-dot="valid-palindrome" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#125</span>
+        <a class="t" href="./valid-palindrome/">Valid Palindrome</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="valid-anagram" data-title="valid anagram" data-diff="Easy">
+        <span class="dot" data-dot="valid-anagram" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#242</span>
+        <a class="t" href="./valid-anagram/">Valid Anagram</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="encode-and-decode-strings" data-title="encode and decode strings" data-diff="Medium">
+        <span class="dot" data-dot="encode-and-decode-strings" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#271</span>
+        <a class="t" href="./encode-and-decode-strings/">Encode and Decode Strings</a><span class="badge Medium" style="font-size:10px">Medium</span><span class="tag">premium</span></div><div class="row" data-slug="longest-repeating-character-replacement" data-title="longest repeating character replacement" data-diff="Medium">
+        <span class="dot" data-dot="longest-repeating-character-replacement" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#424</span>
+        <a class="t" href="./longest-repeating-character-replacement/">Longest Repeating Character Replacement</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="palindromic-substrings" data-title="palindromic substrings" data-diff="Medium">
+        <span class="dot" data-dot="palindromic-substrings" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#647</span>
+        <a class="t" href="./palindromic-substrings/">Palindromic Substrings</a><span class="badge Medium" style="font-size:10px">Medium</span></div></div></div><div class="tier" data-tier="Tree"><h2>Tree <span style="color:var(--muted);font-weight:400;font-size:15px">(14)</span></h2><div class="rows"><div class="row" data-slug="validate-binary-search-tree" data-title="validate binary search tree" data-diff="Medium">
+        <span class="dot" data-dot="validate-binary-search-tree" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#98</span>
+        <a class="t" href="./validate-binary-search-tree/">Validate Binary Search Tree</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="same-tree" data-title="same tree" data-diff="Easy">
+        <span class="dot" data-dot="same-tree" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#100</span>
+        <a class="t" href="./same-tree/">Same Tree</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="binary-tree-level-order-traversal" data-title="binary tree level order traversal" data-diff="Medium">
+        <span class="dot" data-dot="binary-tree-level-order-traversal" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#102</span>
+        <a class="t" href="./binary-tree-level-order-traversal/">Binary Tree Level Order Traversal</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="maximum-depth-of-binary-tree" data-title="maximum depth of binary tree" data-diff="Easy">
+        <span class="dot" data-dot="maximum-depth-of-binary-tree" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#104</span>
+        <a class="t" href="./maximum-depth-of-binary-tree/">Maximum Depth of Binary Tree</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="construct-binary-tree-from-preorder-and-inorder-traversal" data-title="construct binary tree from preorder and inorder traversal" data-diff="Medium">
+        <span class="dot" data-dot="construct-binary-tree-from-preorder-and-inorder-traversal" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#105</span>
+        <a class="t" href="./construct-binary-tree-from-preorder-and-inorder-traversal/">Construct Binary Tree from Preorder and Inorder Traversal</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="binary-tree-maximum-path-sum" data-title="binary tree maximum path sum" data-diff="Hard">
+        <span class="dot" data-dot="binary-tree-maximum-path-sum" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#124</span>
+        <a class="t" href="./binary-tree-maximum-path-sum/">Binary Tree Maximum Path Sum</a><span class="badge Hard" style="font-size:10px">Hard</span></div><div class="row" data-slug="implement-trie-prefix-tree" data-title="implement trie (prefix tree)" data-diff="Medium">
+        <span class="dot" data-dot="implement-trie-prefix-tree" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#208</span>
+        <a class="t" href="./implement-trie-prefix-tree/">Implement Trie (Prefix Tree)</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="add-and-search-word-data-structure-design" data-title="design add and search words data structure" data-diff="Medium">
+        <span class="dot" data-dot="add-and-search-word-data-structure-design" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#211</span>
+        <a class="t" href="./add-and-search-word-data-structure-design/">Design Add and Search Words Data Structure</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="word-search-ii" data-title="word search ii" data-diff="Hard">
+        <span class="dot" data-dot="word-search-ii" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#212</span>
+        <a class="t" href="./word-search-ii/">Word Search II</a><span class="badge Hard" style="font-size:10px">Hard</span></div><div class="row" data-slug="invert-binary-tree" data-title="invert binary tree" data-diff="Easy">
+        <span class="dot" data-dot="invert-binary-tree" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#226</span>
+        <a class="t" href="./invert-binary-tree/">Invert Binary Tree</a><span class="badge Easy" style="font-size:10px">Easy</span></div><div class="row" data-slug="kth-smallest-element-in-a-bst" data-title="kth smallest element in a bst" data-diff="Medium">
+        <span class="dot" data-dot="kth-smallest-element-in-a-bst" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#230</span>
+        <a class="t" href="./kth-smallest-element-in-a-bst/">Kth Smallest Element in a BST</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="lowest-common-ancestor-of-a-binary-search-tree" data-title="lowest common ancestor of a binary search tree" data-diff="Medium">
+        <span class="dot" data-dot="lowest-common-ancestor-of-a-binary-search-tree" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#235</span>
+        <a class="t" href="./lowest-common-ancestor-of-a-binary-search-tree/">Lowest Common Ancestor of a Binary Search Tree</a><span class="badge Medium" style="font-size:10px">Medium</span></div><div class="row" data-slug="serialize-and-deserialize-binary-tree" data-title="serialize and deserialize binary tree" data-diff="Hard">
+        <span class="dot" data-dot="serialize-and-deserialize-binary-tree" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#297</span>
+        <a class="t" href="./serialize-and-deserialize-binary-tree/">Serialize and Deserialize Binary Tree</a><span class="badge Hard" style="font-size:10px">Hard</span></div><div class="row" data-slug="subtree-of-another-tree" data-title="subtree of another tree" data-diff="Easy">
+        <span class="dot" data-dot="subtree-of-another-tree" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#572</span>
+        <a class="t" href="./subtree-of-another-tree/">Subtree of Another Tree</a><span class="badge Easy" style="font-size:10px">Easy</span></div></div></div><div class="tier" data-tier="Heap"><h2>Heap <span style="color:var(--muted);font-weight:400;font-size:15px">(2)</span></h2><div class="rows"><div class="row" data-slug="find-median-from-data-stream" data-title="find median from data stream" data-diff="Hard">
+        <span class="dot" data-dot="find-median-from-data-stream" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#295</span>
+        <a class="t" href="./find-median-from-data-stream/">Find Median from Data Stream</a><span class="badge Hard" style="font-size:10px">Hard</span></div><div class="row" data-slug="top-k-frequent-elements" data-title="top k frequent elements" data-diff="Medium">
+        <span class="dot" data-dot="top-k-frequent-elements" title="click to cycle: to do / solving / solved"></span>
+        <span class="num">#347</span>
+        <a class="t" href="./top-k-frequent-elements/">Top K Frequent Elements</a><span class="badge Medium" style="font-size:10px">Medium</span></div></div></div></div>
+<div class="foot">Statements paraphrased; originals on <a href="https://leetcode.com">leetcode.com</a>. Click a dot to mark a problem to do / solving / solved; progress is stored in this browser.</div>
+<script>
+var KEY="leetcode-progress";
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}");}catch(e){return {};}}
+var state=load(), slugs=["two-sum", "container-with-most-water", "3sum", "search-in-rotated-sorted-array", "maximum-subarray", "best-time-to-buy-and-sell-stock", "maximum-product-subarray", "find-minimum-in-rotated-sorted-array", "contains-duplicate", "product-of-array-except-self", "reverse-bits", "number-of-1-bits", "missing-number", "counting-bits", "sum-of-two-integers", "jump-game", "unique-paths", "climbing-stairs", "decode-ways", "word-break", "house-robber", "house-robber-ii", "longest-increasing-subsequence", "coin-change", "combination-sum-iv", "longest-common-subsequence", "longest-consecutive-sequence", "clone-graph", "number-of-islands", "course-schedule", "graph-valid-tree", "alien-dictionary", "number-of-connected-components-in-an-undirected-graph", "pacific-atlantic-water-flow", "merge-intervals", "insert-interval", "meeting-rooms", "meeting-rooms-ii", "non-overlapping-intervals", "remove-nth-node-from-end-of-list", "merge-two-sorted-lists", "merge-k-sorted-lists", "linked-list-cycle", "reorder-list", "reverse-linked-list", "rotate-image", "spiral-matrix", "set-matrix-zeroes", "word-search", "longest-substring-without-repeating-characters", "longest-palindromic-substring", "valid-parentheses", "group-anagrams", "minimum-window-substring", "valid-palindrome", "valid-anagram", "encode-and-decode-strings", "longest-repeating-character-replacement", "palindromic-substrings", "validate-binary-search-tree", "same-tree", "binary-tree-level-order-traversal", "maximum-depth-of-binary-tree", "construct-binary-tree-from-preorder-and-inorder-traversal", "binary-tree-maximum-path-sum", "implement-trie-prefix-tree", "add-and-search-word-data-structure-design", "word-search-ii", "invert-binary-tree", "kth-smallest-element-in-a-bst", "lowest-common-ancestor-of-a-binary-search-tree", "serialize-and-deserialize-binary-tree", "subtree-of-another-tree", "find-median-from-data-stream", "top-k-frequent-elements"], ORDER=["todo","solving","solved"];
+function paint(){
+  slugs.forEach(function(s){var d=document.querySelector('[data-dot="'+s+'"]'); if(d) d.className="dot "+(state[s]||"todo");});
+  var solved=slugs.filter(function(s){return state[s]==="solved";}).length;
+  document.getElementById("count").textContent=solved+" / "+slugs.length+" solved";
+  document.getElementById("fill").style.width=(100*solved/slugs.length)+"%";
+}
+paint();
+document.querySelectorAll(".dot").forEach(function(d){ d.style.cursor="pointer"; d.onclick=function(){ var s=d.dataset.dot, cur=state[s]||"todo"; state[s]=ORDER[(ORDER.indexOf(cur)+1)%3]; try{localStorage.setItem(KEY, JSON.stringify(state));}catch(e){} paint(); apply(); }; });
+var q=document.getElementById("q"), filter="all";
+function apply(){
+  var term=q.value.trim().toLowerCase();
+  document.querySelectorAll(".row").forEach(function(r){
+    var okT = filter==="all" || (filter==="todo" ? (state[r.dataset.slug]||"todo")!=="solved" : r.dataset.diff===filter);
+    var okQ = !term || r.dataset.title.indexOf(term)>=0;
+    r.style.display = (okT&&okQ)?"":"none";
+  });
+  document.querySelectorAll(".tier").forEach(function(t){
+    var any=[].slice.call(t.querySelectorAll(".row")).some(function(r){return r.style.display!=="none";});
+    t.style.display=any?"":"none";
+  });
+}
+q.oninput=apply;
+document.querySelectorAll(".fbtn").forEach(function(b){b.onclick=function(){
+  document.querySelectorAll(".fbtn").forEach(function(x){x.classList.remove("on");});
+  b.classList.add("on"); filter=b.dataset.f; apply();
+};});
+</script>
+</div></body></html>

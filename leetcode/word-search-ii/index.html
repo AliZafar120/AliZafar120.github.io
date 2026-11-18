@@ -1,0 +1,167 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Word Search II · LeetCode</title><meta name="robots" content="noindex,nofollow">
+<style>
+:root{--easy:#2e8b57;--medium:#c7820a;--hard:#d64545;--todo:#9aa0a6;--solving:#c7820a;--solved:#2e8b57;
+ --bg:#fff;--fg:#1f2328;--muted:#5c636b;--border:#e3e6ea;--panel:#f7f8fa;--code:#0b0f14;--accent:#2e8b57;--sel:#fde68a;--seldark:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1116;--fg:#e6edf3;--muted:#9aa7b4;--border:#2a313c;--panel:#161b22;--accent:#58d6a0;--sel:#273449}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:22px}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;color:#fff;vertical-align:middle}
+.badge.Easy{background:var(--easy)}.badge.Medium{background:var(--medium)}.badge.Hard{background:var(--hard)}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* index */
+.hdr h1{margin:0 0 2px;font-size:28px}.hdr p{color:var(--muted);margin:0 0 16px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.controls input{flex:1 1 220px;padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--fg)}
+.fbtn{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.fbtn.on{background:var(--accent);color:#06240f;border-color:var(--accent);font-weight:700}
+.bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;margin:4px 0 2px}.bar>span{display:block;height:100%;background:var(--solved);width:0}
+.tier h2{margin:26px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--panel)}
+.row .dot{width:9px;height:9px;border-radius:50%;background:var(--todo);flex:0 0 auto}
+.row .dot.solving{background:var(--solving)}.row .dot.solved{background:var(--solved)}
+.row .num{color:var(--muted);font-size:13px;min-width:34px}
+.row a.t{font-weight:600;flex:1}
+.row .tag{font-size:10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 7px}
+/* problem page */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:8px}
+.top .ttl{font-size:22px;font-weight:700;flex:1}.top .num{color:var(--muted);font-weight:400;font-size:16px}
+.langs{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.langs button{border:0;background:var(--bg);color:var(--fg);padding:8px 14px;cursor:pointer;font-size:14px;font-weight:600}
+.langs button+button{border-left:1px solid var(--border)}
+.langs button.on{background:var(--accent);color:#06240f}
+.statement{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:4px 18px;margin:14px 0}
+.statement h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.statement pre{background:var(--code);color:#d7e3ef;padding:12px;border-radius:8px;overflow:auto}
+.intro{margin:14px 0}
+.note{background:rgba(199,130,10,.12);border:1px solid var(--medium);border-radius:10px;padding:10px 14px;margin:14px 0;color:var(--fg)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.codecol{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--code)}
+.blk{display:block;width:100%;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#d7e3ef;
+  padding:3px 14px;cursor:pointer;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13.5px;line-height:1.5}
+.blk:hover{background:#17202b}
+.blk.on{background:#1b2b24;border-left-color:var(--accent)}
+.blk.static{cursor:default}.blk.static:hover{background:transparent}
+.panel{position:sticky;top:14px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:var(--panel);min-height:160px}
+.panel .step{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.panel .exp :first-child{margin-top:0}
+.panel pre.ascii{background:var(--code);color:#cfe3d6;padding:12px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.45;margin-top:12px}
+.panel .hint{color:var(--muted);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:13px}
+
+.status{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}.status button{border:1px solid var(--border);background:var(--panel);color:var(--fg);padding:4px 10px;border-radius:999px;cursor:pointer;font-size:12px}
+.status button.on[data-s="solving"]{background:var(--medium);color:#fff;border-color:var(--medium)}.status button.on[data-s="solved"]{background:var(--solved);color:#fff;border-color:var(--solved)}.status button.on[data-s="todo"]{background:var(--todo);color:#fff;border-color:var(--todo)}
+.meta{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:8px 0 2px;font-size:14px;color:var(--muted)}
+.full{margin-top:18px}.full summary{cursor:pointer;color:var(--muted);font-size:14px}.full pre{background:var(--code);color:#d7e3ef;padding:14px;border-radius:10px;overflow:auto;font-size:13px;line-height:1.5}
+.pn{display:flex;justify-content:space-between;gap:12px;margin-top:22px;font-size:14px}
+</style></head>
+<body><div class="wrap">
+<div class="top">
+  <a href="../" class="back">← All problems</a>
+  <div class="ttl"><span class="num">#212</span> Word Search II <span class="badge Hard">Hard</span></div>
+  <div class="langs"><button class="on">Python</button></div>
+</div>
+<div class="meta"><span>Tree</span><span>Time O(R * C * 4 * 3^(L-1)) in the worst case, where L is the longest word, but the trie pruning makes typical inputs far faster. Space O(total characters in words) for the trie plus O(L) recursion depth.</span><a href="https://leetcode.com/problems/word-search-ii/" target="_blank" rel="noopener">Open on leetcode.com ↗</a>
+  <span class="status" id="status">Status: <button data-s="todo">to do</button><button data-s="solving">solving</button><button data-s="solved">solved</button></span></div>
+<div class="statement"><p>You are given a grid of lowercase letters <code>board</code> and a list of distinct <code>words</code>. Return every word that can be spelled by starting at some cell and moving to a horizontally or vertically adjacent cell for each following letter, never reusing a cell within one word. Words may be returned in any order.</p>
+<pre>
+Input:  board = [["c","a","t"],
+                 ["o","d","e"],
+                 ["r","n","s"]]
+        words = ["cat", "code", "corn", "rod", "ten", "cats"]
+Output: ["cat", "code", "corn", "rod"]
+        "ten" fails: after t -> e the only "n" is diagonal to "e";
+        "cats" fails: it needs an "s" next to "t", and only "e" is there
+
+Input:  board = [["a"]],  words = ["a", "aa"]
+Output: ["a"]
+</pre>
+<ul>
+  <li>1 &le; rows, cols &le; 12; 1 &le; len(words) &le; 3 &middot; 10<sup>4</sup>; 1 &le; len(word) &le; 10</li>
+  <li>All words are distinct and consist of lowercase letters</li>
+</ul></div>
+<div class="intro md" id="intro"></div>
+<div class="grid">
+  <div class="codecol" id="codecol"></div>
+  <aside class="panel" id="panel"><div class="hint">Select a line of code to see what it does.</div></aside>
+</div>
+<details class="full"><summary>Full solution (copy)</summary><pre>from typing import List
+
+class Solution:
+    def findWords(self, board: List[List[str]], words: List[str]) -&gt; List[str]:
+        root = {}
+        for word in words:
+            node = root
+            for ch in word:
+                node = node.setdefault(ch, {})
+            node[&quot;$&quot;] = word
+        rows, cols = len(board), len(board[0])
+        found = []
+        def dfs(r: int, c: int, parent: dict) -&gt; None:
+            ch = board[r][c]
+            node = parent[ch]
+            word = node.pop(&quot;$&quot;, None)
+            if word is not None:
+                found.append(word)
+            board[r][c] = &quot;#&quot;
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                if 0 &lt;= nr &lt; rows and 0 &lt;= nc &lt; cols and board[nr][nc] in node:
+                    dfs(nr, nc, node)
+            board[r][c] = ch
+            if not node:
+                parent.pop(ch)
+        for r in range(rows):
+            for c in range(cols):
+                if board[r][c] in root:
+                    dfs(r, c, root)
+        return found</pre></details>
+<div class="pn"><a href="../add-and-search-word-data-structure-design/">← Design Add and Search Words Data Structure</a><a href="../invert-binary-tree/">Invert Binary Tree →</a></div>
+<div class="foot">Problem statements are paraphrased; the originals are on <a href="https://leetcode.com">leetcode.com</a>. List from the <a href="https://www.teamblind.com/post/New-Year-Gift---Curated-List-of-Top-75-LeetCode-Questions-to-Save-Your-Time-OaM1orEU">Blind 75</a>.</div>
+</div>
+<script>
+var DATA = {"authored": true, "slug": "word-search-ii", "order": ["py"], "langs": {"py": {"label": "Python", "intro": "<p><strong>Trie-guided DFS with pruning.</strong> Searching the board once per word is far too slow, so we put all the words into a trie and run one depth-first search from every cell that follows the trie and the board <em>simultaneously</em>: a step is taken only if the next letter is a child of the current trie node. The trie stores each complete word at its end node so a hit can be recorded directly. After a word is found it is removed from the trie, and trie nodes that become empty are deleted, so later searches never re-explore paths that cannot produce anything new.</p>", "blocks": [{"code": "from typing import List\n\nclass Solution:\n    def findWords(self, board: List[List[str]], words: List[str]) -&gt; List[str]:", "explain": "<p>LeetCode calls <code>findWords</code> with the grid and the word list and accepts the found words in any order.</p>", "diagram": null}, {"code": "        root = {}\n        for word in words:\n            node = root\n            for ch in word:\n                node = node.setdefault(ch, {})\n            node[&quot;$&quot;] = word", "explain": "<p>Build the trie as nested dicts. Instead of a boolean end marker we store the <strong>word itself</strong> under <code>\"$\"</code>: when the DFS reaches that node it can append the word without reconstructing it from the path.</p>", "diagram": "  words = [\"cat\", \"code\", \"corn\", \"rod\", \"ten\", \"cats\"]\n  root\n   c -- a -- t $\"cat\" -- s $\"cats\"\n   |    o -- d -- e $\"code\"\n   |         r -- n $\"corn\"\n   r -- o -- d $\"rod\"\n   t -- e -- n $\"ten\""}, {"code": "        rows, cols = len(board), len(board[0])\n        found = []", "explain": "<p>Grid dimensions for bounds checks and the output list. Because each word is removed from the trie the moment it is found, <code>found</code> never receives duplicates even if the word can be spelled in several places.</p>", "diagram": "  board:  c a t\n          o d e      rows = 3, cols = 3\n          r n s      found = []"}, {"code": "        def dfs(r: int, c: int, parent: dict) -&gt; None:\n            ch = board[r][c]\n            node = parent[ch]", "explain": "<p><code>dfs</code> is called only when <code>board[r][c]</code> is a child of <code>parent</code>, so the lookup always succeeds. <code>node</code> is the trie position after consuming this cell's letter. We keep <code>parent</code> too because we may want to delete <code>node</code> from it on the way back.</p>", "diagram": "  dfs(0, 0, root): ch = \"c\", node = root[\"c\"]\n  dfs(0, 1, node): ch = \"a\", node = root[\"c\"][\"a\"]\n  dfs(0, 2, node): ch = \"t\", node = root[\"c\"][\"a\"][\"t\"]"}, {"code": "            word = node.pop(&quot;$&quot;, None)\n            if word is not None:\n                found.append(word)", "explain": "<p>If a word ends here, record it and <em>remove the marker</em> in the same step. Popping means a second path spelling the same word finds nothing, which both prevents duplicates and lets the pruning below delete the node once its children are gone.</p>", "diagram": "  at (0,2) \"t\": node = {\"$\": \"cat\", \"s\": {...}}\n  pop \"$\" -> word = \"cat\" -> found = [\"cat\"]\n  node is now {\"s\": {\"$\": \"cats\"}}"}, {"code": "            board[r][c] = &quot;#&quot;", "explain": "<p>Mark the cell as used for the duration of this path. Overwriting the board avoids a separate visited set; <code>\"#\"</code> is never a trie key, so a neighbour check against it fails automatically.</p>", "diagram": "  exploring \"c\" -> \"a\" -> \"t\":\n      # # #\n      o d e     the top row is temporarily blocked\n      r n s"}, {"code": "            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nr, nc = r + dr, c + dc\n                if 0 &lt;= nr &lt; rows and 0 &lt;= nc &lt; cols and board[nr][nc] in node:\n                    dfs(nr, nc, node)", "explain": "<p>Try the four neighbours, but only step onto one whose letter continues some word in the trie. This is the trie doing the pruning: most of the grid is never explored because nothing in the word list starts that way.</p>", "diagram": "  from (0,2) \"t\" with node = {\"s\": {...}}:\n    (1,2) \"e\" in node? no\n    (0,1) \"#\" in node? no   -> no recursion, \"cats\" is dead\n\n  from (1,0) \"o\" (via \"c\") with node = {\"d\": ..., \"r\": ...}:\n    (2,0) \"r\" in node -> dfs -> (2,1) \"n\" -> \"corn\"\n    (1,1) \"d\" in node -> dfs -> (1,2) \"e\" -> \"code\""}, {"code": "            board[r][c] = ch", "explain": "<p>Backtrack: restore the letter so other paths can use this cell. The DFS leaves the board exactly as it found it.</p>", "diagram": "  after returning from (0,2): board[0][2] = \"t\" again\n      c a t\n      o d e\n      r n s"}, {"code": "            if not node:\n                parent.pop(ch)", "explain": "<p>Prune. If this trie node has no children left and no word marker, nothing below it can ever be found again, so unlink it from its parent. Over time the trie shrinks to just the words still outstanding, and once it is empty every later DFS stops at the first check.</p>", "diagram": "  after \"cat\" and the failed \"cats\" search: node for \"t\" still\n  holds {\"s\": ...}, so it stays.\n  after \"rod\" is found: node for \"d\" is {} -> pop \"d\" from \"o\"\n  then \"o\" is {} -> popped from \"r\"; \"r\" is {} -> popped from root"}, {"code": "        for r in range(rows):\n            for c in range(cols):\n                if board[r][c] in root:\n                    dfs(r, c, root)\n        return found", "explain": "<p>Start a search from every cell whose letter is a first letter of some remaining word. Cells like <code>\"d\"</code> or <code>\"s\"</code> in the example are skipped outright. Return the collected words.</p>", "diagram": "  (0,0) \"c\" in root -> dfs -> finds \"corn\", \"code\", \"cat\"\n  (0,1) \"a\" not in root -> skip\n  (0,2) \"t\" in root -> \"e\" at (1,2) -> no \"n\" next to it -> dead\n  (2,0) \"r\" in root -> \"o\" at (1,0) -> \"d\" at (1,1) -> finds \"rod\"\n  found = [\"corn\", \"code\", \"cat\", \"rod\"]"}]}}};
+
+var lang = DATA.order[0], idx = 0;
+var codecol=document.getElementById("codecol"), panel=document.getElementById("panel"), introEl=document.getElementById("intro");
+function renderCode(){
+  var L=DATA.langs[lang]; introEl.innerHTML = L.intro || "";
+  var html="";
+  L.blocks.forEach(function(b,i){
+    var clickable = b.explain!==null;
+    html += '<button class="blk'+(clickable?'':' static')+(clickable&&i===idx?' on':'')+'" data-i="'+i+'"'+(clickable?'':' tabindex="-1"')+'>'+b.code+'</button>';
+  });
+  codecol.innerHTML=html;
+  codecol.querySelectorAll(".blk").forEach(function(el){
+    if(el.classList.contains("static")) return;
+    el.onclick=function(){ idx=+el.dataset.i; renderCode(); renderPanel(); };
+  });
+}
+function renderPanel(){
+  var L=DATA.langs[lang], b=L.blocks[idx];
+  if(!b || b.explain===null){ panel.innerHTML='<div class="hint">Select a line of code to see what it does.</div>'; return; }
+  var n=L.blocks.filter(function(x){return x.explain!==null;}).length;
+  var c=0; for(var i=0;i<=idx;i++){ if(L.blocks[i].explain!==null) c++; }
+  var html='<div class="step">Step '+c+' of '+n+'</div><div class="exp">'+b.explain+'</div>';
+  if(b.diagram) html+='<pre class="ascii">'+b.diagram.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</pre>';
+  panel.innerHTML=html;
+}
+document.addEventListener("keydown",function(e){
+  if(e.key!=="ArrowDown"&&e.key!=="ArrowUp") return;
+  var L=DATA.langs[lang], n=L.blocks.length, d=e.key==="ArrowDown"?1:-1, j=idx;
+  for(var k=0;k<n;k++){ j=(j+d+n)%n; if(L.blocks[j].explain!==null){ idx=j; break; } }
+  renderCode(); renderPanel(); e.preventDefault();
+});
+var KEY="leetcode-progress", slug=DATA.slug;
+function loadP(){try{return JSON.parse(localStorage.getItem(KEY)||"{}");}catch(e){return {};}}
+var st=document.getElementById("status");
+function paintStatus(){ var s=loadP()[slug]||"todo"; st.querySelectorAll("button").forEach(function(b){ b.classList.toggle("on", b.dataset.s===s); }); }
+st.querySelectorAll("button").forEach(function(b){ b.onclick=function(){ var p=loadP(); p[slug]=b.dataset.s; try{localStorage.setItem(KEY, JSON.stringify(p));}catch(e){} paintStatus(); }; });
+paintStatus();
+renderCode(); renderPanel();
+</script></body></html>
